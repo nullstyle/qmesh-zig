@@ -29,7 +29,12 @@ distributed systems. It is **not** an actor runtime.
 - [x] Scenario tests: 2-node join, 20-node bootstrap, 30% kill +
       heal, partition split + re-merge, 5% loss, pause/resume,
       byte-identical determinism across runs
-- [ ] quic session adapter (real `quic.Server`/`Client` transport)
+- [x] QUIC session adapter (`qmesh_quic` module): Endpoint/SessionManager
+      over real `quic.Server` + `quic.Client`, session HELLO identity
+      resolution, DATAGRAM/stream class mapping, simultaneous-dial
+      tiebreak, close handling via the will-close hook — two-node JOIN
+      and close-demotion tests over `quic.testing.Loopback` with real
+      mutual TLS (vendored test PKI)
 - [ ] SWIM + Lifeguard membership & failure detection
 - [ ] Plumtree eager/lazy dissemination
 - [ ] Anti-entropy reconciliation
@@ -45,18 +50,26 @@ distributed systems. It is **not** an actor runtime.
 │   Node(T)     driver: decode → handle → effects  │
 │   Transport   minimal send/connect contract      │
 ├──────────────────┬───────────────────────────────┤
-│ qmesh_sim        │ quic adapter (next)           │
-│  virtual world   │ quic.Server/Client sessions   │
+│ qmesh_sim        │ qmesh_quic                    │
+│  virtual world   │ Endpoint: Server + dials,     │
+│  (deterministic) │ HELLO identity, sessions      │
 ├──────────────────┴───────────────────────────────┤
 │                quic-zig (transport)              │
 └──────────────────────────────────────────────────┘
 ```
 
-Dependency direction is strictly `qmesh -> quic`. The library core
-(`src/`) currently does not import quic at all: protocol cores are
-pure, and the only quic reference is `tests/quic_boundary_test.zig`,
-which pins the API surface the upcoming adapter builds against so
-quic-zig drift fails this project's build, in this repo, with a clear
+Dependency direction is strictly `qmesh -> quic`, split across two
+modules: the library core (`qmesh`, src/) stays quic-free (pure
+protocol cores, runs in the simulator without BoringSSL), and
+`qmesh_quic` (src/quic/) is the real transport — an `Endpoint`
+(SessionManager) owning one `quic.Server` for inbound plus one
+`quic.Client` per dial, implementing the transport contract: DATAGRAM
+for `ephemeral` frames, one length-prefixed uni-stream write per
+`reliable` frame. Session identity resolves via the HELLO protocol
+(0x00) until quic-zig exposes certificate digests; simultaneous dials
+tiebreak to exactly one connection (lower PeerId's dial wins).
+`tests/quic_boundary_test.zig` pins the quic API surface the adapter
+uses, so quic-zig drift fails this project's build with a clear
 message.
 
 ### The purity discipline
@@ -175,6 +188,11 @@ that file authoritative as items land:
    64 KiB). Fine for qmesh's steady state; the adapter just needs to
    count-and-drop on `DatagramQueueFull` like any transport failure.
    Documented, not a gap requiring change.
+5. **`streamInitiatedByLocal` is not a `Connection` method.** The
+   helper exists in `Connection/streams.zig` but is not thunked onto
+   the embedder surface, so the adapter derives locality from
+   `conn.role` + the stream-id initiator bit. Trivial ergonomics gap;
+   noted in the session brief.
 
 Non-gaps worth noting: RTT (`pathStats(.srtt_us)`), close-cause
 classification (`CloseEvent`/`CloseSource` — maps cleanly onto

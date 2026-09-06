@@ -48,6 +48,16 @@ pub fn build(b: *std.Build) !void {
     });
     const quic_mod = quic_dep.module("quic");
 
+    // `qmesh_quic` is the real-QUIC transport: a separate module so the
+    // core + simulator never compile against quic/BoringSSL.
+    const qmesh_quic_mod = b.addModule("qmesh_quic", .{
+        .root_source_file = b.path("src/quic/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    qmesh_quic_mod.addImport("qmesh", qmesh_mod);
+    qmesh_quic_mod.addImport("quic", quic_mod);
+
     // --- test steps ------------------------------------------------------
 
     const test_step = b.step("test", "Run qmesh tests (unit + sim + quic boundary)");
@@ -76,4 +86,18 @@ pub fn build(b: *std.Build) !void {
     const boundary_tests = b.addTest(.{ .root_module = boundary_tests_mod });
     const run_boundary_tests = b.addRunArtifact(boundary_tests);
     test_step.dependOn(&run_boundary_tests.step);
+
+    // Milestone-2 acceptance: real mesh sessions over quic.testing
+    // Loopback, real mTLS with the vendored test PKI.
+    const session_tests_mod = b.createModule(.{
+        .root_source_file = b.path("tests/quic_session_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    session_tests_mod.addImport("qmesh", qmesh_mod);
+    session_tests_mod.addImport("quic", quic_mod);
+    session_tests_mod.addImport("qmesh_quic", qmesh_quic_mod);
+    const session_tests = b.addTest(.{ .root_module = session_tests_mod });
+    const run_session_tests = b.addRunArtifact(session_tests);
+    test_step.dependOn(&run_session_tests.step);
 }

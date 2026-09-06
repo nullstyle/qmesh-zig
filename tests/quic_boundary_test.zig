@@ -77,8 +77,26 @@ test "server: embedder-owned loop integration points" {
     try std.testing.expect(@hasField(quic.Server.Slot, "conn"));
     try std.testing.expect(@hasField(quic.Server.Slot, "peer_addr"));
     try std.testing.expect(@hasField(quic.Server.Slot, "user_data"));
+    try std.testing.expect(@hasField(quic.Server.Slot, "slot_id"));
     // Client dial returns a full Connection.
     try std.testing.expect(@hasField(quic.Client, "conn"));
+}
+
+test "adapter surface exercised by the session layer" {
+    // Pinned by src/quic/endpoint.zig — drift here breaks the adapter,
+    // not just the tests.
+    try std.testing.expect(@hasField(quic.Connection, "role"));
+    try std.testing.expect(@hasDecl(quic.Connection, "close"));
+    try std.testing.expect(@hasDecl(quic.Connection, "negotiatedAlpn"));
+    // Pre-destruction notification used for server-side session
+    // teardown (connection memory belongs to the Server's lifecycle).
+    try std.testing.expect(@hasField(quic.Server.Config, "on_connection_will_close"));
+    try std.testing.expect(@hasField(quic.Server.Config, "on_connection_will_close_user_data"));
+    // Inbound stream discovery on connections.
+    try std.testing.expect(@hasDecl(quic.Connection, "streamIterator"));
+    // In-memory harness the two-node JOIN acceptance test rides on.
+    try std.testing.expect(@hasDecl(quic.testing.Loopback, "handshake"));
+    try std.testing.expect(@hasDecl(quic.testing.Loopback, "step"));
 }
 
 test "transport params: datagram + stream budgets exist" {

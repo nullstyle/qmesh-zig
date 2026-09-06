@@ -112,6 +112,15 @@ when the cert's SAN/CN does not match `server_name` but the chain
 validates; it fails when the chain does not validate; `.none` without
 `ca_pem` returns `InvalidConfig`.
 
+## 4. Expose `streamInitiatedByLocal` on `Connection` (trivial)
+
+`Connection/streams.zig` has `streamInitiatedByLocal(conn, id)` but it
+is not thunked onto the embedder-visible `Connection` method surface,
+so the qmesh adapter classifies inbound streams via `conn.role` +
+the stream-id initiator bit (RFC 9000 §2.1). Works fine; a one-line
+thunk would make the intent explicit for every embedder that
+multiplexes its own streams with peer streams.
+
 ## 3. Handshake-completion notification (optional, non-blocking)
 
 Server-side embedders currently discover new connections by diffing
