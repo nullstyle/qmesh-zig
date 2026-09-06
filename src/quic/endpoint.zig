@@ -66,6 +66,8 @@ pub const Options = struct {
     overlay_cfg: qmesh.OverlayConfig = .{},
     swim_cfg: qmesh.swim.Config = .{},
     broadcast_cfg: qmesh.plumtree.Config = .{},
+    /// Application delivery callbacks (see Node.Hooks).
+    hooks: MeshNode.Hooks = .{},
     rng_seed: u64 = 0,
     now_us: u64 = 0,
 };
@@ -103,6 +105,9 @@ const Session = struct {
     dial_addr: quic.Address = .unspecified,
     slot_id: ?u64 = null,
     hello_sent: bool = false,
+    /// Set once the owning loop advanced this dial's handshake flight
+    /// (Loopback.handshake / a socket loop does this; see connectPeer).
+    advanced: bool = false,
     /// Per-stream length-prefix decoders. Streams may interleave, so
     /// decoder state is per stream id, never per session.
     stream_rx: [max_rx_streams]StreamRx = undefined,
@@ -131,6 +136,7 @@ pub const Endpoint = struct {
     by_peer: std.AutoHashMapUnmanaged(PeerId, *Session) = .empty,
 
     datagram_buf: [1500]u8 = undefined,
+    dead_close_scratch: [16]*Session = undefined,
     stream_buf: [4096]u8 = undefined,
     frame_buf: [frame.max_frame_len]u8 = undefined,
     stream_msg_buf: [frame.stream.max_stream_message]u8 = undefined,
@@ -154,7 +160,7 @@ pub const Endpoint = struct {
             opts.self,
             .{ .overlay = opts.overlay_cfg, .swim = opts.swim_cfg, .broadcast = opts.broadcast_cfg },
             &e.transport,
-            .{}, // broadcast deliveries not surfaced yet: the app layer brings its own hooks
+            opts.hooks,
         );
         return e;
     }
@@ -365,6 +371,26 @@ pub const Endpoint = struct {
         if (e.node.nextDeadline()) |d| {
             if (d <= e.now_us) e.node.tick();
         }
+
+        // SWIM-confirmed-dead peers lose their transport: close the
+        // session (idempotent with the node's own demotion sweep).
+        // Without this, a crashed peer's connection sits idle until
+        // the QUIC idle timeout while the overlay has already
+        // declared it dead.
+        var it = e.by_peer.iterator();
+        const dead_peers = &e.dead_close_scratch;
+        var dead_len: usize = 0;
+        while (it.next()) |entry| {
+            if (e.node.swim.stateOf(entry.key_ptr.*) == .dead) {
+                if (dead_len < dead_peers.len) {
+                    dead_peers[dead_len] = entry.value_ptr.*;
+                    dead_len += 1;
+                }
+            }
+        }
+        for (dead_peers[0..dead_len]) |s| {
+            e.closeSession(s, .reset);
+        }
     }
 
     /// Service one session. Closed sessions stay on their records (the
@@ -481,24 +507,24 @@ pub const Endpoint = struct {
         return dec;
     }
 
-    /// Route one whole frame by protocol byte.
+    /// Route one whole frame by protocol byte: HELLO is transport-
+    /// local; everything else goes to the node driver, which demuxes
+    /// overlay / swim / broadcast and counts unknown protocols.
     fn ingress(e: *Self, s: *Session, bytes: []const u8) void {
         const h = frame.decodeHeader(bytes) catch {
             e.stats.frames_unresolved += 1;
             return;
         };
-        switch (h.header.protocol) {
-            hello_mod.proto_id => e.handleHello(s, bytes),
-            qmesh.hyparview.proto_id => {
-                const peer = s.peer orelse {
-                    // Overlay traffic before identity resolution.
-                    e.stats.frames_unresolved += 1;
-                    return;
-                };
-                e.node.handleWire(peer, bytes);
-            },
-            else => e.stats.frames_unresolved += 1,
+        if (h.header.protocol == hello_mod.proto_id) {
+            e.handleHello(s, bytes);
+            return;
         }
+        const peer = s.peer orelse {
+            // Protocol traffic before identity resolution.
+            e.stats.frames_unresolved += 1;
+            return;
+        };
+        e.node.handleWire(peer, bytes);
     }
 
     /// The HELLO is an ADDRESS hint, not an identity claim: identity

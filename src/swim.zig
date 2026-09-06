@@ -723,6 +723,23 @@ pub const Swim = struct {
         _ = rng; // uniform with overlay.handle; SWIM's handlers are rng-free
         switch (msg) {
             .ping => |m| {
+                // Direct-evidence resurrection (mirror of the ack
+                // override in `.ack`): a PING we can authenticate from
+                // a member our table holds CONFIRMed dead is live-now
+                // evidence that outranks the stale gossip. This is
+                // what makes healed partitions and resumed pauses
+                // recover fast in BOTH directions — without it, each
+                // side must wait for its own slow dead-probe rotation.
+                if (s.find(from)) |i| {
+                    if (s.members[i].state == .dead) {
+                        const ev: Event = .{ .alive = .{
+                            .desc = s.members[i].desc,
+                            .incarnation = s.members[i].incarnation + 1,
+                        } };
+                        _ = s.apply(ev, now);
+                        s.disseminate(ev);
+                    }
+                }
                 for (m.events) |ev| s.applyEventFrom(from, ev, now, out);
                 const events = s.takePiggyback(s.cfg.piggyback_max);
                 out.push(.{ .send = .{

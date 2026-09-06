@@ -87,6 +87,19 @@ pub fn build(b: *std.Build) !void {
     const run_boundary_tests = b.addRunArtifact(boundary_tests);
     test_step.dependOn(&run_boundary_tests.step);
 
+    // Multi-node mesh over real UDP sockets (embedder-owned loop).
+    const mesh_tests_mod = b.createModule(.{
+        .root_source_file = b.path("tests/quic_mesh_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    mesh_tests_mod.addImport("qmesh", qmesh_mod);
+    mesh_tests_mod.addImport("quic", quic_mod);
+    mesh_tests_mod.addImport("qmesh_quic", qmesh_quic_mod);
+    const mesh_tests = b.addTest(.{ .root_module = mesh_tests_mod });
+    const run_mesh_tests = b.addRunArtifact(mesh_tests);
+    test_step.dependOn(&run_mesh_tests.step);
+
     // Milestone-2 acceptance: real mesh sessions over quic.testing
     // Loopback, real mTLS with the vendored test PKI.
     const session_tests_mod = b.createModule(.{

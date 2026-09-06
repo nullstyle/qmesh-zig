@@ -420,7 +420,13 @@ pub const Plumtree = struct {
             },
             .exchange => |m| {
                 for (m.items) |id| p.noteIhave(from, id, now);
-                if (!m.reply and (p.inEager(from) != null or p.inLazy(from) != null)) {
+                // Reply regardless of tree membership: anti-entropy is
+                // the BACKSTOP for peers the tree has dropped (paused
+                // nodes, healed partitions) — gating the reply on
+                // eager/lazy membership would refuse repair to exactly
+                // the peers who need it. The transport drops sends
+                // without a session, which is the real boundary.
+                if (!m.reply) {
                     const items = p.recentIds(&p.emit_ids2);
                     out.push(.{ .send = .{
                         .to = from,
@@ -705,15 +711,17 @@ pub const Plumtree = struct {
                     p.eager[pick]
                 else
                     p.lazy[pick - p.eager_len];
+                // Zero-item exchanges are a pure PULL ("tell me what
+                // you have") — a node whose cache is empty (fresh
+                // boot, long pause) has nothing to offer but still
+                // needs to learn.
                 const items = p.recentIds(&p.emit_ids);
-                if (items.len > 0) {
-                    out.push(.{ .send = .{
-                        .to = dest,
-                        .msg = .{ .exchange = .{ .reply = false, .items = items } },
-                        .class = .ephemeral,
-                    } });
-                    p.stats.exchanges_sent += 1;
-                }
+                out.push(.{ .send = .{
+                    .to = dest,
+                    .msg = .{ .exchange = .{ .reply = false, .items = items } },
+                    .class = .ephemeral,
+                } });
+                p.stats.exchanges_sent += 1;
             }
         }
     }

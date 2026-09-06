@@ -235,13 +235,22 @@ pub fn Node(comptime Transport: type) type {
             self.syncBroadcastPeers();
 
             // Cross-protocol coupling (partition recovery included):
-            // confirmed-dead members leave the overlay's passive view;
-            // alive members with dialable addresses the views have
-            // forgotten re-enter it. Both idempotent — the full sweep
-            // is the honest cheap thing.
+            // confirmed-dead members leave the overlay entirely (their
+            // active edge demotes as if the session dropped — the
+            // transport layer closes the connection when SWIM
+            // confirms; see Endpoint.service) and the broadcast tree
+            // drops them; alive members with dialable addresses the
+            // views have forgotten re-enter the passive view. All
+            // idempotent — the full sweep is the honest cheap thing.
             for (self.swim.memberSlice()) |m| {
                 switch (m.state) {
-                    .dead => self.overlay.purge(m.desc.id),
+                    .dead => {
+                        if (self.overlay.inActive(m.desc.id) != null) {
+                            self.overlay.onSessionDown(m.desc.id, now);
+                        }
+                        self.overlay.purge(m.desc.id);
+                        self.broadcast.removePeer(m.desc.id);
+                    },
                     .alive => {
                         if (m.desc.addr != .none and
                             self.overlay.inActive(m.desc.id) == null and

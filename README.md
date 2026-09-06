@@ -56,7 +56,16 @@ distributed systems. It is **not** an actor runtime.
 - [x] Anti-entropy: recent-window EXCHANGE of message ids (two-message
       termination) pulling gaps through the normal IWANT repair — the
       simplest provable reconciliation; the exchange payload is the
-      seam for Rateless IBLT later
+      seam for Rateless IBLT later. Exchanges are pure PULLs when the
+      cache is empty (fresh boots / long pauses must still learn), and
+      replies are not gated on tree membership (anti-entropy is the
+      backstop for peers the tree dropped).
+- [x] Four-node mesh over REAL UDP sockets (tests/quic_mesh_test.zig):
+      an embedder-owned socket loop (the production integration
+      shape), real mTLS with per-node certs, cert-bound identity,
+      JOIN bootstrap convergence, cluster-wide broadcast, and SWIM
+      crash detection + session eviction when a node dies without a
+      goodbye.
 
 ## Architecture
 
