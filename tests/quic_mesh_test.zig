@@ -278,7 +278,16 @@ test "twelve-node mesh over real UDP: bootstrap, broadcast, mass crash, recovery
             k += 1;
         }
     }
-    try testing.expect(overlayConnected(&f, &survivors));
+    // Survivors re-connect: mass eviction leaves holes that promotion
+    // refills over seconds — assert the heal, not the instant state.
+    const Healed = struct {
+        f: *Fleet,
+        survivors: []const usize,
+        fn ok(c: @This()) bool {
+            return overlayConnected(c.f, c.survivors);
+        }
+    };
+    try f.runUntil(25_000, Healed{ .f = &f, .survivors = &survivors }, Healed.ok);
     try testing.expect(f.broadcast(1, "after-crash"));
     // Post-crash delivery to a strong majority of survivors. All-8
     // under a fixed wall window is a timing lottery over IHAVE/IWANT

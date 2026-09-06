@@ -25,6 +25,7 @@ pub const effects = @import("effects.zig");
 pub const session = @import("session.zig");
 pub const hyparview = @import("hyparview.zig");
 pub const swim = @import("swim.zig");
+pub const profiles = @import("profiles.zig");
 pub const plumtree = @import("plumtree.zig");
 pub const node = @import("node.zig");
 
@@ -49,5 +50,6 @@ test {
     _ = hyparview;
     _ = swim;
     _ = plumtree;
+    _ = profiles;
     _ = node;
 }
