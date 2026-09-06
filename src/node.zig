@@ -55,6 +55,7 @@ const peer_mod = @import("peer.zig");
 const frame = @import("frame.zig");
 const hv = @import("hyparview.zig");
 const swim_mod = @import("swim.zig");
+const plum_mod = @import("plumtree.zig");
 
 const PeerId = peer_mod.PeerId;
 const PeerDesc = peer_mod.PeerDesc;
@@ -66,6 +67,20 @@ pub fn Node(comptime Transport: type) type {
         pub const Config = struct {
             overlay: hv.Config = .{},
             swim: swim_mod.Config = .{},
+            broadcast: plum_mod.Config = .{},
+        };
+
+        /// Driver-level application callbacks. The cores stay pure;
+        /// deliveries surface here, with payload slices valid for the
+        /// duration of the call only.
+        pub const Hooks = struct {
+            ctx: ?*anyopaque = null,
+            onBroadcast: ?*const fn (
+                ctx: ?*anyopaque,
+                origin: PeerId,
+                seq: u64,
+                payload: []const u8,
+            ) void = null,
         };
 
         pub const Stats = struct {
@@ -82,20 +97,26 @@ pub fn Node(comptime Transport: type) type {
         transport: *Transport,
         overlay: hv.Overlay,
         swim: swim_mod.Swim,
+        broadcast: plum_mod.Plumtree,
+        hooks: Hooks = .{},
         stats: Stats = .{},
 
         decode_scratch: hv.DecodeScratch = .{},
         swim_scratch: swim_mod.DecodeScratch = .{},
+        plum_scratch: plum_mod.DecodeScratch = .{},
         enc_buf: [frame.max_frame_len]u8 = undefined,
         fx: hv.Effects = .{},
         swim_fx: swim_mod.Effects = .{},
+        plum_fx: plum_mod.Effects = .{},
 
-        pub fn init(self_desc: PeerDesc, cfg: Config, transport: *Transport) Self {
+        pub fn init(self_desc: PeerDesc, cfg: Config, transport: *Transport, hooks: Hooks) Self {
             const now = transport.now();
             return .{
                 .transport = transport,
                 .overlay = hv.Overlay.init(self_desc, cfg.overlay, now),
                 .swim = swim_mod.Swim.init(self_desc, cfg.swim, now),
+                .broadcast = plum_mod.Plumtree.init(self_desc.id, cfg.broadcast, now),
+                .hooks = hooks,
             };
         }
 
@@ -132,6 +153,7 @@ pub fn Node(comptime Transport: type) type {
                     self.fx.clear();
                     self.overlay.handle(from, msg, self.transport.now(), self.transport.rng(), &self.fx);
                     self.applyFx(hv.Msg, hv.encode, &self.fx);
+                    self.syncBroadcastPeers();
                 },
                 swim_mod.proto_id => {
                     const msg = swim_mod.decode(bytes, &self.swim_scratch) catch {
@@ -142,8 +164,28 @@ pub fn Node(comptime Transport: type) type {
                     self.swim.handle(from, msg, self.transport.now(), self.transport.rng(), &self.swim_fx);
                     self.applyFx(swim_mod.Msg, swim_mod.encode, &self.swim_fx);
                 },
+                plum_mod.proto_id => {
+                    const msg = plum_mod.decode(bytes, &self.plum_scratch) catch {
+                        self.stats.decode_errors += 1;
+                        return;
+                    };
+                    self.plum_fx.clear();
+                    self.broadcast.handle(from, msg, self.transport.now(), &self.plum_fx);
+                    self.applyFx(plum_mod.Msg, plum_mod.encode, &self.plum_fx);
+                    self.drainDeliveries();
+                },
                 else => self.stats.unknown_protocol += 1,
             }
+        }
+
+        /// Broadcast a payload cluster-wide (eager/lazy tree). Returns
+        /// null when the payload exceeds the frame budget.
+        pub fn publish(self: *Self, payload: []const u8) ?plum_mod.MsgId {
+            if (payload.len > plum_mod.max_payload) return null;
+            self.plum_fx.clear();
+            const msg_id = self.broadcast.publish(payload, self.transport.now(), &self.plum_fx);
+            self.applyFx(plum_mod.Msg, plum_mod.encode, &self.plum_fx);
+            return msg_id;
         }
 
         pub fn onSessionUp(self: *Self, peer: PeerId) void {
@@ -160,8 +202,10 @@ pub fn Node(comptime Transport: type) type {
         pub fn onSessionDown(self: *Self, peer: PeerId) void {
             self.stats.sessions_down += 1;
             // Session loss is an overlay concern; SWIM owns liveness
-            // separately (a dropped session ≠ a dead member).
+            // separately (a dropped session ≠ a dead member). The
+            // broadcast tree loses the peer with the connection.
             self.overlay.onSessionDown(peer, self.transport.now());
+            self.broadcast.removePeer(peer);
         }
 
         /// Advance all protocol timers whose deadlines have passed on
@@ -179,6 +223,16 @@ pub fn Node(comptime Transport: type) type {
             self.swim_fx.clear();
             self.swim.tick(now, rng, &self.swim_fx);
             self.applyFx(swim_mod.Msg, swim_mod.encode, &self.swim_fx);
+
+            self.plum_fx.clear();
+            self.broadcast.tick(now, rng, &self.plum_fx);
+            self.applyFx(plum_mod.Msg, plum_mod.encode, &self.plum_fx);
+
+            // The broadcast tree rides the overlay's active view: new
+            // actives join (eager first, duplicates trim), departed
+            // actives leave. Done here and after overlay ingress so
+            // both sides of a membership change converge quickly.
+            self.syncBroadcastPeers();
 
             // Cross-protocol coupling (partition recovery included):
             // confirmed-dead members leave the overlay's passive view;
@@ -204,11 +258,52 @@ pub fn Node(comptime Transport: type) type {
         /// Soonest armed protocol deadline on the transport clock, for
         /// the driver loop's sleep calculation.
         pub fn nextDeadline(self: *const Self) ?u64 {
-            const a = self.overlay.nextDeadline();
-            const b = self.swim.nextDeadline();
-            if (a == null) return b;
-            if (b == null) return a;
-            return @min(a.?, b.?);
+            var best: ?u64 = null;
+            for ([_]?u64{
+                self.overlay.nextDeadline(),
+                self.swim.nextDeadline(),
+                self.broadcast.nextDeadline(),
+            }) |d| {
+                if (d) |v| {
+                    if (best == null or v < best.?) best = v;
+                }
+            }
+            return best;
+        }
+
+        fn syncBroadcastPeers(self: *Self) void {
+            const now = self.transport.now();
+            for (self.overlay.activeSlice()) |e| {
+                self.broadcast.addPeer(e.desc.id, now);
+            }
+            var i: usize = 0;
+            while (i < self.broadcast.eager_len) {
+                const peer = self.broadcast.eagerSlice()[i];
+                if (self.overlay.inActive(peer) != null) {
+                    i += 1;
+                    continue;
+                }
+                self.broadcast.removePeer(peer);
+            }
+            i = 0;
+            while (i < self.broadcast.lazy_len) {
+                const peer = self.broadcast.lazySlice()[i];
+                if (self.overlay.inActive(peer) != null) {
+                    i += 1;
+                    continue;
+                }
+                self.broadcast.removePeer(peer);
+            }
+        }
+
+        fn drainDeliveries(self: *Self) void {
+            if (self.hooks.onBroadcast) |cb| {
+                for (self.broadcast.takeDeliveries()) |d| {
+                    cb(self.hooks.ctx, d.id.origin, d.id.seq, d.payload);
+                }
+            } else {
+                _ = self.broadcast.takeDeliveries();
+            }
         }
 
         fn applyFx(
@@ -289,7 +384,7 @@ test "node drives overlay over a fake transport" {
     const me = PeerDesc{ .id = PeerId.fromRandom(prng1.random()), .addr = peer_mod.Addr.sim(1) };
     const contact = PeerDesc{ .id = PeerId.fromRandom(prng2.random()), .addr = peer_mod.Addr.sim(2) };
 
-    var node = Node(FakeTransport).init(me, .{}, &transport);
+    var node = Node(FakeTransport).init(me, .{}, &transport, .{});
     node.startJoin(contact);
 
     // JOIN (reliable) + connect emitted; the wire bytes decode back.
@@ -355,7 +450,7 @@ test "node multiplexes swim beside the overlay and purges on confirm" {
     const me = PeerDesc{ .id = PeerId.fromRandom(prng1.random()), .addr = peer_mod.Addr.sim(1) };
     const victim = PeerDesc{ .id = PeerId.fromRandom(prng2.random()), .addr = peer_mod.Addr.sim(2) };
 
-    var node = Node(FakeTransport).init(me, .{}, &transport);
+    var node = Node(FakeTransport).init(me, .{}, &transport, .{});
 
     // Session up: SWIM observes the member.
     node.onSessionUp(victim.id);

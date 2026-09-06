@@ -64,6 +64,7 @@ pub const World = struct {
     seed: u64,
     overlay_cfg: qmesh.OverlayConfig,
     swim_cfg: qmesh.swim.Config,
+    broadcast_cfg: qmesh.plumtree.Config,
     policy: Policy,
 
     now_us: u64 = 0,
@@ -88,10 +89,14 @@ pub const World = struct {
     sessions: Sessions,
     stats: WorldStats = .{},
 
+    /// Per-node broadcast delivery logs (assertion surface for
+    /// scenarios; production embedders bring their own hooks).
+    logs: std.ArrayListUnmanaged(*DeliveryLog) = .empty,
+
     /// Scratch for nodeActiveIds; not part of world state.
     active_ids_scratch: std.ArrayListUnmanaged(PeerId) = .empty,
 
-    pub fn init(allocator: std.mem.Allocator, seed: u64, overlay_cfg: qmesh.OverlayConfig, swim_cfg: qmesh.swim.Config, policy: Policy) Self {
+    pub fn init(allocator: std.mem.Allocator, seed: u64, overlay_cfg: qmesh.OverlayConfig, swim_cfg: qmesh.swim.Config, broadcast_cfg: qmesh.plumtree.Config, policy: Policy) Self {
         var s1 = std.Random.SplitMix64.init(seed ^ 0x1234_5678_9abc_def1);
         var s2 = std.Random.SplitMix64.init(seed ^ 0x0fed_cba9_8765_4321);
         return .{
@@ -99,6 +104,7 @@ pub const World = struct {
             .seed = seed,
             .overlay_cfg = overlay_cfg,
             .swim_cfg = swim_cfg,
+            .broadcast_cfg = broadcast_cfg,
             .policy = policy,
             .net_rng = std.Random.DefaultPrng.init(s1.next()),
             .scen_rng = std.Random.DefaultPrng.init(s2.next()),
@@ -111,6 +117,11 @@ pub const World = struct {
         for (w.nodes.items) |sn| {
             w.allocator.destroy(sn);
         }
+        for (w.logs.items) |log| {
+            log.items.deinit(w.allocator);
+            w.allocator.destroy(log);
+        }
+        w.logs.deinit(w.allocator);
         w.nodes.deinit(w.allocator);
         w.descs.deinit(w.allocator);
         w.index.deinit(w.allocator);
@@ -151,7 +162,18 @@ pub const World = struct {
             .transport = .{ .world = w, .idx = idx },
             .node = undefined,
         };
-        sn.node = qmesh.node.Node(SimTransport).init(desc, .{ .overlay = w.overlay_cfg, .swim = w.swim_cfg }, &sn.transport);
+        // Per-node delivery log, fed by the node's broadcast hook.
+        const log = try w.allocator.create(DeliveryLog);
+        errdefer w.allocator.destroy(log);
+        log.* = .{ .allocator = w.allocator };
+        try w.logs.append(w.allocator, log);
+
+        sn.node = qmesh.node.Node(SimTransport).init(
+            desc,
+            .{ .overlay = w.overlay_cfg, .swim = w.swim_cfg, .broadcast = w.broadcast_cfg },
+            &sn.transport,
+            .{ .ctx = log, .onBroadcast = DeliveryLog.onBroadcast },
+        );
 
         try w.nodes.append(w.allocator, sn);
         return idx;
@@ -464,6 +486,45 @@ pub const World = struct {
         return w.active_ids_scratch.items;
     }
 
+    /// Publish a broadcast from node `idx`.
+    pub fn broadcast(w: *Self, idx: NodeId, payload: []const u8) ?qmesh.plumtree.MsgId {
+        return w.nodes.items[idx].node.publish(payload);
+    }
+
+    /// How many broadcasts node `idx` has delivered so far.
+    pub fn deliveredCount(w: *Self, idx: NodeId) usize {
+        return w.logs.items[idx].items.items.len;
+    }
+
+    /// Delivered broadcast seqs (from one origin), sorted — repair
+    /// delivery order is not publication order.
+    pub fn deliveredSeqs(w: *Self, idx: NodeId) []const u64 {
+        const log = w.logs.items[idx];
+        for (log.items.items, 0..) |*it, i| {
+            log.seq_scratch[i] = it.seq;
+        }
+        const out = log.seq_scratch[0..log.items.items.len];
+        std.mem.sort(u64, out, {}, std.sort.asc(u64));
+        return out;
+    }
+
+    /// Sum of broadcast eager-set sizes (tree-shape metric).
+    pub fn totalEagerEdges(w: *Self) usize {
+        var n: usize = 0;
+        for (w.nodes.items, 0..) |sn, i| {
+            if (w.alive.items[i]) n += sn.node.broadcast.eagerSlice().len;
+        }
+        return n;
+    }
+
+    pub fn totalDemotions(w: *Self) u64 {
+        var n: u64 = 0;
+        for (w.nodes.items, 0..) |sn, i| {
+            if (w.alive.items[i]) n += sn.node.broadcast.stats.demotions;
+        }
+        return n;
+    }
+
     /// Deterministic fingerprint of the whole world's overlay state —
     /// equal runs produce equal fingerprints.
     pub fn fingerprint(w: *Self) u64 {
@@ -485,3 +546,31 @@ pub const World = struct {
 fn peerIdLess(_: void, a: PeerId, b: PeerId) bool {
     return std.mem.order(u8, &a.bytes, &b.bytes) == .lt;
 }
+
+/// Scenario-facing broadcast delivery record: identity + payload
+/// head (payloads are call-scoped at delivery time, so we keep a
+/// bounded copy).
+pub const DeliveryLog = struct {
+    const Collected = struct {
+        origin: PeerId,
+        seq: u64,
+        len: usize,
+        head: [32]u8 = @splat(0),
+    };
+
+    allocator: std.mem.Allocator,
+    items: std.ArrayListUnmanaged(Collected) = .empty,
+    seq_scratch: [1024]u64 = undefined,
+
+    fn onBroadcast(ctx: ?*anyopaque, origin: PeerId, seq: u64, payload: []const u8) void {
+        const log: *DeliveryLog = @ptrCast(@alignCast(ctx.?));
+        var rec = Collected{
+            .origin = origin,
+            .seq = seq,
+            .len = payload.len,
+        };
+        const n = @min(payload.len, rec.head.len);
+        @memcpy(rec.head[0..n], payload[0..n]);
+        log.items.append(log.allocator, rec) catch {};
+    }
+};

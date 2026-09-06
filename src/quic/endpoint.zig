@@ -58,6 +58,7 @@ pub const Options = struct {
     dial_server_name: []const u8,
     overlay_cfg: qmesh.OverlayConfig = .{},
     swim_cfg: qmesh.swim.Config = .{},
+    broadcast_cfg: qmesh.plumtree.Config = .{},
     rng_seed: u64 = 0,
     now_us: u64 = 0,
 };
@@ -142,7 +143,12 @@ pub const Endpoint = struct {
                 .prng = std.Random.DefaultPrng.init(opts.rng_seed),
             },
         };
-        e.node = MeshNode.init(opts.self, .{ .overlay = opts.overlay_cfg, .swim = opts.swim_cfg }, &e.transport);
+        e.node = MeshNode.init(
+            opts.self,
+            .{ .overlay = opts.overlay_cfg, .swim = opts.swim_cfg, .broadcast = opts.broadcast_cfg },
+            &e.transport,
+            .{}, // broadcast deliveries not surfaced yet: the app layer brings its own hooks
+        );
         return e;
     }
 
@@ -205,6 +211,12 @@ pub const Endpoint = struct {
     /// over `node.startJoin`).
     pub fn startJoin(e: *Self, contact: PeerDesc) void {
         e.node.startJoin(contact);
+    }
+
+    /// Broadcast a payload cluster-wide. Returns null when the payload
+    /// exceeds the frame budget.
+    pub fn publish(e: *Self, payload: []const u8) ?qmesh.plumtree.MsgId {
+        return e.node.publish(payload);
     }
 
     // --- transport surface (called by QuicTransport / the node) ------

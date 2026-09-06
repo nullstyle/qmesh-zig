@@ -27,6 +27,15 @@ fn fastSwimCfg() qmesh.swim.Config {
     };
 }
 
+fn fastBroadcastCfg() qmesh.plumtree.Config {
+    return .{
+        .missing_timeout_us = 200_000,
+        .iwant_timeout_us = 500_000,
+        .ihave_flush_us = 20_000,
+        .anti_entropy_period_us = 2_000_000,
+    };
+}
+
 fn defaultCfg() qmesh.OverlayConfig {
     // Faster clocks than production defaults so scenarios exercise the
     // same state machines in less virtual time.
@@ -40,7 +49,7 @@ fn defaultCfg() qmesh.OverlayConfig {
 }
 
 test "two nodes join and hold a session-backed active edge" {
-    var world = qsim.World.init(testing.allocator, 1, defaultCfg(), fastSwimCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 1, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
     defer world.deinit();
     const a = try world.spawn();
     const b = try world.spawn();
@@ -55,7 +64,7 @@ test "two nodes join and hold a session-backed active edge" {
 }
 
 test "20-node bootstrap converges to one component, bounded views" {
-    var world = qsim.World.init(testing.allocator, 7, defaultCfg(), fastSwimCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 7, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 20) : (i += 1) _ = try world.spawn();
@@ -77,7 +86,7 @@ test "20-node bootstrap converges to one component, bounded views" {
 }
 
 test "killing 30% of nodes: survivors heal active views and stay connected" {
-    var world = qsim.World.init(testing.allocator, 11, defaultCfg(), fastSwimCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 11, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 20) : (i += 1) _ = try world.spawn();
@@ -106,7 +115,7 @@ test "killing 30% of nodes: survivors heal active views and stay connected" {
 }
 
 test "partition splits the overlay; heal re-merges through rotation" {
-    var world = qsim.World.init(testing.allocator, 23, defaultCfg(), fastSwimCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 23, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 10) : (i += 1) _ = try world.spawn();
@@ -130,7 +139,7 @@ test "partition splits the overlay; heal re-merges through rotation" {
 }
 
 test "5% datagram loss still converges (self-healing)" {
-    var world = qsim.World.init(testing.allocator, 31, defaultCfg(), fastSwimCfg(), .{ .drop_bp = 500 });
+    var world = qsim.World.init(testing.allocator, 31, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{ .drop_bp = 500 });
     defer world.deinit();
     var i: u32 = 0;
     while (i < 20) : (i += 1) _ = try world.spawn();
@@ -144,7 +153,7 @@ test "5% datagram loss still converges (self-healing)" {
 }
 
 test "paused node resumes and rejoins" {
-    var world = qsim.World.init(testing.allocator, 41, defaultCfg(), fastSwimCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 41, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 8) : (i += 1) _ = try world.spawn();
@@ -168,7 +177,7 @@ test "paused node resumes and rejoins" {
 }
 
 test "SWIM: killed members are suspected and confirmed cluster-wide" {
-    var world = qsim.World.init(testing.allocator, 77, defaultCfg(), fastSwimCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 77, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 12) : (i += 1) _ = try world.spawn();
@@ -201,10 +210,76 @@ test "SWIM: killed members are suspected and confirmed cluster-wide" {
     try testing.expect(total_suspects > 0);
 }
 
+test "broadcast reaches every reachable node exactly once; tree trims" {
+    var world = qsim.World.init(testing.allocator, 91, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
+    defer world.deinit();
+    var i: u32 = 0;
+    while (i < 12) : (i += 1) _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(20_000_000);
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+
+    const eager_before = world.totalEagerEdges();
+
+    // First broadcast: everyone (except the publisher) delivers once.
+    try testing.expect(world.broadcast(0, "announcement-1") != null);
+    try world.runFor(3_000_000);
+    for (0..12) |n| {
+        const got = world.deliveredCount(@intCast(n));
+        if (n == 0) {
+            try testing.expectEqual(@as(usize, 0), got); // no self-delivery
+        } else {
+            try testing.expectEqual(@as(usize, 1), got);
+        }
+    }
+
+    // More broadcasts from the same origin: duplicates seen via eager
+    // push trim the tree (Plumtree's whole point).
+    try testing.expect(world.broadcast(0, "announcement-2") != null);
+    try world.runFor(3_000_000);
+    try testing.expect(world.broadcast(0, "announcement-3") != null);
+    try world.runFor(3_000_000);
+    for (0..12) |n| {
+        const want: usize = if (n == 0) 0 else 3;
+        try testing.expectEqual(want, world.deliveredCount(@intCast(n)));
+    }
+    const eager_after = world.totalEagerEdges();
+    try testing.expect(eager_after < eager_before);
+    try testing.expect(world.totalDemotions() > 0);
+}
+
+test "anti-entropy repairs broadcasts a paused node missed" {
+    var world = qsim.World.init(testing.allocator, 92, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
+    defer world.deinit();
+    var i: u32 = 0;
+    while (i < 12) : (i += 1) _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(20_000_000);
+
+    // Node 5 freezes (inbound dropped, clock frozen); four broadcasts
+    // happen while it is dark.
+    try world.pause(5, 5_000_000);
+    for (1..5) |k| {
+        var buf: [32]u8 = undefined;
+        const payload = std.fmt.bufPrint(&buf, "missed-{d}", .{k}) catch unreachable;
+        try testing.expect(world.broadcast(0, payload) != null);
+        try world.runFor(500_000);
+    }
+    try testing.expectEqual(@as(usize, 0), world.deliveredCount(5));
+
+    // Resume: exchange anti-entropy discovers the gap, IWANT repair
+    // (reliable class) delivers it.
+    try world.runFor(12_000_000);
+    try testing.expectEqual(@as(usize, 4), world.deliveredCount(5));
+    // And the messages it DID get arrived intact.
+    const seqs = world.deliveredSeqs(5);
+    try testing.expectEqualSlices(u64, &.{ 1, 2, 3, 4 }, seqs);
+}
+
 test "identical seeds produce byte-identical overlay state" {
     const run = struct {
         fn f(allocator: std.mem.Allocator, out_fingerprint: *u64, out_stats: *qsim.world.WorldStats) !void {
-            var world = qsim.World.init(allocator, 0xabcdef, defaultCfg(), fastSwimCfg(), .{});
+            var world = qsim.World.init(allocator, 0xabcdef, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
             defer world.deinit();
             var i: u32 = 0;
             while (i < 12) : (i += 1) _ = try world.spawn();
