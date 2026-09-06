@@ -322,7 +322,31 @@ pub const World = struct {
     /// Advance virtual time to `until`, processing every event and node
     /// timer in deterministic total order along the way.
     pub fn runUntil(w: *Self, until: u64) !void {
+        // Standing guard: virtual time must keep flowing. If a stale
+        // protocol deadline pins the clock, dump the world and stop
+        // instead of spinning forever.
+        var stall_iters: u64 = 0;
+        var last_now: u64 = w.now_us;
         while (w.now_us < until) {
+            stall_iters += 1;
+            if (stall_iters > 200_000) {
+                if (w.now_us == last_now) {
+                    std.debug.print("CLOCK STALL at now={d} until={d}\n", .{ w.now_us, until });
+                    for (w.nodes.items, 0..) |sn, i| {
+                        var sus_dl: ?u64 = null;
+                        for (sn.node.swim.memberSlice()) |m| {
+                            if (m.state == .suspect) {
+                                const d = m.state_since_us + sn.node.swim.scaledSuspicionTimeout();
+                                if (sus_dl == null or d < sus_dl.?) sus_dl = d;
+                            }
+                        }
+                        std.debug.print("  node {d} ovl={any} swim={any} bcast={any} probe_dl={any} phase={any} sus_dl={any} probe_target_known={}\n", .{ i, sn.node.overlay.nextDeadline(), sn.node.swim.nextDeadline(), sn.node.broadcast.nextDeadline(), if (sn.node.swim.probe) |p| p.deadline_us else null, if (sn.node.swim.probe) |p| @tagName(p.phase) else null, sus_dl, true });
+                    }
+                    @panic("runUntil clock stall");
+                }
+                stall_iters = 0;
+                last_now = w.now_us;
+            }
             // Earliest node timer (world time), timers-first tie-break,
             // lowest index first.
             var best_idx: ?NodeId = null;
@@ -345,7 +369,9 @@ pub const World = struct {
             const timer_first = best_idx != null and (ev == null or best_at <= ev.?.at);
             if (timer_first) {
                 if (best_at >= until) break;
-                w.now_us = best_at;
+                // Standing invariant: virtual time never runs backward
+                // (a stale protocol deadline must not rewind the clock).
+                w.now_us = @max(w.now_us, best_at);
                 w.nodes.items[best_idx.?].node.tick();
             } else {
                 if (ev.?.at > until) break;

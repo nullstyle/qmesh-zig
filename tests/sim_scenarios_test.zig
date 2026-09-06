@@ -310,7 +310,6 @@ test "asymmetric link: indirect probing rescues one-way loss" {
 }
 
 test "fly migration pause: multi-region profile does not evict a pausing node" {
-    if (true) return error.SkipZigTest; // TODO: livelocks the sim — see below.
     // PARKED (hangs even at 15s windows): under the fly profile the
     // simulated world livelocks somewhere in this scenario (suspects:
     // a same-timestamp timer loop, or the paused node's frozen-clock

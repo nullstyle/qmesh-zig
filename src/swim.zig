@@ -524,7 +524,15 @@ pub const Swim = struct {
                 if (best == null or d < best.?) best = d;
             }
         }
-        if (best == null or s.next_probe_us < best.?) best = s.next_probe_us;
+        // Only arm the next probe START when none is in flight: a
+        // probe legitimately outlasting the period (probe_timeout +
+        // indirect_timeout > probe_period — e.g. the fly profile's
+        // 1s period vs 1.6s of probing) leaves next_probe_us in the
+        // past mid-probe, and folding it in here pins the driver's
+        // clock at a deadline no tick will advance (sim livelock).
+        if (s.probe == null) {
+            if (best == null or s.next_probe_us < best.?) best = s.next_probe_us;
+        }
         return best;
     }
 
