@@ -45,6 +45,8 @@ const Sessions = sessions_mod.Sessions;
 const SimNode = sim_node.SimNode;
 const SimTransport = sim_node.SimTransport;
 
+pub const OneWayDrop = struct { from: NodeId, to: NodeId };
+
 pub const WorldStats = struct {
     delivered: u64 = 0,
     dropped_loss: u64 = 0,
@@ -84,6 +86,9 @@ pub const World = struct {
 
     groups: std.ArrayListUnmanaged(u8) = .empty,
     blocked_pair: ?[2]u8 = null,
+    /// One-directional blackholes (src→dst dropped, reverse flows).
+    /// The brief's "asymmetric connectivity" fault.
+    one_way_drops: std.ArrayListUnmanaged(OneWayDrop) = .empty,
 
     network: Network,
     sessions: Sessions,
@@ -131,6 +136,7 @@ pub const World = struct {
         w.paused_total.deinit(w.allocator);
         w.prngs.deinit(w.allocator);
         w.groups.deinit(w.allocator);
+        w.one_way_drops.deinit(w.allocator);
         w.network.deinit();
         w.sessions.deinit();
         w.active_ids_scratch.deinit(w.allocator);
@@ -223,6 +229,19 @@ pub const World = struct {
 
     pub fn heal(w: *Self) void {
         w.blocked_pair = null;
+        w.one_way_drops.clearRetainingCapacity();
+    }
+
+    /// Drop all traffic from `from` to `to` (reverse flows unaffected).
+    pub fn blackholeOneWay(w: *Self, from: NodeId, to: NodeId) !void {
+        try w.one_way_drops.append(w.allocator, .{ .from = from, .to = to });
+    }
+
+    fn oneWayBlocked(w: *Self, from: NodeId, to: NodeId) bool {
+        for (w.one_way_drops.items) |d| {
+            if (d.from == from and d.to == to) return true;
+        }
+        return false;
     }
 
     pub fn blocked(w: *Self, a: NodeId, b: NodeId) bool {
@@ -259,7 +278,7 @@ pub const World = struct {
     /// Apply loss/delay policy and enqueue a delivery.
     pub fn sendMessage(w: *Self, src: NodeId, dst: NodeId, bytes: []const u8, reliable: bool) !void {
         const copy = try w.allocator.dupe(u8, bytes);
-        if (w.blocked(src, dst)) {
+        if (w.oneWayBlocked(src, dst) or w.blocked(src, dst)) {
             w.stats.dropped_partition += 1;
             w.allocator.free(copy);
             return;

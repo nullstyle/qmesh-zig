@@ -58,11 +58,16 @@ pub const Options = struct {
     /// Cluster CA: trust anchor for dials and the required-client-cert
     /// root on the server side.
     ca_pem: []const u8,
-    /// SNI + verification name for dials. Every cluster cert must
-    /// carry this SAN (the interim posture documented against README
-    /// gap 2: quic-zig cannot yet verify-against-CA without a name
-    /// check).
+    /// SNI + verification name for dials (routing hint only; identity
+    /// is cert-bound).
     dial_server_name: []const u8,
+    /// Deployment keys. When null, `listen` mints fresh ones from the
+    /// CSPRNG — fine for tests, WRONG for production: resets/tokens
+    /// issued before a restart stop validating. Persist these across
+    /// restarts (see quic-zig EMBEDDING.md "Required Configuration").
+    stateless_reset_key: ?[32]u8 = null,
+    retry_token_key: ?[32]u8 = null,
+    new_token_key: ?[32]u8 = null,
     overlay_cfg: qmesh.OverlayConfig = .{},
     swim_cfg: qmesh.swim.Config = .{},
     broadcast_cfg: qmesh.plumtree.Config = .{},
@@ -112,6 +117,20 @@ const Session = struct {
     /// decoder state is per stream id, never per session.
     stream_rx: [max_rx_streams]StreamRx = undefined,
     stream_rx_len: usize = 0,
+    /// Reliable sends that flow control short-wrote; flushed by the
+    /// service loop before ingress each pass.
+    outbox: [max_outbox]OutSlot = undefined,
+    outbox_len: usize = 0,
+};
+
+const max_outbox: usize = 8;
+
+const OutSlot = struct {
+    stream_id: u64,
+    len: usize,
+    offset: usize,
+    finished: bool,
+    bytes: [frame.stream.max_stream_message]u8 = undefined,
 };
 
 const max_rx_streams: usize = 16;
@@ -194,6 +213,13 @@ pub const Endpoint = struct {
         if (e.server) |srv| return srv;
         const srv = try e.allocator.create(quic.Server);
         errdefer e.allocator.destroy(srv);
+        // The reset key gates the whole §10.3 mechanism and is safe to
+        // mint fresh; Retry and NEW_TOKEN CHANGE the handshake and
+        // token flow, so they arm only when explicitly provided (the
+        // in-memory Loopback harness, for one, assumes retry-less
+        // handshakes).
+        var stateless_reset_key = e.opts.stateless_reset_key;
+        if (stateless_reset_key == null) stateless_reset_key = quic.Server.Config.mintKey() catch null;
         srv.* = try quic.Server.init(.{
             .allocator = e.allocator,
             .tls_cert_pem = e.opts.tls_cert_pem,
@@ -202,6 +228,9 @@ pub const Endpoint = struct {
             .alpn_protocols = &alpn_protocols,
             .transport_params = meshTransportParams(),
             .max_concurrent_connections = 256,
+            .stateless_reset_key = stateless_reset_key,
+            .retry_token_key = e.opts.retry_token_key,
+            .new_token_key = e.opts.new_token_key,
             .on_connection_will_close = willCloseHook,
             .on_connection_will_close_user_data = e,
             .on_handshake_complete = handshakeCompleteHook,
@@ -301,14 +330,20 @@ pub const Endpoint = struct {
     pub fn sendReliable(e: *Self, to: PeerId, bytes: []const u8) !void {
         const s = e.by_peer.get(to) orelse return error.NoSession;
         if (s.state != .established) return error.NoSession;
+        if (s.outbox_len >= max_outbox) return error.OutboxFull;
         const msg = try frame.stream.encode(bytes, &e.stream_msg_buf);
         const stream = try s.conn.openNextUni();
         const n = try s.conn.streamWrite(stream.id, msg);
-        // Frames are ≤ ~1.2 KiB against a 1 MiB initial uni window; a
-        // short write means flow-control math changed — surface it
-        // loudly rather than truncating silently.
-        std.debug.assert(n == msg.len);
-        try s.conn.streamFinish(stream.id);
+        if (n == msg.len) {
+            try s.conn.streamFinish(stream.id);
+            return;
+        }
+        // Flow control short-wrote the frame: stage the remainder and
+        // let the service loop finish it (once fully written, FIN).
+        const slot = &s.outbox[s.outbox_len];
+        slot.* = .{ .stream_id = stream.id, .len = msg.len, .offset = n, .finished = false };
+        @memcpy(slot.bytes[0..msg.len], msg);
+        s.outbox_len += 1;
     }
 
     /// Establish (or confirm) a session to `desc`. The owning loop is
@@ -423,6 +458,9 @@ pub const Endpoint = struct {
             e.bindDialSession(.{ .bytes = digest }, s);
         }
 
+        // Finish flow-control-blocked reliable sends before ingress.
+        try e.flushOutbox(s);
+
         // HELLO (address hint) as soon as the handshake completes.
         if (!s.hello_sent and s.conn.handshakeDone()) {
             try e.sendHello(s);
@@ -455,6 +493,34 @@ pub const Endpoint = struct {
             return;
         }
         e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
+    }
+
+    fn flushOutbox(e: *Self, s: *Session) !void {
+        _ = e;
+        var i: usize = 0;
+        while (i < s.outbox_len) {
+            const slot = &s.outbox[i];
+            const n = s.conn.streamWrite(slot.stream_id, slot.bytes[slot.offset..slot.len]) catch |err| switch (err) {
+                error.StreamNotFound => {
+                    // Stream reaped underneath us; drop the send.
+                    s.outbox[i] = s.outbox[s.outbox_len - 1];
+                    s.outbox_len -= 1;
+                    continue;
+                },
+                else => return err,
+            };
+            slot.offset += n;
+            if (slot.offset < slot.len) {
+                i += 1;
+                continue;
+            }
+            if (!slot.finished) {
+                s.conn.streamFinish(slot.stream_id) catch {};
+                slot.finished = true;
+            }
+            s.outbox[i] = s.outbox[s.outbox_len - 1];
+            s.outbox_len -= 1;
+        }
     }
 
     fn sendHello(e: *Self, s: *Session) !void {

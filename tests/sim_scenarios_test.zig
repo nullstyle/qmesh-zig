@@ -276,6 +276,39 @@ test "anti-entropy repairs broadcasts a paused node missed" {
     try testing.expectEqualSlices(u64, &.{ 1, 2, 3, 4 }, seqs);
 }
 
+test "asymmetric link: indirect probing rescues one-way loss" {
+    var world = qsim.World.init(testing.allocator, 55, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
+    defer world.deinit();
+    var i: u32 = 0;
+    while (i < 8) : (i += 1) _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(20_000_000);
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+
+    // One-directional blackholes between nodes 1 and 3: each side's
+    // DIRECT probes and acks toward the other are lost, but paths
+    // through the other six nodes survive in both directions. SWIM's
+    // PING_REQ indirect probing resolves the probes through relays —
+    // often before suspicion even fires — so neither side may ever
+    // CONFIRM the other dead. That is exactly the fault the indirect
+    // mechanism exists for.
+    try world.blackholeOneWay(1, 3);
+    try world.blackholeOneWay(3, 1);
+    try world.runFor(15_000_000);
+
+    for ([_]u32{ 1, 3 }) |a| {
+        const other: u32 = if (a == 1) 3 else 1;
+        const other_id = world.descs.items[other].id;
+        const st = world.nodes.items[a].node.swim.stateOf(other_id) orelse
+            return error.MemberLost;
+        try testing.expect(st != .dead);
+        // Probing really ran (the link really was exercised).
+        try testing.expect(world.nodes.items[a].node.swim.stats.probes_sent > 0);
+    }
+    // The cluster stays connected through the healthy paths.
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+}
+
 test "identical seeds produce byte-identical overlay state" {
     const run = struct {
         fn f(allocator: std.mem.Allocator, out_fingerprint: *u64, out_stats: *qsim.world.WorldStats) !void {

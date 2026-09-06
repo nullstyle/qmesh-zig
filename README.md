@@ -71,6 +71,16 @@ distributed systems. It is **not** an actor runtime.
       cert-bound identities, exactly-once cluster broadcast, a 25%
       mass crash (no goodbyes) with SWIM suspect→confirm and session
       eviction, and post-crash broadcast over the healed mesh.
+- [x] Production posture: reliable sends stage flow-control short
+      writes in a bounded per-session outbox flushed by the service
+      loop (no more full-write assertion); the reset key is minted by
+      default at listen; Retry/NEW_TOKEN arm only when deployment
+      keys are provided (they change the handshake/token flow).
+- [x] Asymmetric-link fault (sim `blackholeOneWay`) with the property
+      it exists to prove: one-directional blackholes between two
+      nodes never escalate to CONFIRMed death — SWIM's PING_REQ
+      indirect probing resolves through the healthy reverse paths,
+      often before suspicion even fires.
 
 ## Architecture
 
