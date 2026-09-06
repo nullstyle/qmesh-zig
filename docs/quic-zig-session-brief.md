@@ -1,12 +1,44 @@
 # Brief for a quic-zig session: generic APIs qmesh-zig needs for milestone 2
 
-This document is the work order handed to a quic-zig development
+STATUS (2026-09-06): **Items 1, 2, and 3 are LANDED** on quic-zig
+main, commit `720443e` (post-0.20.0, unreleased 0.21.0), backed by
+boringssl-zig 0.6.6 (`87d15bf`, repinned byte-identically in quic-zig
+and http3-zig per pin-lint). The README gap list and
+`tests/quic_boundary_test.zig` already pin the new surface. What
+remains for qmesh is the "once these land" section at the bottom.
+The original requests are kept below for the record.
+
+Landed shapes (one deviation from the implementation note in item 1:
+the digest is SHA-256 over the full DER-encoded SubjectPublicKeyInfo —
+computed via `X509_get_X509_PUBKEY` + `i2d` + SHA-256, not
+`X509_pubkey_digest`, which hashes only the key bits (OCSP KeyHash
+preimage). The SPKI-DER preimage is what the standard
+`openssl x509 -pubkey | openssl pkey -pubin -outform DER |
+openssl dgst -sha256` pipeline produces, so expected digests are
+computable with any toolchain; the KAT tests pin it against exactly
+that pipeline):
+
+- `quic.Connection.peerCertSpkiDigest(self: *const Connection) ?[32]u8`
+  — role-agnostic, renewal-stable, works on resumed sessions, null
+  pre-handshake / no-peer-cert / past-open. Acceptance tests:
+  `tests/e2e/peer_identity.zig` (quic-zig).
+- `Client.Config.identity_verification: enum { server_name, none }`
+  — `.none` requires `ca_pem` (InvalidConfig otherwise; also invalid
+  with `insecure_skip_verify` / `tls_context_override`). Acceptance
+  tests: `tests/e2e/tls_verify_e2e.zig` + config unit tests.
+- `Server.Config.on_handshake_complete` +
+  `on_handshake_complete_user_data` (post-init twin:
+  `setOnHandshakeCompleteHook`) — fires once per slot from `feed`
+  when the TLS handshake completes; `peerCertSpkiDigest()` is
+  readable inside. Acceptance test:
+  `tests/e2e/server_lifecycle_hooks.zig`.
+
+This document was the work order handed to a quic-zig development
 session. qmesh-zig's milestone 2 (the QUIC session adapter: one
 `quic.Server` per node + outbound dials implementing qmesh's transport
-contract) is designed against the items below. Item 1 is blocking;
-item 2 is strongly desired; item 3 is optional. Keep the copy in this
-file authoritative — update it (and the README gap list + the boundary
-test) as items land.
+contract) is designed against the items below. Item 1 was blocking;
+item 2 strongly desired; item 3 optional. The copy below is the
+original request, kept for the record.
 
 Baseline: quic-zig `main` @ `2e73330` (v0.19.0+), boringssl-zig pinned
 at `b47af8c` (0.6.5 tarball), Zig `0.17.0-dev.1683+5ceec001b`.
@@ -23,7 +55,7 @@ at `b47af8c` (0.6.5 tarball), Zig `0.17.0-dev.1683+5ceec001b`.
   bus, database replication) needs the same primitives.
 - No broad refactors: focused additions with tests, please.
 
-## 1. Peer identity/certificate access (blocking)
+## 1. Peer identity/certificate access (blocking) — LANDED (quic-zig 720443e)
 
 **Problem.** mTLS verification works today (`Server.Config.client_ca_pem`
 requires+verifies client certs; `Client.Config.ca_pem`/`client_cert_pem`
@@ -82,7 +114,7 @@ Design notes:
 - Null before handshake completion; null on a server configured for
   optional client certs when none was presented.
 
-## 2. Verify-against-pinned-CA without a name check (strongly desired)
+## 2. Verify-against-pinned-CA without a name check (strongly desired) — LANDED (quic-zig 720443e)
 
 **Problem.** `Client.connect` verifies the server certificate's
 identity against `server_name` (SNI name-check). A mesh dials bare
@@ -121,7 +153,7 @@ the stream-id initiator bit (RFC 9000 §2.1). Works fine; a one-line
 thunk would make the intent explicit for every embedder that
 multiplexes its own streams with peer streams.
 
-## 3. Handshake-completion notification (optional, non-blocking)
+## 3. Handshake-completion notification (optional, non-blocking) — LANDED (quic-zig 720443e, callback form)
 
 Server-side embedders currently discover new connections by diffing
 `Server.iterator()` and poll `Connection.handshakeDone()`/`phase()`.

@@ -78,9 +78,12 @@ protocol cores, runs in the simulator without BoringSSL), and
 (SessionManager) owning one `quic.Server` for inbound plus one
 `quic.Client` per dial, implementing the transport contract: DATAGRAM
 for `ephemeral` frames, one length-prefixed uni-stream write per
-`reliable` frame. Session identity resolves via the HELLO protocol
-(0x00) until quic-zig exposes certificate digests; simultaneous dials
-tiebreak to exactly one connection (lower PeerId's dial wins).
+`reliable` frame. Session identity currently resolves via the HELLO
+protocol (0x00); quic-zig now exposes `Connection.peerCertSpkiDigest`
+(on main, post-0.20.0) so the adapter can bind PeerId directly to the
+authenticated key material — the announced-id interim is on its way
+out. Simultaneous dials tiebreak to exactly one connection (lower
+PeerId's dial wins).
 `tests/quic_boundary_test.zig` pins the quic API surface the adapter
 uses, so quic-zig drift fails this project's build with a clear
 message.
@@ -171,32 +174,29 @@ work order for a quic-zig session lives at
 [docs/quic-zig-session-brief.md](docs/quic-zig-session-brief.md); keep
 that file authoritative as items land:
 
-1. **Peer certificate access (blocking).** Neither `quic.Connection`
-   nor `boringssl.tls.Conn` exposes the peer certificate or a digest
-   of it (no `SSL_get_peer_certificate` binding in boringssl-zig).
-   mTLS *verification* works (`Server.Config.client_ca_pem`,
-   `Client.Config.ca_pem` + client certs), but qmesh cannot bind a
-   `PeerId` to the authenticated identity — the central security
-   property of the design. Proposed shape: a digest accessor on
-   `Connection` (`peerCertDigest(&buf)`) or the SessionManager API:
-   `fn peerCertificate(conn) ?[]const u8` implemented over a new
-   boringssl-zig binding. Until then, PeerIds are announced inside the
-   authenticated channel (JOIN self-description) and cross-checked
-   against the session, not against the certificate.
-2. **Dialing by address with private-CA peers vs SNI.** `Client.connect`
-   requires `server_name` and verifies the certificate identity against
-   it. A mesh dials bare IPs from gossip; certificate identity for
-   peer certs signed by the cluster CA is usually not the IP. Workable
-   today (per-peer SANs or `insecure_skip_verify` + CA pinning, which
-   loses impersonation protection); a first-class
-   "verify against CA, skip name check" verification mode would make
-   the mesh posture exact.
-3. **No session-establishment event.** Servers discover new
-   connections by diffing `Server.iterator()` slots; handshake
-   completion is polled via `Connection.handshakeDone()` /
-   `phase()`. Works, but an accept/handshake-complete notification
-   (or a documented iterator-diff pattern) would simplify the session
-   manager. Not blocking.
+1. **Peer certificate access (blocking)** — RESOLVED on quic-zig main
+   (post-0.20.0, unreleased 0.21.0). `Connection.peerCertSpkiDigest()`
+   returns SHA-256 over the peer leaf certificate's DER-encoded
+   SubjectPublicKeyInfo once the handshake completed and the peer
+   presented a cert (null otherwise: pre-handshake, optional-client-cert
+   servers with no cert presented, past-open connections).
+   Role-agnostic, renewal-stable (same keypair ⇒ same digest across
+   re-issuance), correct on resumed sessions; preimage matches the
+   standard `openssl x509 -pubkey | openssl pkey -pubin -outform DER |
+   openssl dgst -sha256` pipeline. Backed by boringssl-zig 0.6.6
+   (`SSL_get_peer_certificate` + SPKI DER + SHA-256).
+2. **Dialing by address with private-CA peers vs SNI** — RESOLVED on
+   quic-zig main (same commit). `Client.Config.identity_verification =
+   .none` sends SNI but skips the SAN/CN name check while chain
+   validation against `ca_pem` remains mandatory; `.none` without
+   `ca_pem` is an `InvalidConfig` at connect time (never a silent
+   downgrade). The exact mesh dial posture.
+3. **No session-establishment event** — RESOLVED on quic-zig main
+   (same commit). `Server.Config.on_handshake_complete` fires exactly
+   once per slot, from inside `feed`, the moment the TLS handshake
+   completes; the connection is established and open inside the
+   callback (`peerCertSpkiDigest()` readable, `slot.user_data`
+   installable). Post-init twin: `setOnHandshakeCompleteHook`.
 4. **Datagram send bounds are per-connection queues** (64 pending /
    64 KiB). Fine for qmesh's steady state; the adapter just needs to
    count-and-drop on `DatagramQueueFull` like any transport failure.

@@ -27,10 +27,22 @@ test "client config: dialing peers by address with a pinned CA" {
     try std.testing.expect(@hasField(quic.Client.Config, "client_key_pem"));
     try std.testing.expect(@hasField(quic.Client.Config, "server_name"));
     try std.testing.expect(@hasField(quic.Client.Config, "transport_params"));
-    // GAP (documented in README): no peer-certificate access exists on
-    // Connection or boringssl.tls.Conn, so PeerId cannot yet bind to a
-    // cert digest. The asserts below are the surface that WOULD carry
-    // it once quic exposes it; they pin the accessors that do exist.
+    // Resolved on quic-zig main (post-0.20.0): the private-CA dial
+    // posture — chain validates against ca_pem, name check skipped.
+    // .none requires ca_pem at connect time (InvalidConfig otherwise),
+    // so the posture can never silently downgrade.
+    try std.testing.expect(@hasField(quic.Client.Config, "identity_verification"));
+}
+
+test "peer identity: cert digest + handshake-complete discovery (resolved on quic-zig main)" {
+    // PeerId = digest of the peer's authenticated key material.
+    // SHA-256 over the leaf cert's DER SubjectPublicKeyInfo —
+    // renewal-stable, both roles, works on resumed sessions.
+    try std.testing.expect(@hasDecl(quic.Connection, "peerCertSpkiDigest"));
+    // Session establishment without iterator-diffing: fires once per
+    // slot from feed when the TLS handshake completes.
+    try std.testing.expect(@hasField(quic.Server.Config, "on_handshake_complete"));
+    try std.testing.expect(@hasField(quic.Server.Config, "on_handshake_complete_user_data"));
 }
 
 test "connection: datagram + stream + lifecycle surface" {
