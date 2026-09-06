@@ -22,9 +22,11 @@
 pub const hello = @import("hello.zig");
 pub const endpoint = @import("endpoint.zig");
 pub const transport = @import("transport.zig");
+pub const loop = @import("loop.zig");
 
 pub const Endpoint = endpoint.Endpoint;
 pub const Options = endpoint.Options;
+pub const Runner = loop.Runner;
 pub const QuicTransport = transport.QuicTransport;
 pub const MeshNode = endpoint.MeshNode;
 pub const alpn = endpoint.alpn;
@@ -33,4 +35,5 @@ test {
     _ = hello;
     _ = endpoint;
     _ = transport;
+    _ = loop;
 }

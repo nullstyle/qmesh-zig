@@ -17,7 +17,7 @@ openssl req -x509 -new -key ca.key -sha256 -days 3650 \
 # NOTE: a/b SPKI digests are pinned in tests/quic_session_test.zig and
 # c/d in tests/quic_mesh_test.zig. Regenerating rotates every node's
 # PeerId — update those constants together with the certs.
-for n in a b c d; do
+for n in a b c d e f g h i j k l; do
   openssl ecparam -name prime256v1 -genkey -noout -out "node-$n.key"
   openssl req -new -key "node-$n.key" -subj "/CN=qmesh-node-$n" -out "node-$n.csr"
   printf 'subjectAltName=DNS:qmesh-test,DNS:qmesh-node-%s\nbasicConstraints=CA:FALSE\nkeyUsage=digitalSignature,keyAgreement\nextendedKeyUsage=serverAuth,clientAuth\n' "$n" > "node-$n.ext"

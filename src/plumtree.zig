@@ -465,8 +465,10 @@ pub const Plumtree = struct {
         }
 
         // Deliver upward.
+        const dp = p.cachedPayload(id).?;
+        std.debug.assert(dp.len <= max_payload);
         if (p.deliveries_len < max_deliveries) {
-            p.deliveries[p.deliveries_len] = .{ .id = id, .payload = p.cachedPayload(id).? };
+            p.deliveries[p.deliveries_len] = .{ .id = id, .payload = dp };
             p.deliveries_len += 1;
         }
         p.stats.delivered += 1;
@@ -545,6 +547,7 @@ pub const Plumtree = struct {
     }
 
     fn cachePayload(p: *Self, id: MsgId, payload: []const u8) void {
+        std.debug.assert(payload.len <= max_payload);
         var slot: *PayloadEntry = undefined;
         if (p.payloads_len < payload_cache) {
             slot = &p.payloads[p.payloads_len];

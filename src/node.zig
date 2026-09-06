@@ -306,12 +306,12 @@ pub fn Node(comptime Transport: type) type {
         }
 
         fn drainDeliveries(self: *Self) void {
-            if (self.hooks.onBroadcast) |cb| {
-                for (self.broadcast.takeDeliveries()) |d| {
+            for (self.broadcast.takeDeliveries()) |d| {
+                // A staged payload must always be a bounded cache slice.
+                std.debug.assert(d.payload.len <= plum_mod.max_payload);
+                if (self.hooks.onBroadcast) |cb| {
                     cb(self.hooks.ctx, d.id.origin, d.id.seq, d.payload);
                 }
-            } else {
-                _ = self.broadcast.takeDeliveries();
             }
         }
 

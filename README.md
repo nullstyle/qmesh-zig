@@ -60,12 +60,17 @@ distributed systems. It is **not** an actor runtime.
       cache is empty (fresh boots / long pauses must still learn), and
       replies are not gated on tree membership (anti-entropy is the
       backstop for peers the tree dropped).
-- [x] Four-node mesh over REAL UDP sockets (tests/quic_mesh_test.zig):
-      an embedder-owned socket loop (the production integration
-      shape), real mTLS with per-node certs, cert-bound identity,
-      JOIN bootstrap convergence, cluster-wide broadcast, and SWIM
-      crash detection + session eviction when a node dies without a
-      goodbye.
+- [x] `qmesh_quic.Runner` (src/quic/loop.zig): the supported socket
+      loop — binds the UDP socket, owns one Endpoint, drives ingest →
+      stateless drain → dial advance → protocol service → ticks/reap →
+      outbound drain per iteration. `run()` blocks until a shutdown
+      flag; `step()` is one nonblocking pass for tests and foreign
+      event loops. POSIX (raw syscalls; Darwin needs fcntl nonblock).
+- [x] Twelve-node mesh over REAL UDP sockets (tests/quic_mesh_test.zig)
+      driving the Runner directly: bootstrap convergence with
+      cert-bound identities, exactly-once cluster broadcast, a 25%
+      mass crash (no goodbyes) with SWIM suspect→confirm and session
+      eviction, and post-crash broadcast over the healed mesh.
 
 ## Architecture
 
