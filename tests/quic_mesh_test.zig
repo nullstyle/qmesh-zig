@@ -81,7 +81,11 @@ const Fleet = struct {
         for (0..N) |i| {
             const port = base_port + @as(u16, @intCast(i));
             f.ids[i] = idFromHex(node_certs[i].digest_hex);
-            const addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, port);
+            // IPv6 loopback: proves the runner's v6 (fly 6pn-shaped)
+            // addressing path end to end.
+            var v6lo: [16]u8 = @splat(0);
+            v6lo[15] = 1; // ::1
+            const addr = qmesh.Addr.ipv6(v6lo, port);
             f.runners[i] = try qmesh_quic.Runner.init(allocator, .{
                 .endpoint = .{
                     .self = .{ .id = f.ids[i], .addr = addr },

@@ -61,30 +61,69 @@ fn sleepMs(ms: u64) void {
     _ = std.c.nanosleep(&req, &rem);
 }
 
-/// quic.Address (host-order port, wire-order octets) ⇄ sockaddr_in.
-/// Address octets are copied byte-for-byte: sockaddr_in.addr is a u32
-/// on some ABIs and [4]u8 on others, and both hold network-order
-/// octets in memory, so memcpy is the order-safe projection.
-fn toSockaddr(a: quic.Address) posix.sockaddr.in {
-    var out: posix.sockaddr.in = std.mem.zeroes(posix.sockaddr.in);
-    out.family = posix.AF.INET;
-    out.port = std.mem.nativeToBig(u16, a.ipv4.port);
-    @memcpy(std.mem.asBytes(&out.addr), &a.ipv4.addr);
-    return out;
-}
-
-fn fromSockaddr(sa: *const posix.sockaddr.in) quic.Address {
-    var octets: [4]u8 = undefined;
-    @memcpy(&octets, std.mem.asBytes(&sa.addr));
-    return .{ .ipv4 = .{ .addr = octets, .port = std.mem.bigToNative(u16, sa.port) } };
-}
-
 fn toQuicAddr(a: qmesh.Addr) ?quic.Address {
     return switch (a) {
         .none => null,
         .v4 => |v4| .{ .ipv4 = .{ .addr = v4.octets, .port = v4.port } },
         .v6 => |v6| .{ .ipv6 = .{ .addr = v6.octets, .port = v6.port } },
     };
+}
+
+/// Family-aware socket address. Octets are copied byte-for-byte:
+/// sockaddr_in.addr is a u32 on some ABIs and [4]u8 on others, and
+/// both hold network-order octets in memory, so memcpy is the
+/// order-safe projection in both families.
+const SockAddr = struct {
+    storage: posix.sockaddr.storage,
+    len: posix.socklen_t,
+};
+
+fn toSockAddr(a: quic.Address) ?SockAddr {
+    switch (a) {
+        .ipv4 => |v4| {
+            var sa: posix.sockaddr.in = std.mem.zeroes(posix.sockaddr.in);
+            sa.family = posix.AF.INET;
+            sa.port = std.mem.nativeToBig(u16, v4.port);
+            @memcpy(std.mem.asBytes(&sa.addr), &v4.addr);
+            var out: SockAddr = .{ .storage = std.mem.zeroes(posix.sockaddr.storage), .len = @sizeOf(posix.sockaddr.in) };
+            @memcpy(std.mem.asBytes(&out.storage)[0..@sizeOf(posix.sockaddr.in)], std.mem.asBytes(&sa));
+            return out;
+        },
+        .ipv6 => |v6| {
+            var sa: posix.sockaddr.in6 = std.mem.zeroes(posix.sockaddr.in6);
+            sa.family = posix.AF.INET6;
+            sa.port = std.mem.nativeToBig(u16, v6.port);
+            @memcpy(&sa.addr, &v6.addr);
+            var out: SockAddr = .{ .storage = std.mem.zeroes(posix.sockaddr.storage), .len = @sizeOf(posix.sockaddr.in6) };
+            @memcpy(std.mem.asBytes(&out.storage)[0..@sizeOf(posix.sockaddr.in6)], std.mem.asBytes(&sa));
+            return out;
+        },
+        .unspecified => return null,
+    }
+}
+
+fn sockFamily(a: qmesh.Addr) posix.sa_family_t {
+    return switch (a) {
+        .v6 => posix.AF.INET6,
+        else => posix.AF.INET,
+    };
+}
+
+fn fromSockAddr(st: *const posix.sockaddr.storage) quic.Address {
+    const sa: *const posix.sockaddr = @ptrCast(st);
+    switch (sa.family) {
+        posix.AF.INET => {
+            const in: *const posix.sockaddr.in = @ptrCast(@alignCast(st));
+            var octets: [4]u8 = undefined;
+            @memcpy(&octets, std.mem.asBytes(&in.addr));
+            return .{ .ipv4 = .{ .addr = octets, .port = std.mem.bigToNative(u16, in.port) } };
+        },
+        posix.AF.INET6 => {
+            const in6: *const posix.sockaddr.in6 = @ptrCast(@alignCast(st));
+            return .{ .ipv6 = .{ .addr = in6.addr, .port = std.mem.bigToNative(u16, in6.port) } };
+        },
+        else => return .unspecified,
+    }
 }
 
 pub const Runner = struct {
@@ -118,11 +157,10 @@ pub const Runner = struct {
         errdefer ep.deinit();
         _ = try ep.listen();
 
-        const bind_q = toQuicAddr(opts.bind) orelse return error.NoRoute;
-        var sa = toSockaddr(bind_q);
-        const sock = try sysSocket();
+        var sa = toSockAddr(toQuicAddr(opts.bind) orelse return error.NoRoute) orelse return error.NoRoute;
+        const sock = try sysSocket(sockFamily(opts.bind));
         errdefer _ = posix.system.close(sock);
-        const rc = posix.system.bind(sock, @ptrCast(&sa), @sizeOf(posix.sockaddr.in));
+        const rc = posix.system.bind(sock, @ptrCast(&sa.storage), sa.len);
         if (posix.errno(rc) != .SUCCESS) return error.BindFailed;
 
         const r = try allocator.create(Self);
@@ -182,10 +220,11 @@ pub const Runner = struct {
     fn ingest(r: *Self, now: u64) !void {
         const srv = r.ep.server.?;
         while (true) {
-            var from: posix.sockaddr.in = std.mem.zeroes(posix.sockaddr.in);
-            const n = (try sysRecvfrom(r.sock, &r.buf, &from)) orelse break;
+            var from: posix.sockaddr.storage = std.mem.zeroes(posix.sockaddr.storage);
+            var from_len: posix.socklen_t = @sizeOf(posix.sockaddr.storage);
+            const n = (try sysRecvfrom(r.sock, &r.buf, &from, &from_len)) orelse break;
             if (n == 0) break;
-            const from_addr = fromSockaddr(&from);
+            const from_addr = fromSockAddr(&from);
             // Server-routed first (slots + stateless); datagrams the
             // server drops may belong to our outbound DIALS — offer
             // them to each dial connection (wrong-CID packets are
@@ -200,7 +239,7 @@ pub const Runner = struct {
             }
         }
         while (srv.drainStatelessResponse()) |resp| {
-            var sa = toSockaddr(resp.dst);
+            var sa = toSockAddr(resp.dst) orelse continue;
             sysSendto(r.sock, resp.slice(), &sa);
         }
     }
@@ -233,7 +272,7 @@ pub const Runner = struct {
             for (srv.iterator()) |slot| {
                 while (try slot.conn.pollDatagram(&r.buf, now)) |out| {
                     const dst = out.to orelse slot.peer_addr orelse continue;
-                    var sa = toSockaddr(dst);
+                    var sa = toSockAddr(dst) orelse continue;
                     sysSendto(r.sock, r.buf[0..out.len], &sa);
                 }
             }
@@ -241,7 +280,7 @@ pub const Runner = struct {
         for (r.ep.sessions.items) |s| {
             const cli = s.client orelse continue;
             while (try cli.conn.pollDatagram(&r.buf, now)) |out| {
-                var sa = toSockaddr(s.dial_addr);
+                var sa = toSockAddr(s.dial_addr) orelse continue;
                 sysSendto(r.sock, r.buf[0..out.len], &sa);
             }
         }
@@ -252,11 +291,11 @@ pub const Runner = struct {
 // socket layer; quic-zig's own socket_opts goes through posix.system
 // the same way) -----------------------------------------------------------
 
-fn sysSocket() !posix.socket_t {
+fn sysSocket(family: posix.sa_family_t) !posix.socket_t {
     // Flags inside socket()'s type argument are rejected by Darwin
     // (EPROTOTYPE); plain socket, then fcntl O_NONBLOCK — the same
     // fallback std's backends use.
-    const rc = posix.system.socket(posix.AF.INET, posix.SOCK.DGRAM, @intCast(posix.IPPROTO.UDP));
+    const rc = posix.system.socket(family, posix.SOCK.DGRAM, @intCast(posix.IPPROTO.UDP));
     if (posix.errno(rc) != .SUCCESS) return error.SystemResources;
     const fd: posix.socket_t = @intCast(rc);
     const fl = posix.system.fcntl(fd, posix.F.GETFL, @as(usize, 0));
@@ -269,15 +308,14 @@ fn sysSocket() !posix.socket_t {
     return fd;
 }
 
-fn sysRecvfrom(sock: posix.socket_t, buf: []u8, from: *posix.sockaddr.in) !?usize {
-    var from_len: posix.socklen_t = @sizeOf(posix.sockaddr.in);
-    const rc = posix.system.recvfrom(sock, buf.ptr, buf.len, posix.MSG.DONTWAIT, @ptrCast(from), &from_len);
+fn sysRecvfrom(sock: posix.socket_t, buf: []u8, from: *posix.sockaddr.storage, from_len: *posix.socklen_t) !?usize {
+    const rc = posix.system.recvfrom(sock, buf.ptr, buf.len, posix.MSG.DONTWAIT, @ptrCast(from), from_len);
     const err = posix.errno(rc);
     if (err == .AGAIN) return null;
     if (err != .SUCCESS) return error.RecvFailed;
     return @intCast(rc);
 }
 
-fn sysSendto(sock: posix.socket_t, bytes: []const u8, sa: *const posix.sockaddr.in) void {
-    _ = posix.system.sendto(sock, bytes.ptr, bytes.len, 0, @ptrCast(sa), @sizeOf(posix.sockaddr.in));
+fn sysSendto(sock: posix.socket_t, bytes: []const u8, sa: *const SockAddr) void {
+    _ = posix.system.sendto(sock, bytes.ptr, bytes.len, 0, @ptrCast(&sa.storage), sa.len);
 }

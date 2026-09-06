@@ -61,6 +61,11 @@ pub const Options = struct {
     /// SNI + verification name for dials (routing hint only; identity
     /// is cert-bound).
     dial_server_name: []const u8,
+    /// PMTU search ceiling. Overlay networks (WireGuard etc.) shrink
+    /// the effective MTU below the 1452 raw-internet default; DPLPMTUD
+    /// still probes but never past this. 1380 is safe under typical
+    /// WireGuard-in-v6 encapsulation.
+    pmtu_max: u16 = 1380,
     /// Deployment keys. When null, `listen` mints fresh ones from the
     /// CSPRNG — fine for tests, WRONG for production: resets/tokens
     /// issued before a restart stop validating. Persist these across
@@ -258,6 +263,7 @@ pub const Endpoint = struct {
     /// calls happen in the next service pass.
     fn handshakeCompleteHook(user_data: ?*anyopaque, slot: *quic.Server.Slot) void {
         const e: *Self = @ptrCast(@alignCast(user_data.?));
+        applyPmtuCap(slot.conn, e.opts.pmtu_max);
         const digest = slot.conn.peerCertSpkiDigest() orelse {
             // Unreachable with client_ca_pem set (required client
             // certs); treat as a protocol violation and ignore the
@@ -375,6 +381,7 @@ pub const Endpoint = struct {
             // gossip addresses are IPs, cert names are cluster ids.
             .identity_verification = .none,
         });
+        applyPmtuCap(cli.conn, e.opts.pmtu_max);
         e.stats.dials += 1;
 
         const s = try e.allocator.create(Session);
@@ -680,8 +687,18 @@ pub const Endpoint = struct {
 
 pub fn meshTransportParams() quic.Connection.TransportParams {
     var p = quic.Server.Config.defaultTransportParams();
-    p.max_datagram_frame_size = 1400;
+    // Advertise a datagram ceiling that fits under the PMTU cap once
+    // framed: frames are <=1152, so 1350 leaves headroom while
+    // bounding what peers may send us.
+    p.max_datagram_frame_size = 1350;
     return p;
+}
+
+fn applyPmtuCap(conn: *quic.Connection, max_mtu: u16) void {
+    conn.setPmtudConfig(.{
+        .initial_mtu = 1200,
+        .max_mtu = max_mtu,
+    });
 }
 
 fn toQuicAddr(a: Addr) ?quic.Address {
