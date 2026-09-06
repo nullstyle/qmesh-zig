@@ -35,7 +35,14 @@ distributed systems. It is **not** an actor runtime.
       tiebreak, close handling via the will-close hook — two-node JOIN
       and close-demotion tests over `quic.testing.Loopback` with real
       mutual TLS (vendored test PKI)
-- [ ] SWIM + Lifeguard membership & failure detection
+- [x] SWIM core (`src/swim.zig`, pure): member table with the
+      incarnation lattice (commutativity under arbitrary event
+      interleavings is property-tested), PING/ACK/PING_REQ indirect
+      probing, suspicion + refutation (self-directed SUSPECT bumps the
+      incarnation), CONFIRM on expiry, piggyback dissemination, and a
+      Lifeguard local-health multiplier fed by observed app delays.
+      Node-driver integration (multiplexing beside the overlay) is the
+      next step.
 - [ ] Plumtree eager/lazy dissemination
 - [ ] Anti-entropy reconciliation
 

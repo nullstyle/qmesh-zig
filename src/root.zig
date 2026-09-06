@@ -24,6 +24,7 @@ pub const frame = @import("frame.zig");
 pub const effects = @import("effects.zig");
 pub const session = @import("session.zig");
 pub const hyparview = @import("hyparview.zig");
+pub const swim = @import("swim.zig");
 pub const node = @import("node.zig");
 
 // Convenience re-exports for the types every consumer names.
@@ -45,5 +46,6 @@ test {
     _ = effects;
     _ = session;
     _ = hyparview;
+    _ = swim;
     _ = node;
 }

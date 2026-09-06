@@ -68,6 +68,12 @@ pub const Writer = struct {
         w.pos += 2;
     }
 
+    pub fn putU32(w: *Writer, v: u32) EncodeError!void {
+        if (w.pos + 4 > w.buf.len) return error.NoRoomLeft;
+        std.mem.writeInt(u32, w.buf[w.pos..][0..4], v, .little);
+        w.pos += 4;
+    }
+
     pub fn putU64(w: *Writer, v: u64) EncodeError!void {
         if (w.pos + 8 > w.buf.len) return error.NoRoomLeft;
         std.mem.writeInt(u64, w.buf[w.pos..][0..8], v, .little);
@@ -106,6 +112,13 @@ pub const Reader = struct {
         if (r.remaining() < 2) return error.Truncated;
         const v = std.mem.readInt(u16, r.buf[r.pos..][0..2], .little);
         r.pos += 2;
+        return v;
+    }
+
+    pub fn readU32(r: *Reader) error{Truncated}!u32 {
+        if (r.remaining() < 4) return error.Truncated;
+        const v = std.mem.readInt(u32, r.buf[r.pos..][0..4], .little);
+        r.pos += 4;
         return v;
     }
 
