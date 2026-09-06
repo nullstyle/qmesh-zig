@@ -2,28 +2,45 @@
 //! transport.
 //!
 //! A `Node(Transport)` owns the protocol state machines for one
-//! cluster node and applies their effects through the smallest
-//! transport surface qmesh needs:
+//! cluster node — the HyParView overlay and the SWIM membership layer
+//! — multiplexing both on the same frames-in/effects-out cycle:
 //!
-//! ```zig
-//! Transport must provide (comptime duck-typed):
-//!   fn now(t: *T) u64
-//!       Node-local monotonic clock, microseconds.
-//!   fn rng(t: *T) std.Random
-//!       Node-local deterministic random stream (never global state —
-//!       determinism requires per-node seeds).
-//!   fn sendDatagram(t: *T, to: PeerId, bytes: []const u8) !void
-//!       Lossy send. `bytes` is borrowed for the call only; the
-//!       transport copies. No session ⇒ error (counted, dropped).
-//!   fn sendReliable(t: *T, to: PeerId, bytes: []const u8) !void
-//!       Completion-guaranteed send of one frame (see frame.stream).
-//!       Same borrowing and session rules as sendDatagram.
-//!   fn connect(t: *T, desc: PeerDesc) !void
-//!       Ask the session manager to establish a session (idempotent;
-//!       deduplicates concurrent dials between the same pair).
+//! ```text
+//! ingress frame ──decode──▶ route by protocol byte
+//!     0x01 overlay  → overlay.handle → effects
+//!     0x02 swim     → swim.handle    → effects
+//! effects ──encode──▶ transport.sendDatagram / sendReliable / connect
+//! timers: min(overlay.nextDeadline, swim.nextDeadline) → tick both
 //! ```
 //!
-//! The simulator and the future QUIC adapter are the two Transport
+//! Cross-protocol coupling lives HERE, never inside the cores: session
+//! establishment feeds SWIM's member table (`observe`), and SWIM
+//! CONFIRM purges the overlay's passive view (`overlay.purge`).
+//!
+//! Transport contract (comptime duck-typed):
+//!
+//! ```zig
+//! fn now(t: *T) u64
+//!     Node-local monotonic clock, microseconds.
+//! fn rng(t: *T) std.Random
+//!     Node-local deterministic random stream (never global state —
+//!     determinism requires per-node seeds).
+//! fn sendDatagram(t: *T, to: PeerId, bytes: []const u8) !void
+//!     Lossy send. `bytes` is borrowed for the call only; the
+//!     transport copies. No session ⇒ error (counted, dropped).
+//! fn sendReliable(t: *T, to: PeerId, bytes: []const u8) !void
+//!     Completion-guaranteed send of one frame (see frame.stream).
+//!     Same borrowing and session rules as sendDatagram.
+//! fn connect(t: *T, desc: PeerDesc) !void
+//!     Ask the session manager to establish a session (idempotent;
+//!     deduplicates concurrent dials between the same pair).
+//! fn descOf(t: *T, id: PeerId) ?PeerDesc
+//!     Best-known descriptor for a connected peer (session HELLO /
+//!     world table), so SWIM's member entries carry dialable
+//!     addresses. Null when unknown.
+//! ```
+//!
+//! The simulator and the QUIC adapter are the two Transport
 //! implementations; nothing else should need one.
 //!
 //! Time model: the node runs entirely on the transport's clock. A
@@ -37,6 +54,7 @@ const std = @import("std");
 const peer_mod = @import("peer.zig");
 const frame = @import("frame.zig");
 const hv = @import("hyparview.zig");
+const swim_mod = @import("swim.zig");
 
 const PeerId = peer_mod.PeerId;
 const PeerDesc = peer_mod.PeerDesc;
@@ -44,6 +62,11 @@ const PeerDesc = peer_mod.PeerDesc;
 pub fn Node(comptime Transport: type) type {
     return struct {
         const Self = @This();
+
+        pub const Config = struct {
+            overlay: hv.Config = .{},
+            swim: swim_mod.Config = .{},
+        };
 
         pub const Stats = struct {
             frames_received: u64 = 0,
@@ -58,16 +81,21 @@ pub fn Node(comptime Transport: type) type {
 
         transport: *Transport,
         overlay: hv.Overlay,
+        swim: swim_mod.Swim,
         stats: Stats = .{},
 
         decode_scratch: hv.DecodeScratch = .{},
+        swim_scratch: swim_mod.DecodeScratch = .{},
         enc_buf: [frame.max_frame_len]u8 = undefined,
         fx: hv.Effects = .{},
+        swim_fx: swim_mod.Effects = .{},
 
-        pub fn init(self_desc: PeerDesc, cfg: hv.Config, transport: *Transport) Self {
+        pub fn init(self_desc: PeerDesc, cfg: Config, transport: *Transport) Self {
+            const now = transport.now();
             return .{
                 .transport = transport,
-                .overlay = hv.Overlay.init(self_desc, cfg, transport.now()),
+                .overlay = hv.Overlay.init(self_desc, cfg.overlay, now),
+                .swim = swim_mod.Swim.init(self_desc, cfg.swim, now),
             };
         }
 
@@ -83,7 +111,7 @@ pub fn Node(comptime Transport: type) type {
         pub fn startJoin(self: *Self, contact: PeerDesc) void {
             self.fx.clear();
             self.overlay.startJoin(contact, self.transport.now(), &self.fx);
-            self.applyEffects();
+            self.applyFx(hv.Msg, hv.encode, &self.fx);
         }
 
         /// Feed one received frame (already demuxed from datagram or
@@ -95,30 +123,45 @@ pub fn Node(comptime Transport: type) type {
                 self.stats.decode_errors += 1;
                 return;
             };
-            if (h.header.protocol != hv.proto_id) {
-                self.stats.unknown_protocol += 1;
-                return;
+            switch (h.header.protocol) {
+                hv.proto_id => {
+                    const msg = hv.decode(bytes, &self.decode_scratch) catch {
+                        self.stats.decode_errors += 1;
+                        return;
+                    };
+                    self.fx.clear();
+                    self.overlay.handle(from, msg, self.transport.now(), self.transport.rng(), &self.fx);
+                    self.applyFx(hv.Msg, hv.encode, &self.fx);
+                },
+                swim_mod.proto_id => {
+                    const msg = swim_mod.decode(bytes, &self.swim_scratch) catch {
+                        self.stats.decode_errors += 1;
+                        return;
+                    };
+                    self.swim_fx.clear();
+                    self.swim.handle(from, msg, self.transport.now(), self.transport.rng(), &self.swim_fx);
+                    self.applyFx(swim_mod.Msg, swim_mod.encode, &self.swim_fx);
+                },
+                else => self.stats.unknown_protocol += 1,
             }
-            const msg = hv.decode(bytes, &self.decode_scratch) catch {
-                self.stats.decode_errors += 1;
-                return;
-            };
-            self.fx.clear();
-            self.overlay.handle(from, msg, self.transport.now(), self.transport.rng(), &self.fx);
-            self.applyEffects();
         }
 
         pub fn onSessionUp(self: *Self, peer: PeerId) void {
             self.stats.sessions_up += 1;
+            const now = self.transport.now();
+            // SWIM learns the member with its best-known descriptor.
+            const desc = self.transport.descOf(peer) orelse PeerDesc{ .id = peer };
+            self.swim.observe(desc, now);
             self.fx.clear();
-            self.overlay.onSessionUp(peer, self.transport.now(), &self.fx);
-            self.applyEffects();
+            self.overlay.onSessionUp(peer, now, &self.fx);
+            self.applyFx(hv.Msg, hv.encode, &self.fx);
         }
 
         pub fn onSessionDown(self: *Self, peer: PeerId) void {
             self.stats.sessions_down += 1;
+            // Session loss is an overlay concern; SWIM owns liveness
+            // separately (a dropped session ≠ a dead member).
             self.overlay.onSessionDown(peer, self.transport.now());
-            // onSessionDown emits nothing; no effects to apply.
         }
 
         /// Advance all protocol timers whose deadlines have passed on
@@ -126,21 +169,57 @@ pub fn Node(comptime Transport: type) type {
         /// reaches `nextDeadline` (or periodically; ticks between
         /// deadlines are harmless no-ops).
         pub fn tick(self: *Self) void {
+            const now = self.transport.now();
+            const rng = self.transport.rng();
+
             self.fx.clear();
-            self.overlay.tick(self.transport.now(), self.transport.rng(), &self.fx);
-            self.applyEffects();
+            self.overlay.tick(now, rng, &self.fx);
+            self.applyFx(hv.Msg, hv.encode, &self.fx);
+
+            self.swim_fx.clear();
+            self.swim.tick(now, rng, &self.swim_fx);
+            self.applyFx(swim_mod.Msg, swim_mod.encode, &self.swim_fx);
+
+            // Cross-protocol coupling (partition recovery included):
+            // confirmed-dead members leave the overlay's passive view;
+            // alive members with dialable addresses the views have
+            // forgotten re-enter it. Both idempotent — the full sweep
+            // is the honest cheap thing.
+            for (self.swim.memberSlice()) |m| {
+                switch (m.state) {
+                    .dead => self.overlay.purge(m.desc.id),
+                    .alive => {
+                        if (m.desc.addr != .none and
+                            self.overlay.inActive(m.desc.id) == null and
+                            self.overlay.inPassive(m.desc.id) == null)
+                        {
+                            self.overlay.notePeer(m.desc);
+                        }
+                    },
+                    .suspect => {},
+                }
+            }
         }
 
         /// Soonest armed protocol deadline on the transport clock, for
         /// the driver loop's sleep calculation.
         pub fn nextDeadline(self: *const Self) ?u64 {
-            return self.overlay.nextDeadline();
+            const a = self.overlay.nextDeadline();
+            const b = self.swim.nextDeadline();
+            if (a == null) return b;
+            if (b == null) return a;
+            return @min(a.?, b.?);
         }
 
-        fn applyEffects(self: *Self) void {
-            for (self.fx.slice()) |item| switch (item) {
+        fn applyFx(
+            self: *Self,
+            comptime Msg: type,
+            comptime encodeFn: fn (Msg, []u8) frame.EncodeError![]const u8,
+            fx: *const @import("effects.zig").Effects(Msg),
+        ) void {
+            for (fx.slice()) |item| switch (item) {
                 .send => |s| {
-                    const bytes = hv.encode(s.msg, &self.enc_buf) catch |err| switch (err) {
+                    const bytes = encodeFn(s.msg, &self.enc_buf) catch |err| switch (err) {
                         // Message bodies are bounded by config asserts;
                         // hitting this is a codec bug.
                         error.NoRoomLeft => unreachable,
@@ -153,9 +232,8 @@ pub fn Node(comptime Transport: type) type {
                         self.stats.frames_sent += 1;
                     } else |_| {
                         // Failed sends (no session, peer gone, queue
-                        // full, OOM) are expected: the overlay's
-                        // timeouts and retries own recovery. Count and
-                        // move on.
+                        // full, OOM) are expected: the protocol timers
+                        // own recovery. Count and move on.
                         self.stats.sends_failed += 1;
                     }
                 },
@@ -185,6 +263,10 @@ test "node drives overlay over a fake transport" {
         }
         fn rng(t: *@This()) std.Random {
             return t.prng.random();
+        }
+        fn descOf(t: *@This(), id: PeerId) ?PeerDesc {
+            _ = t;
+            return PeerDesc{ .id = id };
         }
         fn sendDatagram(t: *@This(), to: PeerId, bytes: []const u8) !void {
             try t.sent.append(t.allocator, .{ .to = to, .bytes = try t.allocator.dupe(u8, bytes), .reliable = false });
@@ -232,4 +314,66 @@ test "node drives overlay over a fake transport" {
     node.handleWire(contact.id, &[_]u8{0xff, 0xff});
     try std.testing.expectEqual(before + 1, node.stats.frames_received);
     try std.testing.expectEqual(@as(u64, 1), node.stats.decode_errors);
+}
+
+test "node multiplexes swim beside the overlay and purges on confirm" {
+    const FakeTransport = struct {
+        clock: u64 = 0,
+        prng: std.Random.DefaultPrng = std.Random.DefaultPrng.init(9),
+        sent: std.ArrayListUnmanaged(struct { to: PeerId, bytes: []u8, reliable: bool }) = .empty,
+        connects: std.ArrayListUnmanaged(PeerDesc) = .empty,
+        allocator: std.mem.Allocator,
+
+        fn now(t: *@This()) u64 {
+            return t.clock;
+        }
+        fn rng(t: *@This()) std.Random {
+            return t.prng.random();
+        }
+        fn descOf(t: *@This(), id: PeerId) ?PeerDesc {
+            _ = t;
+            return PeerDesc{ .id = id };
+        }
+        fn sendDatagram(t: *@This(), to: PeerId, bytes: []const u8) !void {
+            try t.sent.append(t.allocator, .{ .to = to, .bytes = try t.allocator.dupe(u8, bytes), .reliable = false });
+        }
+        fn sendReliable(t: *@This(), to: PeerId, bytes: []const u8) !void {
+            try t.sent.append(t.allocator, .{ .to = to, .bytes = try t.allocator.dupe(u8, bytes), .reliable = true });
+        }
+        fn connect(t: *@This(), desc: PeerDesc) !void {
+            try t.connects.append(t.allocator, desc);
+        }
+    };
+
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const alloc = arena.allocator();
+
+    var transport: FakeTransport = .{ .allocator = alloc };
+    var prng1 = std.Random.DefaultPrng.init(3);
+    var prng2 = std.Random.DefaultPrng.init(4);
+    const me = PeerDesc{ .id = PeerId.fromRandom(prng1.random()), .addr = peer_mod.Addr.sim(1) };
+    const victim = PeerDesc{ .id = PeerId.fromRandom(prng2.random()), .addr = peer_mod.Addr.sim(2) };
+
+    var node = Node(FakeTransport).init(me, .{}, &transport);
+
+    // Session up: SWIM observes the member.
+    node.onSessionUp(victim.id);
+    try std.testing.expect(node.swim.stateOf(victim.id) != null);
+
+    // A SWIM frame routes to the membership layer.
+    var buf: [frame.max_frame_len]u8 = undefined;
+    const ping = try swim_mod.encode(.{ .ping = .{ .nonce = 5, .events = &.{} } }, &buf);
+    node.handleWire(victim.id, ping);
+    try std.testing.expectEqual(@as(u64, 1), node.swim.stats.acks_sent);
+    try std.testing.expectEqual(@as(u64, 1), node.stats.frames_sent);
+
+    // A confirmed-dead member purges from the overlay passive view on
+    // the next tick.
+    hv.TestHooks.addPassive(&node.overlay, victim);
+    try std.testing.expect(node.overlay.inPassive(victim.id) != null);
+    _ = node.swim.apply(.{ .confirm = .{ .id = victim.id, .incarnation = 1 } }, 1);
+    node.tick();
+    try std.testing.expect(node.overlay.inPassive(victim.id) == null);
+    try std.testing.expect(node.swim.stateOf(victim.id) == .dead);
 }

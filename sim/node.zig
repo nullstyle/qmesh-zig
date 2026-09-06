@@ -48,6 +48,11 @@ pub const SimTransport = struct {
         const dst = t.world.index.get(desc.id) orelse return error.UnknownPeer;
         try t.world.dial(t.idx, dst);
     }
+
+    pub fn descOf(t: *SimTransport, id: qmesh.PeerId) ?qmesh.PeerDesc {
+        const idx = t.world.index.get(id) orelse return null;
+        return t.world.descs.items[idx];
+    }
 };
 
 pub const SimNode = struct {

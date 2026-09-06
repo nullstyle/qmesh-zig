@@ -41,8 +41,14 @@ distributed systems. It is **not** an actor runtime.
       probing, suspicion + refutation (self-directed SUSPECT bumps the
       incarnation), CONFIRM on expiry, piggyback dissemination, and a
       Lifeguard local-health multiplier fed by observed app delays.
-      Node-driver integration (multiplexing beside the overlay) is the
-      next step.
+- [x] SWIM integrated: the node driver multiplexes overlay + SWIM on
+      one frames-in/effects-out cycle; session-up feeds the member
+      table; CONFIRM purges the overlay passive view; alive members
+      re-enter it. Partition recovery works end-to-end: dead-slot
+      resurrection probes (direct ACK evidence outranks a stale
+      CONFIRM, resurrecting at a bumped incarnation) re-open the
+      connection, and piggybacked ALIVE re-bridges the overlay — the
+      kill/partition scenarios now assert membership convergence.
 - [ ] Plumtree eager/lazy dissemination
 - [ ] Anti-entropy reconciliation
 

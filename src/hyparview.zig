@@ -584,6 +584,21 @@ pub const Overlay = struct {
         }
     }
 
+    /// Offer a peer as a passive candidate (idempotent). Used when
+    /// SWIM reports a member alive that the views have forgotten —
+    /// the partition-recovery path.
+    pub fn notePeer(o: *Self, desc: PeerDesc) void {
+        o.addPassive(desc);
+    }
+
+    /// Drop a peer from the passive view and cancel any outstanding
+    /// promotion proposal toward it (idempotent). Used when SWIM
+    /// confirms the peer dead.
+    pub fn purge(o: *Self, id: PeerId) void {
+        if (o.inPassive(id)) |i| o.removePassiveAt(i);
+        if (o.proposedIdx(id)) |i| o.removeProposalAt(i, false);
+    }
+
     // --- internal -----------------------------------------------------------------
 
     fn removeActiveAt(o: *Self, i: usize) void {

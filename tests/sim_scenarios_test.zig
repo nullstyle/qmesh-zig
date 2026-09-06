@@ -18,6 +18,15 @@ const qsim = @import("qmesh_sim");
 
 const testing = std.testing;
 
+fn fastSwimCfg() qmesh.swim.Config {
+    return .{
+        .probe_period_us = 200_000,
+        .probe_timeout_us = 100_000,
+        .indirect_timeout_us = 100_000,
+        .suspicion_timeout_us = 400_000,
+    };
+}
+
 fn defaultCfg() qmesh.OverlayConfig {
     // Faster clocks than production defaults so scenarios exercise the
     // same state machines in less virtual time.
@@ -31,7 +40,7 @@ fn defaultCfg() qmesh.OverlayConfig {
 }
 
 test "two nodes join and hold a session-backed active edge" {
-    var world = qsim.World.init(testing.allocator, 1, defaultCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 1, defaultCfg(), fastSwimCfg(), .{});
     defer world.deinit();
     const a = try world.spawn();
     const b = try world.spawn();
@@ -46,7 +55,7 @@ test "two nodes join and hold a session-backed active edge" {
 }
 
 test "20-node bootstrap converges to one component, bounded views" {
-    var world = qsim.World.init(testing.allocator, 7, defaultCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 7, defaultCfg(), fastSwimCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 20) : (i += 1) _ = try world.spawn();
@@ -68,7 +77,7 @@ test "20-node bootstrap converges to one component, bounded views" {
 }
 
 test "killing 30% of nodes: survivors heal active views and stay connected" {
-    var world = qsim.World.init(testing.allocator, 11, defaultCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 11, defaultCfg(), fastSwimCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 20) : (i += 1) _ = try world.spawn();
@@ -97,7 +106,7 @@ test "killing 30% of nodes: survivors heal active views and stay connected" {
 }
 
 test "partition splits the overlay; heal re-merges through rotation" {
-    var world = qsim.World.init(testing.allocator, 23, defaultCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 23, defaultCfg(), fastSwimCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 10) : (i += 1) _ = try world.spawn();
@@ -121,7 +130,7 @@ test "partition splits the overlay; heal re-merges through rotation" {
 }
 
 test "5% datagram loss still converges (self-healing)" {
-    var world = qsim.World.init(testing.allocator, 31, defaultCfg(), .{ .drop_bp = 500 });
+    var world = qsim.World.init(testing.allocator, 31, defaultCfg(), fastSwimCfg(), .{ .drop_bp = 500 });
     defer world.deinit();
     var i: u32 = 0;
     while (i < 20) : (i += 1) _ = try world.spawn();
@@ -135,7 +144,7 @@ test "5% datagram loss still converges (self-healing)" {
 }
 
 test "paused node resumes and rejoins" {
-    var world = qsim.World.init(testing.allocator, 41, defaultCfg(), .{});
+    var world = qsim.World.init(testing.allocator, 41, defaultCfg(), fastSwimCfg(), .{});
     defer world.deinit();
     var i: u32 = 0;
     while (i < 8) : (i += 1) _ = try world.spawn();
@@ -158,10 +167,44 @@ test "paused node resumes and rejoins" {
     try testing.expect(world.stats.dropped_paused > 0);
 }
 
+test "SWIM: killed members are suspected and confirmed cluster-wide" {
+    var world = qsim.World.init(testing.allocator, 77, defaultCfg(), fastSwimCfg(), .{});
+    defer world.deinit();
+    var i: u32 = 0;
+    while (i < 12) : (i += 1) _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(20_000_000); // overlay converges; member tables fill
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+
+    const victims = [_]u32{ 2, 5, 8, 11 };
+    for (victims) |v| try world.kill(v);
+
+    // Probe (≤200 ms) + indirect (≤200 ms) + suspicion (≤400 ms), then
+    // piggybacked CONFIRM spreads with the probes.
+    try world.runFor(15_000_000);
+
+    for (world.nodes.items, 0..) |sn, idx| {
+        if (!world.alive.items[idx]) continue;
+        for (victims) |v| {
+            const victim_id = world.descs.items[v].id;
+            const state = sn.node.swim.stateOf(victim_id) orelse continue;
+            try testing.expectEqual(qmesh.swim.MemberState.dead, state);
+            // Confirmed-dead members leave the passive view.
+            try testing.expect(sn.node.overlay.inPassive(victim_id) == null);
+        }
+    }
+    // Suspicion counted somewhere (probes really failed).
+    var total_suspects: u64 = 0;
+    for (world.nodes.items, 0..) |sn, idx| {
+        if (world.alive.items[idx]) total_suspects += sn.node.swim.stats.suspects_declared;
+    }
+    try testing.expect(total_suspects > 0);
+}
+
 test "identical seeds produce byte-identical overlay state" {
     const run = struct {
         fn f(allocator: std.mem.Allocator, out_fingerprint: *u64, out_stats: *qsim.world.WorldStats) !void {
-            var world = qsim.World.init(allocator, 0xabcdef, defaultCfg(), .{});
+            var world = qsim.World.init(allocator, 0xabcdef, defaultCfg(), fastSwimCfg(), .{});
             defer world.deinit();
             var i: u32 = 0;
             while (i < 12) : (i += 1) _ = try world.spawn();

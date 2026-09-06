@@ -57,6 +57,7 @@ pub const Options = struct {
     /// check).
     dial_server_name: []const u8,
     overlay_cfg: qmesh.OverlayConfig = .{},
+    swim_cfg: qmesh.swim.Config = .{},
     rng_seed: u64 = 0,
     now_us: u64 = 0,
 };
@@ -83,6 +84,8 @@ const Session = struct {
     conn: *quic.Connection,
     /// Resolved once the peer's HELLO arrives; null until then.
     peer: ?PeerId = null,
+    /// The peer's announced self-description (kept for descOf).
+    peer_desc: ?PeerDesc = null,
     /// Dial target (client-side only), for connect dedupe.
     target: ?PeerId = null,
     /// Client ownership + the dial address the embedder's packet loop
@@ -139,7 +142,7 @@ pub const Endpoint = struct {
                 .prng = std.Random.DefaultPrng.init(opts.rng_seed),
             },
         };
-        e.node = MeshNode.init(opts.self, opts.overlay_cfg, &e.transport);
+        e.node = MeshNode.init(opts.self, .{ .overlay = opts.overlay_cfg, .swim = opts.swim_cfg }, &e.transport);
         return e;
     }
 
@@ -434,6 +437,7 @@ pub const Endpoint = struct {
         // Resolve identity: the session becomes overlay-visible.
         if (s.peer == null) {
             s.peer = peer;
+            s.peer_desc = msg.desc;
             e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
             s.state = .established;
             e.node.onSessionUp(peer);
@@ -477,6 +481,12 @@ pub const Endpoint = struct {
     pub fn establishedWith(e: *const Self, peer: PeerId) bool {
         const s = e.by_peer.get(peer) orelse return false;
         return s.state == .established;
+    }
+
+    /// Best-known descriptor for a connected peer (HELLO-announced).
+    pub fn descOf(e: *const Self, peer: PeerId) ?PeerDesc {
+        const s = e.by_peer.get(peer) orelse return null;
+        return s.peer_desc;
     }
 };
 

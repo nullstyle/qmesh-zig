@@ -66,6 +66,12 @@ pub const Config = struct {
     piggyback_max: u8 = 6,
     /// Local-health cap: probe timeouts scale up to this multiple.
     max_local_health: u8 = 8,
+    /// Every Nth probe targets a confirmed-dead member instead of the
+    /// round-robin alive/suspect scan — the resurrection path. Without
+    /// it, a healed partition stays split forever: both sides' tables
+    /// hold the other side CONFIRMed dead, and equal-incarnation ACKs
+    /// cannot beat a CONFIRM.
+    dead_probe_every: u16 = 8,
 };
 
 pub const msg_type = struct {
@@ -309,6 +315,8 @@ pub const Swim = struct {
     probe: ?Probe = null,
     next_nonce: u64 = 1,
     next_probe_us: u64,
+    probe_seq: u64 = 0,
+    dead_cursor: usize = 0,
 
     /// Outstanding indirect-probe relays we promised to service.
     relays: [max_relays]Relay = undefined,
@@ -534,10 +542,16 @@ pub const Swim = struct {
                         // Escalate to indirect probing.
                         p.phase = .indirect;
                         p.deadline_us = now + s.scaledIndirectTimeout();
+                        // One random start, then a single rotation: every
+                        // member is considered exactly once, so the
+                        // fan-out count is exact (a per-iteration
+                        // redraw could land on the target and waste
+                        // the slot).
+                        const start = rng.uintLessThan(usize, s.members_len);
                         var sent: usize = 0;
-                        var candidate: usize = 0;
-                        while (candidate < s.members_len and sent < s.cfg.ping_req_fanout) : (candidate += 1) {
-                            const m = s.members[(rng.uintLessThan(usize, s.members_len) + candidate) % s.members_len];
+                        var step: usize = 0;
+                        while (step < s.members_len and sent < s.cfg.ping_req_fanout) : (step += 1) {
+                            const m = s.members[(start + step) % s.members_len];
                             if (m.state == .dead) continue;
                             if (m.desc.id.eql(p.target)) continue;
                             out.push(.{ .send = .{
@@ -595,24 +609,48 @@ pub const Swim = struct {
 
     fn startProbe(s: *Self, now: u64, out: *Effects) void {
         if (s.members_len == 0) return;
-        // Probe alive members round-robin, suspects first (refutation
-        // chances), skipping dead ones.
-        var tries: usize = 0;
-        var idx: usize = s.probe_cursor % s.members_len;
-        var suspect_first: ?usize = null;
-        while (tries < s.members_len) : (tries += 1) {
-            const m = s.members[idx];
-            if (m.state == .suspect and suspect_first == null) suspect_first = idx;
-            if (m.state == .alive) break;
-            idx = (idx + 1) % s.members_len;
-        }
-        if (suspect_first) |si| {
-            idx = si;
-        } else if (s.members[idx].state == .dead) {
-            return; // nothing to probe
-        }
-        s.probe_cursor = (idx + 1) % s.members_len;
+        s.probe_seq += 1;
 
+        var target: ?usize = null;
+
+        // Resurrection slot: every Nth probe targets a confirmed-dead
+        // member. A live ack resurrects it (see handle .ack), which is
+        // the only thing that can beat a stale CONFIRM after a
+        // partition heals.
+        if (s.cfg.dead_probe_every > 0 and s.probe_seq % s.cfg.dead_probe_every == 0) {
+            var tries: usize = 0;
+            while (tries < s.members_len) : (tries += 1) {
+                const idx = (s.dead_cursor + tries) % s.members_len;
+                if (s.members[idx].state == .dead) {
+                    target = idx;
+                    s.dead_cursor = (idx + 1) % s.members_len;
+                    break;
+                }
+            }
+        }
+
+        if (target == null) {
+            // Alive members round-robin, suspects first (refutation
+            // chances).
+            var tries: usize = 0;
+            var idx: usize = s.probe_cursor % s.members_len;
+            var suspect_first: ?usize = null;
+            while (tries < s.members_len) : (tries += 1) {
+                const m = s.members[idx];
+                if (m.state == .suspect and suspect_first == null) suspect_first = idx;
+                if (m.state == .alive) break;
+                idx = (idx + 1) % s.members_len;
+            }
+            if (suspect_first) |si| {
+                idx = si;
+            } else if (s.members[idx].state == .dead) {
+                return; // nothing live to probe
+            }
+            s.probe_cursor = (idx + 1) % s.members_len;
+            target = idx;
+        }
+
+        const idx = target.?;
         const nonce = s.next_nonce;
         s.next_nonce += 1;
         s.probe = .{
@@ -627,6 +665,13 @@ pub const Swim = struct {
             .msg = .{ .ping = .{ .nonce = nonce, .events = events } },
             .class = .ephemeral,
         } });
+        // Ask the session layer to (re)confirm a connection: probes
+        // ride sessions, and this is the only thing that re-opens one
+        // to a member whose overlay passive entry was purged — the
+        // partition-recovery bootstrap. Idempotent when connected.
+        if (s.members[idx].desc.addr != .none) {
+            out.push(.{ .connect = s.members[idx].desc });
+        }
         s.stats.probes_sent += 1;
     }
 
@@ -700,11 +745,26 @@ pub const Swim = struct {
                     if (p.nonce == m.nonce) {
                         const target = p.target;
                         s.probe = null;
+                        var inc = m.incarnation;
+                        if (s.find(target)) |i| {
+                            if (s.members[i].state == .dead) {
+                                // Deliberate deviation from the strict
+                                // lattice: a DIRECT authenticated
+                                // round trip witnessed now outranks a
+                                // CONFIRM gossiped in the past.
+                                // Resurrect at an incarnation above the
+                                // confirm so the resulting ALIVE event
+                                // also heals other observers' tables
+                                // through normal gossip.
+                                inc = @max(m.incarnation, s.members[i].incarnation + 1);
+                            }
+                        }
                         const ev: Event = .{ .alive = .{
                             .desc = s.descFor(target) orelse .{ .id = target },
-                            .incarnation = m.incarnation,
+                            .incarnation = inc,
                         } };
                         _ = s.apply(ev, now);
+                        s.disseminate(ev);
                         return;
                     }
                 }
@@ -881,12 +941,13 @@ test "probe lifecycle: direct ack resolves; timeout escalates to indirect then s
     s.observe(descOf(23), 0);
     s.observe(descOf(24), 0);
 
-    // First probe tick: PING out.
+    // First probe tick: PING out plus the session (re)confirm connect.
     s.tick(s.cfg.probe_period_us, rng, &fx);
     try testing.expect(s.probe != null);
-    try testing.expectEqual(@as(usize, 1), fx.len);
+    try testing.expectEqual(@as(usize, 2), fx.len);
     const ping = fx.slice()[0].send;
     try testing.expect(ping.msg == .ping);
+    try testing.expect(fx.slice()[1] == .connect);
 
     // ACK resolves the probe and marks the member alive.
     fx.clear();
@@ -906,7 +967,12 @@ test "probe lifecycle: direct ack resolves; timeout escalates to indirect then s
     s.tick(t, rng, &fx); // escalate → ping_req fan-out
     var reqs: usize = 0;
     for (fx.slice()) |e| {
-        if (e.send.msg == .ping_req) reqs += 1;
+        switch (e) {
+            .send => |send| {
+                if (send.msg == .ping_req) reqs += 1;
+            },
+            .connect => {},
+        }
     }
     try testing.expectEqual(@as(usize, s.cfg.ping_req_fanout), reqs);
     t += s.cfg.indirect_timeout_us + 1;

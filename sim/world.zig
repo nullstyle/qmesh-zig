@@ -63,6 +63,7 @@ pub const World = struct {
     allocator: std.mem.Allocator,
     seed: u64,
     overlay_cfg: qmesh.OverlayConfig,
+    swim_cfg: qmesh.swim.Config,
     policy: Policy,
 
     now_us: u64 = 0,
@@ -90,13 +91,14 @@ pub const World = struct {
     /// Scratch for nodeActiveIds; not part of world state.
     active_ids_scratch: std.ArrayListUnmanaged(PeerId) = .empty,
 
-    pub fn init(allocator: std.mem.Allocator, seed: u64, overlay_cfg: qmesh.OverlayConfig, policy: Policy) Self {
+    pub fn init(allocator: std.mem.Allocator, seed: u64, overlay_cfg: qmesh.OverlayConfig, swim_cfg: qmesh.swim.Config, policy: Policy) Self {
         var s1 = std.Random.SplitMix64.init(seed ^ 0x1234_5678_9abc_def1);
         var s2 = std.Random.SplitMix64.init(seed ^ 0x0fed_cba9_8765_4321);
         return .{
             .allocator = allocator,
             .seed = seed,
             .overlay_cfg = overlay_cfg,
+            .swim_cfg = swim_cfg,
             .policy = policy,
             .net_rng = std.Random.DefaultPrng.init(s1.next()),
             .scen_rng = std.Random.DefaultPrng.init(s2.next()),
@@ -149,7 +151,7 @@ pub const World = struct {
             .transport = .{ .world = w, .idx = idx },
             .node = undefined,
         };
-        sn.node = qmesh.node.Node(SimTransport).init(desc, w.overlay_cfg, &sn.transport);
+        sn.node = qmesh.node.Node(SimTransport).init(desc, .{ .overlay = w.overlay_cfg, .swim = w.swim_cfg }, &sn.transport);
 
         try w.nodes.append(w.allocator, sn);
         return idx;

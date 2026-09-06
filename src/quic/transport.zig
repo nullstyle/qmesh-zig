@@ -29,4 +29,8 @@ pub const QuicTransport = struct {
     pub fn connect(t: *QuicTransport, desc: qmesh.PeerDesc) !void {
         try t.endpoint.connectPeer(desc);
     }
+
+    pub fn descOf(t: *QuicTransport, id: qmesh.PeerId) ?qmesh.PeerDesc {
+        return t.endpoint.descOf(id);
+    }
 };
