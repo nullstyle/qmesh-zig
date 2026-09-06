@@ -1,0 +1,20 @@
+.{
+    .name = .qmesh,
+    .version = "0.1.0",
+    .fingerprint = 0xc2bbdb284c1e27c5,
+    .minimum_zig_version = "0.17.0-dev.1683+5ceec001b",
+    .dependencies = .{
+        // Local path dependency during development. Release pins move to a
+        // tarball URL + hash (see quic-zig's build.zig.zon for the pattern,
+        // and its warning about `zig fetch --save` mangling entries).
+        .quic = .{ .path = "../quic-zig" },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "sim",
+        "tests",
+        "README.md",
+    },
+}

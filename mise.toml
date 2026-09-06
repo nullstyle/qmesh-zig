@@ -1,0 +1,11 @@
+[tools]
+# Same pin as quic-zig (the local path dependency): qmesh compiles
+# against quic HEAD, whose own floor is dev.1683.
+zig = "0.17.0-dev.1683+5ceec001b"
+
+[env]
+ZIG_GLOBAL_CACHE_DIR = "{{config_root}}/.zig-global-cache"
+
+[tasks.test]
+description = "Run the qmesh test suite (unit + sim + quic boundary)"
+run = "zig build test"
