@@ -140,7 +140,10 @@ Documented in `src/hyparview.zig`:
 ## quic-zig API gaps discovered
 
 Concrete gaps the QUIC adapter will need, for follow-up in quic-zig
-(generic APIs only — no qmesh concepts belong there):
+(generic APIs only — no qmesh concepts belong there). The paste-ready
+work order for a quic-zig session lives at
+[docs/quic-zig-session-brief.md](docs/quic-zig-session-brief.md); keep
+that file authoritative as items land:
 
 1. **Peer certificate access (blocking).** Neither `quic.Connection`
    nor `boringssl.tls.Conn` exposes the peer certificate or a digest
