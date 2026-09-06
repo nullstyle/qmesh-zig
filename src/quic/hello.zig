@@ -1,19 +1,18 @@
 //! Session HELLO — protocol 0x00, the first frame on every new qmesh
 //! session.
 //!
-//! This is the documented PeerId workaround for quic-zig gap 1 (no
-//! peer-certificate access; see README): until `Connection` exposes an
-//! authenticated identity digest, each endpoint announces its
-//! `PeerDesc` inside the mutually-authenticated TLS channel, and the
-//! session manager resolves the connection's PeerId from the received
-//! HELLO. Trust = the TLS handshake (both sides present cluster-CA
-//! certificates); the announced id is *claimed* identity within that
-//! channel — any cluster member can currently announce any id, which
-//! is acceptable for a cooperative cluster and is exactly what the
-//! quic-zig brief asks to fix.
+//! Identity is NOT announced here: the session PeerId is bound to
+//! `Connection.peerCertSpkiDigest()` at handshake completion (SHA-256
+//! of the peer leaf certificate's DER SubjectPublicKeyInfo — the
+//! standard openssl fingerprint preimage). The HELLO is reduced to an
+//! ADDRESS hint: it carries the sender's `PeerDesc` so the receiver
+//! learns the dialable address for gossip, and the receiver VALIDATES
+//! `desc.id` against the cert digest — a mismatch severs the session.
+//! A lying address can only misroute a dial (the cert at the far end
+//! still determines the identity); a lying id cannot impersonate.
 //!
 //! A qmesh session is not "up" (from the protocol cores' perspective)
-//! until the peer's HELLO has been received and decoded.
+//! until the validated HELLO has been received and decoded.
 
 const std = @import("std");
 const qmesh = @import("qmesh");

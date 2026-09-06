@@ -31,6 +31,22 @@ const key_a = @embedFile("data/node-a.key");
 const cert_b = @embedFile("data/node-b.pem");
 const key_b = @embedFile("data/node-b.key");
 
+// Provisioned PeerIds: SHA-256 of each node certificate's DER
+// SubjectPublicKeyInfo, computed with the standard fingerprint
+// pipeline —
+//   openssl x509 -in node-X.pem -pubkey -noout \
+//     | openssl pkey -pubin -outform DER | openssl dgst -sha256
+// The session layer must resolve connections to exactly these ids
+// (identity is cert-bound, not announced).
+const digest_a_hex = "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143";
+const digest_b_hex = "c43fffee6eebfd655228f20e906aadd12b832623c26beedb9f8cf46dde5fb45e";
+
+fn idFromHex(hex: []const u8) qmesh.PeerId {
+    var id: qmesh.PeerId = undefined;
+    _ = std.fmt.hexToBytes(&id.bytes, hex) catch unreachable;
+    return id;
+}
+
 /// Services both endpoints inside Loopback's driver hook; reads the
 /// clock straight off the Loopback after wiring.
 const MeshDriver = struct {
@@ -69,14 +85,12 @@ fn endpointOptions(self: qmesh.PeerDesc, cert: []const u8, key: []const u8, seed
 test "two-node JOIN over real QUIC with mutual TLS" {
     const allocator = testing.allocator;
 
-    var prng_a = std.Random.DefaultPrng.init(0xa);
-    var prng_b = std.Random.DefaultPrng.init(0xb);
     const desc_a = qmesh.PeerDesc{
-        .id = qmesh.PeerId.fromRandom(prng_a.random()),
+        .id = idFromHex(digest_a_hex),
         .addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4433),
     };
     const desc_b = qmesh.PeerDesc{
-        .id = qmesh.PeerId.fromRandom(prng_b.random()),
+        .id = idFromHex(digest_b_hex),
         .addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4434),
     };
 
@@ -117,10 +131,13 @@ test "two-node JOIN over real QUIC with mutual TLS" {
         if (a_ready and b_ready) break;
         try lb.step(&driver);
     }
+    // The overlay edges are keyed by the CERT-DERIVED ids — the
+    // provisioned digests above — proving identity binding end to end.
     try testing.expect(a.node.overlay.inActive(desc_b.id) != null);
     try testing.expect(b.node.overlay.inActive(desc_a.id) != null);
     try testing.expect(a.establishedWith(desc_b.id));
     try testing.expect(b.establishedWith(desc_a.id));
+    try testing.expectEqual(@as(u64, 0), a.stats.identity_mismatches);
     try testing.expect(a.stats.hellos_received >= 1);
     try testing.expect(b.stats.hellos_received >= 1);
     try testing.expect(a.stats.stream_frames_received >= 1); // HELLO + JOIN rode streams
@@ -141,14 +158,12 @@ test "two-node JOIN over real QUIC with mutual TLS" {
 test "peer close severs the session and demotes the overlay edge" {
     const allocator = testing.allocator;
 
-    var prng_a = std.Random.DefaultPrng.init(0xc);
-    var prng_b = std.Random.DefaultPrng.init(0xd);
     const desc_a = qmesh.PeerDesc{
-        .id = qmesh.PeerId.fromRandom(prng_a.random()),
+        .id = idFromHex(digest_a_hex),
         .addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4435),
     };
     const desc_b = qmesh.PeerDesc{
-        .id = qmesh.PeerId.fromRandom(prng_b.random()),
+        .id = idFromHex(digest_b_hex),
         .addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4436),
     };
 

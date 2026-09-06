@@ -26,10 +26,12 @@
 //!
 //! * `qmesh_sim` sessions — the simulator's virtual sessions (dial
 //!   latency, kill/partition semantics), used by the scenario tests.
-//! * `src/quic_sessions.zig` (next milestone) — the real one: one
-//!   `quic.Server` + `quic.Client` per node, `PeerId` pinned to the
-//!   TLS identity, DATAGRAM for `ephemeral` frames, one stream per
-//!   `reliable` frame (u16 length-prefixed, see `frame.stream`).
+//! * `src/quic/` — the real one: one `quic.Server` + `quic.Client`
+//!   per node, PeerId bound to the TLS identity
+//!   (`Connection.peerCertSpkiDigest` — SHA-256 of the peer leaf
+//!   cert's DER SubjectPublicKeyInfo), DATAGRAM for `ephemeral`
+//!   frames, one stream per `reliable` frame (u16 length-prefixed,
+//!   see `frame.stream`).
 //!
 //! QUIC mapping notes for the real implementation:
 //!

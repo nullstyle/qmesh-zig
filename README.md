@@ -49,8 +49,14 @@ distributed systems. It is **not** an actor runtime.
       CONFIRM, resurrecting at a bumped incarnation) re-open the
       connection, and piggybacked ALIVE re-bridges the overlay — the
       kill/partition scenarios now assert membership convergence.
-- [ ] Plumtree eager/lazy dissemination
-- [ ] Anti-entropy reconciliation
+- [x] Plumtree broadcast (`src/plumtree.zig`, pure): eager push /
+      lazy IHAVE with duplicate-driven demotion + PRUNE, IWANT repair
+      (reliable class) with graft-on-repair, bounded seen/payload
+      caches; the tree rides the overlay's active view
+- [x] Anti-entropy: recent-window EXCHANGE of message ids (two-message
+      termination) pulling gaps through the normal IWANT repair — the
+      simplest provable reconciliation; the exchange payload is the
+      seam for Rateless IBLT later
 
 ## Architecture
 
@@ -78,12 +84,18 @@ protocol cores, runs in the simulator without BoringSSL), and
 (SessionManager) owning one `quic.Server` for inbound plus one
 `quic.Client` per dial, implementing the transport contract: DATAGRAM
 for `ephemeral` frames, one length-prefixed uni-stream write per
-`reliable` frame. Session identity currently resolves via the HELLO
-protocol (0x00); quic-zig now exposes `Connection.peerCertSpkiDigest`
-(on main, post-0.20.0) so the adapter can bind PeerId directly to the
-authenticated key material — the announced-id interim is on its way
-out. Simultaneous dials tiebreak to exactly one connection (lower
-PeerId's dial wins).
+`reliable` frame. Session identity is CERT-BOUND: PeerId =
+`Connection.peerCertSpkiDigest()` (SHA-256 of the peer leaf cert's
+DER SubjectPublicKeyInfo — the standard `openssl x509 -pubkey |
+openssl pkey -pubin -outform DER | openssl dgst -sha256` preimage, so
+provisioned PeerIds interoperate with standard tooling), bound at
+handshake completion via the server's `on_handshake_complete` hook or
+on the dial side directly. The session HELLO (0x00) survives as a
+validated ADDRESS hint (announced id must equal the digest). Dials use
+`identity_verification = .none` + pinned `ca_pem` — chain mandatory,
+name check irrelevant for mesh dialing. Simultaneous dials tiebreak by
+authenticated id to exactly one connection (lower PeerId's dial
+wins).
 `tests/quic_boundary_test.zig` pins the quic API surface the adapter
 uses, so quic-zig drift fails this project's build with a clear
 message.

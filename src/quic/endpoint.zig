@@ -11,10 +11,17 @@
 //!   frames (`frame.stream`) demux by protocol byte to the HELLO
 //!   handler or the mesh node.
 //!
-//! Identity: until quic-zig exposes peer-certificate digests (README
-//! gap 1), the session HELLO (protocol 0x00) announces each side's
-//! `PeerDesc` inside the mutually-authenticated TLS channel. A session
-//! is overlay-visible only after the peer's HELLO resolves its PeerId.
+//! Identity is CERT-BOUND: the session PeerId is
+//! `Connection.peerCertSpkiDigest()` — SHA-256 of the peer leaf
+//! certificate's DER SubjectPublicKeyInfo, exactly the standard
+//! `openssl x509 -pubkey | openssl pkey -pubin -outform DER | openssl
+//! dgst -sha256` preimage, so provisioned PeerIds interoperate with
+//! any standard tooling. With `client_ca_pem` set the digest is always
+//! present once the handshake completes. The session HELLO (protocol
+//! 0x00) remains, reduced to an ADDRESS hint: its descriptor id must
+//! equal the cert digest (mismatch — an announced lie — severs the
+//! session), and its address feeds the gossip descriptor table. A
+//! session becomes overlay-visible once the validated HELLO arrives.
 //!
 //! Driving model: the embedder owns the event loop and calls
 //! `service(now_us)` once per iteration (socket-driven in production,
@@ -73,6 +80,7 @@ pub const Stats = struct {
     frames_unresolved: u64 = 0,
     sessions_closed: u64 = 0,
     tiebreaks_lost: u64 = 0,
+    identity_mismatches: u64 = 0,
 };
 
 const SessState = enum { connecting, established, closed };
@@ -121,7 +129,6 @@ pub const Endpoint = struct {
     server: ?*quic.Server = null,
     sessions: std.ArrayListUnmanaged(*Session) = .empty,
     by_peer: std.AutoHashMapUnmanaged(PeerId, *Session) = .empty,
-    seen_slots: std.AutoHashMapUnmanaged(u64, void) = .empty,
 
     datagram_buf: [1500]u8 = undefined,
     stream_buf: [4096]u8 = undefined,
@@ -162,7 +169,6 @@ pub const Endpoint = struct {
         for (e.sessions.items) |s| e.destroySession(s);
         e.sessions.deinit(e.allocator);
         e.by_peer.deinit(e.allocator);
-        e.seen_slots.deinit(e.allocator);
         e.allocator.destroy(e);
     }
 
@@ -192,6 +198,8 @@ pub const Endpoint = struct {
             .max_concurrent_connections = 256,
             .on_connection_will_close = willCloseHook,
             .on_connection_will_close_user_data = e,
+            .on_handshake_complete = handshakeCompleteHook,
+            .on_handshake_complete_user_data = e,
         });
         e.server = srv;
         return srv;
@@ -205,6 +213,63 @@ pub const Endpoint = struct {
                 return;
             }
         }
+    }
+
+    /// Session discovery: fires exactly once per slot from inside
+    /// `feed`, connection established and open. Binds the session to
+    /// the CERT-DERIVED PeerId immediately (authenticated; with
+    /// `client_ca_pem` the digest is always present here). Contract:
+    /// endpoint-state mutation only — HELLO emission and any Server
+    /// calls happen in the next service pass.
+    fn handshakeCompleteHook(user_data: ?*anyopaque, slot: *quic.Server.Slot) void {
+        const e: *Self = @ptrCast(@alignCast(user_data.?));
+        const digest = slot.conn.peerCertSpkiDigest() orelse {
+            // Unreachable with client_ca_pem set (required client
+            // certs); treat as a protocol violation and ignore the
+            // slot entirely.
+            return;
+        };
+        e.registerAcceptedSession(.{ .bytes = digest }, slot);
+    }
+
+    fn registerAcceptedSession(e: *Self, peer: PeerId, slot: *quic.Server.Slot) void {
+        // Simultaneous dials resolve by AUTHENTICATED id: the
+        // connection initiated by the lower PeerId wins.
+        if (e.by_peer.get(peer)) |existing| {
+            if (existing != e.sessionForSlot(slot.slot_id)) {
+                const mine_lower = orderIds(e.opts.self.id, peer) == .lt;
+                // The incoming slot was PEER-initiated; we keep ours
+                // (our dial) only when ours is the lower initiator.
+                if (mine_lower) {
+                    e.stats.tiebreaks_lost += 1;
+                    return; // our outbound dial stays; ignore this slot
+                }
+            }
+        }
+        const s = e.allocator.create(Session) catch return;
+        s.* = .{
+            .state = .connecting,
+            .conn = slot.conn,
+            .peer = peer,
+            .slot_id = slot.slot_id,
+        };
+        e.sessions.append(e.allocator, s) catch {
+            e.allocator.destroy(s);
+            return;
+        };
+        if (e.by_peer.get(peer) == null) {
+            e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
+        }
+        e.stats.accepts += 1;
+    }
+
+    fn sessionForSlot(e: *Self, slot_id: u64) ?*Session {
+        for (e.sessions.items) |s| {
+            if (s.slot_id) |sid| {
+                if (sid == slot_id) return s;
+            }
+        }
+        return null;
     }
 
     /// Begin mesh membership through a bootstrap contact (thin sugar
@@ -264,6 +329,10 @@ pub const Endpoint = struct {
             .ca_pem = e.opts.ca_pem,
             .client_cert_pem = e.opts.tls_cert_pem,
             .client_key_pem = e.opts.tls_key_pem,
+            // Mesh posture: the peer's identity is its CERTIFICATE (the
+            // SPKI digest becomes the PeerId), never the dialed name —
+            // gossip addresses are IPs, cert names are cluster ids.
+            .identity_verification = .none,
         });
         e.stats.dials += 1;
 
@@ -272,7 +341,6 @@ pub const Endpoint = struct {
         s.* = .{
             .state = .connecting,
             .conn = cli.conn,
-            .peer = null,
             .target = desc.id,
             .client = cli,
             .dial_addr = qaddr,
@@ -287,7 +355,8 @@ pub const Endpoint = struct {
     pub fn service(e: *Self, now_us: u64) !void {
         e.now_us = now_us;
 
-        if (e.server) |srv| try e.serviceAccepts(srv);
+        // Server-side sessions arrive via the on_handshake_complete
+        // hook (cert-bound, fires inside `feed`); nothing to scan.
         for (e.sessions.items) |s| {
             try e.serviceSession(s);
         }
@@ -295,22 +364,6 @@ pub const Endpoint = struct {
         // Protocol timers.
         if (e.node.nextDeadline()) |d| {
             if (d <= e.now_us) e.node.tick();
-        }
-    }
-
-    fn serviceAccepts(e: *Self, srv: *quic.Server) !void {
-        for (srv.iterator()) |slot| {
-            if (e.seen_slots.contains(slot.slot_id)) continue;
-            try e.seen_slots.put(e.allocator, slot.slot_id, {});
-            const s = try e.allocator.create(Session);
-            errdefer e.allocator.destroy(s);
-            s.* = .{
-                .state = .connecting,
-                .conn = slot.conn,
-                .slot_id = slot.slot_id,
-            };
-            try e.sessions.append(e.allocator, s);
-            e.stats.accepts += 1;
         }
     }
 
@@ -334,7 +387,17 @@ pub const Endpoint = struct {
             return;
         }
 
-        // HELLO as soon as the handshake completes.
+        // Client-side sessions bind the cert digest at handshake
+        // completion (the server side binds inside the hook).
+        if (s.client != null and s.peer == null and s.conn.handshakeDone()) {
+            const digest = s.conn.peerCertSpkiDigest() orelse {
+                e.closeSession(s, .transport_error);
+                return;
+            };
+            e.bindDialSession(.{ .bytes = digest }, s);
+        }
+
+        // HELLO (address hint) as soon as the handshake completes.
         if (!s.hello_sent and s.conn.handshakeDone()) {
             try e.sendHello(s);
         }
@@ -345,6 +408,27 @@ pub const Endpoint = struct {
             e.ingress(s, e.datagram_buf[0..dg.len]);
         }
         try e.serviceStreams(s);
+    }
+
+    /// Bind an outbound dial to the authenticated remote identity.
+    /// Simultaneous dials between the same pair resolve by authenticated
+    /// id: the connection initiated by the lower PeerId wins.
+    fn bindDialSession(e: *Self, peer: PeerId, s: *Session) void {
+        s.peer = peer;
+        if (e.by_peer.get(peer)) |existing| {
+            if (existing != s) {
+                const mine_lower = orderIds(e.opts.self.id, peer) == .lt;
+                if (mine_lower) {
+                    // Our dial wins; the redundant one is dropped.
+                    return;
+                }
+                // Their dial (already registered) wins; ours closes.
+                e.stats.tiebreaks_lost += 1;
+                e.dropSession(s);
+            }
+            return;
+        }
+        e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
     }
 
     fn sendHello(e: *Self, s: *Session) !void {
@@ -417,41 +501,41 @@ pub const Endpoint = struct {
         }
     }
 
+    /// The HELLO is an ADDRESS hint, not an identity claim: identity
+    /// is the cert digest bound at handshake completion. The announced
+    /// descriptor id must match the digest (a mismatch is a lie — or a
+    /// version skew — and severs the session). On validation the
+    /// session becomes overlay-visible.
     fn handleHello(e: *Self, s: *Session, bytes: []const u8) void {
         const msg = hello_mod.decode(bytes) catch {
             e.stats.frames_unresolved += 1;
             return;
         };
         e.stats.hellos_received += 1;
-        const peer = msg.desc.id;
 
-        // Self-dial or duplicate identity: simultaneous-dial tiebreak —
-        // the connection initiated by the lower PeerId wins. The loser
-        // drops theirs; both sides apply the same rule and converge on
-        // exactly one connection.
+        const peer = s.peer orelse {
+            // HELLO before the digest was bound (should not happen —
+            // HELLOs flow only after handshake completion).
+            e.stats.frames_unresolved += 1;
+            return;
+        };
+        if (!msg.desc.id.eql(peer)) {
+            // Announced id ≠ authenticated identity.
+            e.stats.identity_mismatches += 1;
+            e.dropSession(s);
+            return;
+        }
         if (peer.eql(e.opts.self.id)) {
             e.dropSession(s);
             return;
         }
-        if (e.by_peer.get(peer)) |existing| {
-            if (existing != s) {
-                const i_initiated = s.client != null;
-                const mine_lower = orderIds(e.opts.self.id, peer) == .lt;
-                const keep_mine = if (i_initiated) mine_lower else !mine_lower;
-                const loser = if (keep_mine) s else existing;
-                e.stats.tiebreaks_lost += 1;
-                e.dropSession(loser);
-                if (loser != s) return; // we kept `s`; fall through to resolve it
-                return; // `s` lost; nothing further on this connection
-            }
-        }
 
-        // Resolve identity: the session becomes overlay-visible.
-        if (s.peer == null) {
-            s.peer = peer;
+        if (s.state == .connecting) {
             s.peer_desc = msg.desc;
-            e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
             s.state = .established;
+            if (e.by_peer.get(peer) == null) {
+                e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
+            }
             e.node.onSessionUp(peer);
         }
     }
