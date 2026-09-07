@@ -105,15 +105,19 @@ driver invariant, not a protocol claim).
 Invariants 1-4 and 6 passed (full re-convergence in the heal window,
 ~100% delivery, lh decay, suspect correlation). Two findings:
 
-1. **RSS balloon, node-e: 267MB vs ~33MB siblings.** The correlated
-   schedule froze node-e nearly continuously, then crash-restarted
-   it late. Its own counters are calm (sessrec 12-13, shed 0,
-   ep_dgram_rx normal, closes 12) — no connection explosion at the
-   endpoint layer. Unexplained; needs a deterministic repro plus
-   heap profiling (MallocStackLogging) to split real leak vs
-   allocator retention of a transient storm (the restart wake
-   processes a socket backlog of peer Initials; each half-open
-   handshake slot carries a full TLS context).
+1. **RSS balloon, node-e: 267MB vs ~33MB siblings.** Mitigated and
+   instrumented, full confirmation pending the next campaign. Theory:
+   the restart-wake drain admits a storm of stale peer Initials,
+   each creating a server slot (Connection + TLS contexts, MB-class)
+   invisible to session counters; with max_concurrent_connections
+   at 256 the ceiling was ~256MB — matching the measurement. Now:
+   the mesh server caps slots at 32 (cluster-sized population plus
+   reconnect headroom; refused Initials are absorbed by dial
+   retries), and the metrics line carries a `slots=` gauge so a
+   campaign catches the storm in the act. A 2-peer/45s-freeze repro
+   showed slots=0 and no balloon — the trigger needs the full
+   multi-peer storm + crash-restart; rerun the campaign to confirm
+   the bound holds.
 
 2. **Probe-engine seizure, same node — FIXED.** After its late
    restart, `probes_sent` froze while `acks_tx` kept climbing: the

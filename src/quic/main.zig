@@ -260,7 +260,7 @@ const Runtime = struct {
                 m.transport.sessions_closed,
             },
         );
-        std.debug.print("transport sessrec={d} shed={d} ep_dgram_rx={d} decode_err={d} unknown_proto={d}\n", .{ m.transport.session_records, m.transport.datagrams_shed, m.transport.datagrams_received, m.mesh.driver.decode_errors, m.mesh.driver.unknown_protocol });
+        std.debug.print("transport sessrec={d} slots={d} shed={d} ep_dgram_rx={d} decode_err={d} unknown_proto={d}\n", .{ m.transport.session_records, m.transport.server_slots, m.transport.datagrams_shed, m.transport.datagrams_received, m.mesh.driver.decode_errors, m.mesh.driver.unknown_protocol });
         if (wire.enabled) {
             std.debug.print(
                 "wire pkt_tx={d} pkt_rx={d} dropped={d} [hdr={d} dec={d} ver={d} cid={d} big={d} rst={d} keys={d} other={d} sz={d}-{d}] loss_ev={d} lost={d}\n",

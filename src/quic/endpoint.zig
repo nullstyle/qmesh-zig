@@ -259,7 +259,17 @@ pub const Endpoint = struct {
             .client_ca_pem = e.opts.ca_pem,
             .alpn_protocols = &alpn_protocols,
             .transport_params = meshTransportParams(e.opts.pmtu_max),
-            .max_concurrent_connections = 256,
+            // Mesh-bounded: a qmesh node's inbound population is its
+            // cluster (plus reconnect overlap) — 256 slots was an
+            // unbounded-memory invitation (each slot is a Connection
+            // + TLS contexts ≈ MB-class): a restart-wake drain admits
+            // a storm of stale peer Initials and chaos measured a
+            // 267MB balloon with calm session counters (the slots are
+            // pre-handshake, invisible to them). 32 covers the
+            // largest planned deployment (8-12 nodes) with wide
+            // reconnect headroom; excess Initials are refused, which
+            // peers' dial retries absorb.
+            .max_concurrent_connections = 32,
             .stateless_reset_key = stateless_reset_key,
             .retry_token_key = e.opts.retry_token_key,
             .new_token_key = e.opts.new_token_key,
@@ -769,6 +779,7 @@ pub const Endpoint = struct {
     pub fn metrics(e: *const Self) EndpointMetrics {
         var established: usize = 0;
         var datagrams_shed: u64 = 0;
+        const server_slots: usize = if (e.server) |srv| srv.iterator().len else 0;
         for (e.sessions.items) |s| {
             if (s.state == .established) established += 1;
             if (s.state != .closed) {
@@ -781,6 +792,7 @@ pub const Endpoint = struct {
             .transport = .{
                 .established = established,
                 .session_records = e.sessions.items.len,
+                .server_slots = server_slots,
                 .datagrams_shed = datagrams_shed,
                 .dials = e.stats.dials,
                 .accepts = e.stats.accepts,
@@ -802,6 +814,10 @@ pub const Endpoint = struct {
         // Gauges.
         established: usize,
         session_records: usize,
+        /// Live server slots, including pre-handshake ones (the
+        /// balloon diagnostic: slots exist before our session
+        /// records do).
+        server_slots: usize,
         // Counters.
         datagrams_shed: u64,
         dials: u64,
