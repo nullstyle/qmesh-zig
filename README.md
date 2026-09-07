@@ -193,12 +193,12 @@ bounded lists (never callbacks), so:
 
 ### Transport contract
 
-`Node(Transport)` needs exactly five things from a transport
+`Node(Transport)` needs exactly six things from a transport
 (`src/node.zig`): `now`, `rng`, `sendDatagram`, `sendReliable`,
-`connect`. `SimTransport` (`sim/node.zig`) is the simulator's
-implementation; the QUIC adapter will be the real one — DATAGRAM for
-`ephemeral` frames, one length-prefixed stream write per `reliable`
-frame (`frame.stream`).
+`connect`, `descOf`. `SimTransport` (`sim/node.zig`) is the
+simulator's implementation; `qmesh_quic.Endpoint` (`src/quic/`) is the
+real one — DATAGRAM for `ephemeral` frames, one length-prefixed stream
+write per `reliable` frame (`frame.stream`).
 
 ### Message class mapping
 

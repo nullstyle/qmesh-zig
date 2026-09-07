@@ -36,12 +36,16 @@ pub fn build(b: *std.Build) !void {
     // --- quic dependency -------------------------------------------------
     //
     // `dependencyLazy` (not plain `dependency`) with this option set.
-    // Note: local quic HEAD registers only a `-Drelease` policy option
-    // (via standardOptimizeOption's preferred mode) and REJECTS
-    // `.optimize` here — unlike the 0.19.0 tarball qmsg pins, which
-    // accepts it. A release pin must revisit this (mirror qmsg's
-    // `.optimize` forwarding). `.sanitize-c = "trap"` matches qmsg's
+    // The option map must match qmsg's EXACTLY (`target`,
+    // `sanitize-c`): Zig keys the dependency cache on
+    // {pkg_hash, option-set}, so a binary linking both qmesh and qmsg
+    // shares one quic module only while the two maps agree — otherwise
+    // BoringSSL compiles twice and two incompatible `quic.Connection`
+    // types exist in one program. `.sanitize-c = "trap"` is qmsg's
     // recipe for static-archive BoringSSL objects under ReleaseSafe.
+    // `optimize` is deliberately NOT forwarded: quic-zig registers no
+    // such option (it exposes `-Drelease` instead), and passing it
+    // fails a cold-cache build outright.
     const quic_dep = try b.dependencyLazy("quic", .{
         .target = target,
         .@"sanitize-c" = @as([]const u8, "trap"),
@@ -57,6 +61,15 @@ pub fn build(b: *std.Build) !void {
     });
     qmesh_quic_mod.addImport("qmesh", qmesh_mod);
     qmesh_quic_mod.addImport("quic", quic_mod);
+
+    // Everything below is DEVELOPMENT-ONLY: the node binary, the test
+    // steps, and the tools. `pkg_hash` is empty only for the top-level
+    // build, so a downstream consumer that fetched qmesh stops here
+    // with the three public modules (`qmesh`, `qmesh_sim`,
+    // `qmesh_quic`) registered and nothing else configured. Without
+    // this, every consumer built our test executables. quic-zig's
+    // build.zig does the same thing.
+    if (b.pkg_hash.len != 0) return;
 
     // Deployment entry point: one mesh node over the supported socket
     // loop (fly smoke tests drive this binary).

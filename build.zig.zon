@@ -4,18 +4,30 @@
     .fingerprint = 0xc2bbdb284c1e27c5,
     .minimum_zig_version = "0.17.0-dev.1683+5ceec001b",
     .dependencies = .{
-        // Local path dependency during development. Release pins move to a
-        // tarball URL + hash (see quic-zig's build.zig.zon for the pattern,
-        // and its warning about `zig fetch --save` mangling entries).
-        .quic = .{ .path = "../quic-zig" },
+        // Tarball pin, not a path: a `.path` dependency resolves against
+        // the package directory, so a FETCHED qmesh (no sibling checkout)
+        // failed to configure at all. The URL+hash form is what makes
+        // qmesh consumable as a package. Same pin and same option map as
+        // qmsg, so one binary linking both packages shares ONE quic
+        // module rather than compiling BoringSSL twice.
+        // (`zig fetch --save` mangles these entries; edit by hand.)
+        .quic = .{
+            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.21.0.tar.gz",
+            .hash = "quic-0.21.0-DnSYvexpMQDWBFgcnXGbfuDzqPNhV9jMPmp4KFjghBJO",
+        },
     },
+    // Consumer-facing archive. `sim/` ships because `qmesh_sim` is a
+    // public module; `tests/` does not — the build returns early for
+    // dependency builds, so downstream never configures them and
+    // shipping them was pure fetch weight.
     .paths = .{
         "build.zig",
         "build.zig.zon",
         "src",
         "sim",
-        "tests",
         "docs",
+        "CHANGELOG.md",
+        "LICENSE",
         "README.md",
     },
 }
