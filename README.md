@@ -319,6 +319,32 @@ zig build test      # unit + simulator + quic boundary tests
 development; release pins move to tarball URL + hash (see quic-zig's
 zon for the `zig fetch` caveats).
 
+## Running a node (fly smoke-test posture)
+
+`zig build` produces `zig-out/bin/qmesh-node` — one mesh node on the
+supported socket loop with the `fly_multi_region` profile, provisioned
+cert identity, stderr metrics lines, broadcast logging, and
+SIGTERM-clean shutdown:
+
+```sh
+# The node's PeerId is its cert's SPKI digest (the standard pipeline):
+openssl x509 -in node.pem -pubkey -noout \
+  | openssl pkey -pubin -outform DER | openssl dgst -sha256
+
+./zig-out/bin/qmesh-node \
+  --id <64-hex-digest> --bind '[fdxx::1]:4451' \
+  --cert node.pem --key node.key --ca ca.pem \
+  --join <peer-64-hex>:'[fdxx::2]:4451' --metrics-secs 10
+```
+
+Deploy one process per fly machine over the 6pn network (bind the
+machine's private v6; PMTU is capped at 1380 for the WireGuard
+encapsulation). Metrics lines carry the gauges to watch in a smoke
+test: `alive`/`suspect`/`dead` (membership agreement), `active`/
+`ranked` (overlay + locality), `sess` (transport), `lh` (Lifeguard
+health — sustained nonzero means the machine is starving the loop).
+Build deploy binaries with `-Doptimize=ReleaseSafe`.
+
 ## Next steps (milestone 2)
 
 1. **QUIC session adapter** (`src/quic/`): a `SessionManager` owning

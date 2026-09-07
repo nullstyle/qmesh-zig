@@ -58,6 +58,19 @@ pub fn build(b: *std.Build) !void {
     qmesh_quic_mod.addImport("qmesh", qmesh_mod);
     qmesh_quic_mod.addImport("quic", quic_mod);
 
+    // Deployment entry point: one mesh node over the supported socket
+    // loop (fly smoke tests drive this binary).
+    const node_exe_mod = b.createModule(.{
+        .root_source_file = b.path("src/quic/main.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    node_exe_mod.addImport("qmesh", qmesh_mod);
+    node_exe_mod.addImport("quic", quic_mod);
+    node_exe_mod.addImport("qmesh_quic", qmesh_quic_mod);
+    const node_exe = b.addExecutable(.{ .name = "qmesh-node", .root_module = node_exe_mod });
+    b.installArtifact(node_exe);
+
     // --- test steps ------------------------------------------------------
 
     const test_step = b.step("test", "Run qmesh tests (unit + sim + quic boundary)");
