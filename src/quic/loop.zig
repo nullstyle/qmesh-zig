@@ -215,6 +215,23 @@ pub const Runner = struct {
         errdefer ep.deinit();
         _ = try ep.listen();
 
+        // Plumtree ids must not repeat across process restarts: a
+        // restarted node re-publishing (origin, seq) ids its
+        // survivors still hold in the bounded seen cache has those
+        // legitimately deduped as duplicates — silent delivery loss
+        // for exactly the crash-restart pattern the chaos/soak
+        // harnesses drive (the fleet soak measured late-restart
+        // victims' publishes suppressed this way). Base the per-boot
+        // seq range on the wall clock: each lifetime owns a disjoint
+        // range (a node cannot restart within its own publish
+        // window), while the simulator keeps its deterministic 1..N
+        // seqs — this is the transport seam, not the core.
+        var ts: std.c.timespec = undefined;
+        _ = std.c.clock_gettime(std.c.CLOCK.REALTIME, &ts);
+        const unix_us: u64 = @as(u64, @intCast(ts.sec)) * std.time.us_per_s +
+            @as(u64, @intCast(@divTrunc(ts.nsec, 1000)));
+        ep.node.broadcast.next_seq = unix_us | 1;
+
         var sa = toSockAddr(toQuicAddr(opts.bind) orelse return error.NoRoute) orelse return error.NoRoute;
         const sock = try sysSocket(sockFamily(opts.bind));
         errdefer _ = posix.system.close(sock);

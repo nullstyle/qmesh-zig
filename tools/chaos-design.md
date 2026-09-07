@@ -178,3 +178,24 @@ fleet deployed the same way converged within minutes and holds
 The balloon (267MB) note above predates this and remains
 bound-by-the-slot-cap; rerun a campaign to observe it at the new
 bound if it recurs.
+
+## Post-fix stability soak findings (2026-09-07 evening)
+
+12-node fleet-soak × 33 min against the churn-fixed binary: clean.
+Fleet-wide exactly-once delivery **96%** under a kill+restart every
+30 s (4680/4840), full membership re-convergence between churn
+windows (final settle: alive=11 sus=0 on every node whose last
+metrics line post-dates its rejoin), lh=0 throughout (no stall
+fingerprint), RSS flat ~25-30MB on churn-era nodes (the long-lived
+seed settled ~59MB, far under the 32-slot cap bound; no balloon —
+slots gauge never flagged). Zero suspects outside fault windows.
+
+One measurement artifact found and fixed: a restarted qmesh-node
+resets its Plumtree `next_seq` to 1, so its post-restart publishes
+re-use (origin, seq) ids survivors still hold in the bounded seen
+cache — correctly deduped as duplicates, silently suppressing the
+restarted victim's publishes for a cache window (visible as
+late-restart nodes' delivery counts cratering). Fix: the Runner seeds
+the per-boot seq base from the wall clock (transport seam, not the
+core — the simulator keeps deterministic 1..N seqs), giving each
+process lifetime a disjoint id range.
