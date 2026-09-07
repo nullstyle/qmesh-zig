@@ -163,11 +163,25 @@ Narrowed 2026-09-07 (two local experiments + image archaeology):
   fleet (17:41+) runs 01M1YD94G5 built from the v0.21.0 pin. The
   A/B on real 6pn therefore already exists in the registry.
 
-Remaining difference set: {v0.21.0-vs-HEAD quic} x {real 6pn:
-cross-region RTT + loss + MTU/DPLPMTUD} x {x86_64 codegen — all
-local evidence is arm64}. Decisive next experiment, cheap: redeploy
-image 01M1WYAX to the six machines — churn stops => dependency
-interaction on real networks confirmed => pin back to 720443e (or a
-quic-zig regression brief); churn persists => 6pn/codegen hunt
-(Docker-run the x86_64 build locally to split codegen from
-network).
+RESOLVED-AS-MISDIRECTED 2026-09-07 18:05: the pre-pin image
+(01M1WYAX, .path-HEAD quic) churns IDENTICALLY when deployed the
+same way — quic v0.21.0 is exonerated. The discriminating variable
+is the BRING-UP PATTERN: the stable 04:09 fleet was built
+incrementally (machines started one at a time, hours apart); both
+churning deploys restarted all six SIMULTANEOUSLY. Local all-at-once
+bring-up converges perfectly — but at loopback RTT. Working theory:
+mass cold start on real RTT — everyone probes still-booting peers,
+corroborated suspicions halve windows (Ta), CONFIRMs fire before
+mTLS handshakes complete, and the confirm->sweep->teardown cascade
+outruns pairwise resurrection at 6pn RTT. A mass-restart recovery
+bug in qmesh proper, not a dependency issue.
+
+Next experiments (cheap to decisive): (1) bring the fly fleet up
+INCREMENTALLY — one machine every 30-60s, mirroring 04:09 — if it
+converges and holds, mass-restart-on-real-RTT is confirmed as the
+trigger; (2) then reproduce IN THE SIM: fly profile + zone delays +
+kill-and-respawn-all simultaneously — the sim could not have caught
+this before because nothing models simultaneous respawn with
+cross-zone RTT; if it reproduces there, the fix is core-side
+(resurrection must outrun the teardown cascade, e.g. resurrection
+ALIVE events suppressing sweeps fleet-wide).
