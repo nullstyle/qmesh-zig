@@ -276,6 +276,7 @@ pub fn main(init: std.process.Init) !void {
     var metrics_secs: u64 = 10;
     var publish_secs: u64 = 0;
     var pmtu_max: u16 = 1380;
+    var control_str: ?[]const u8 = null;
     var qlog_count = false;
     var joins_buf: [8]qmesh.PeerDesc = undefined;
     var joins_len: usize = 0;
@@ -308,6 +309,8 @@ pub fn main(init: std.process.Init) !void {
         } else if (std.mem.eql(u8, arg, "--pmtu-max")) {
             const v = args.next() orelse return badFlag("--pmtu-max needs a number");
             pmtu_max = std.fmt.parseInt(u16, v, 10) catch return error.BadPmtuMax;
+        } else if (std.mem.eql(u8, arg, "--control")) {
+            control_str = args.next() orelse return badFlag("--control needs <[v6]:port|v4:port>");
         } else if (std.mem.eql(u8, arg, "--qlog-count")) {
             qlog_count = true;
         } else if (std.mem.eql(u8, arg, "--qlog-dump")) {
@@ -330,6 +333,9 @@ pub fn main(init: std.process.Init) !void {
     if (init.environ_map.get("QMESH_PMTU_MAX")) |v| {
         pmtu_max = std.fmt.parseInt(u16, v, 10) catch return error.BadPmtuMax;
     }
+    if (init.environ_map.get("QMESH_CONTROL")) |v| {
+        if (control_str == null) control_str = v;
+    }
     if (init.environ_map.get("QMESH_QLOG_COUNT")) |v| {
         qlog_count = std.mem.eql(u8, v, "1") or std.mem.eql(u8, v, "true");
     }
@@ -345,6 +351,7 @@ pub fn main(init: std.process.Init) !void {
         }
     }
 
+    const control = if (control_str) |c| try parseAddr(c) else null;
     const id = try idFromHex(flagOrEnv(init, id_hex, "QMESH_ID") orelse {
         printUsage();
         return error.MissingId;
@@ -381,6 +388,7 @@ pub fn main(init: std.process.Init) !void {
             .hooks = .{ .ctx = null, .onBroadcast = Runtime.onBroadcast },
         },
         .bind = bind,
+        .control = control,
         .on_iteration = Runtime.onIteration,
         .on_iteration_ctx = &rt_storage,
         .shutdown = &shutdown_flag,

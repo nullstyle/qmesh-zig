@@ -69,6 +69,37 @@ fn toQuicAddr(a: qmesh.Addr) ?quic.Address {
     };
 }
 
+/// In-process fault injection knobs (chaos testing; see
+/// tools/chaos-design.md). Opt-in via `Runner.Options.control`; the
+/// control listener mutates these, the loop consults them at the
+/// exact points traffic flows. All off by default.
+pub const FaultKnobs = struct {
+    /// Inbound datagram drop rate in basis points (0 = off).
+    drop_in_bp: u32 = 0,
+    /// Outbound datagram drop rate in basis points.
+    drop_out_bp: u32 = 0,
+    /// Freeze: skip loop iterations until this wall time passes —
+    /// nothing is sent or processed while the clock advances, so
+    /// Lifeguard observes exactly the stall via `noteAppDelay`.
+    freeze_until_us: u64 = 0,
+    /// Extra sleep per iteration (the "slow" fault).
+    delay_us: u64 = 0,
+    /// One-way blackholes by port (the pre-decrypt identity available
+    /// on both directions of the wire). Bounded.
+    bh_in: [4]u16 = @splat(0),
+    bh_in_len: usize = 0,
+    bh_out: [4]u16 = @splat(0),
+    bh_out_len: usize = 0,
+
+    pub fn clearFlaky(f: *FaultKnobs) void {
+        f.drop_in_bp = 0;
+        f.drop_out_bp = 0;
+        f.delay_us = 0;
+        f.bh_in_len = 0;
+        f.bh_out_len = 0;
+    }
+};
+
 /// Family-aware socket address. Octets are copied byte-for-byte:
 /// sockaddr_in.addr is a u32 on some ABIs and [4]u8 on others, and
 /// both hold network-order octets in memory, so memcpy is the
@@ -141,6 +172,10 @@ pub const Runner = struct {
         on_iteration_ctx: ?*anyopaque = null,
         /// `run()` exits when this flips true (checked each pass).
         shutdown: ?*std.atomic.Value(bool) = null,
+        /// Chaos control channel: bind this address (a second UDP
+        /// socket) and accept fault commands (freeze/drop/bh/slow/
+        /// crash/clear — see tools/chaos-design.md). Null disables.
+        control: ?qmesh.Addr = null,
     };
 
     allocator: std.mem.Allocator,
@@ -154,6 +189,11 @@ pub const Runner = struct {
     /// Last iteration's clock sample — the Lifeguard (local health)
     /// input. The gap between iterations is the observed app delay.
     last_step_us: u64,
+    /// Chaos fault knobs (see FaultKnobs) + control socket + the
+    /// drop-decision xorshift state.
+    faults: FaultKnobs = .{},
+    fault_rng: u64 = 0x9e3779b97f4a7c15,
+    control_sock: ?posix.socket_t = null,
 
     pub fn init(allocator: std.mem.Allocator, opts: Options) !*Self {
         const ep = try Endpoint.init(allocator, opts.endpoint);
@@ -166,6 +206,14 @@ pub const Runner = struct {
         const rc = posix.system.bind(sock, @ptrCast(&sa.storage), sa.len);
         if (posix.errno(rc) != .SUCCESS) return error.BindFailed;
 
+        const control_sock: ?posix.socket_t = if (opts.control) |c| blk: {
+            const csa = toSockAddr(toQuicAddr(c) orelse return error.NoRoute) orelse return error.NoRoute;
+            const csock = try sysSocket(sockFamily(c));
+            const crc = posix.system.bind(csock, @ptrCast(&csa.storage), csa.len);
+            if (posix.errno(crc) != .SUCCESS) return error.BindFailed;
+            break :blk csock;
+        } else null;
+
         const r = try allocator.create(Self);
         errdefer allocator.destroy(r);
         r.* = .{
@@ -174,12 +222,14 @@ pub const Runner = struct {
             .ep = ep,
             .sock = sock,
             .last_step_us = nowUs(),
+            .control_sock = control_sock,
         };
         return r;
     }
 
     pub fn deinit(r: *Self) void {
         _ = posix.system.close(r.sock);
+        if (r.control_sock) |cs| _ = posix.system.close(cs);
         r.ep.deinit();
         r.allocator.destroy(r);
     }
@@ -211,7 +261,15 @@ pub const Runner = struct {
                 if (flag.load(.acquire)) return;
             }
             if (!r.live) return;
+            r.drainControl();
             const now = nowUs();
+            if (now < r.faults.freeze_until_us) {
+                // Chaos freeze: nothing processed or sent while the
+                // wall clock advances — Lifeguard observes the stall
+                // through the next iteration gap.
+                sleepMs(r.opts.step_sleep_ms);
+                continue;
+            }
             r.feedLocalHealth(now);
             try r.ingest(now);
             try r.service(now);
@@ -219,7 +277,98 @@ pub const Runner = struct {
             if (r.opts.on_iteration) |cb| {
                 try cb(r.opts.on_iteration_ctx, r, nowUs());
             }
-            sleepMs(r.opts.step_sleep_ms);
+            sleepMs(r.opts.step_sleep_ms + r.faults.delay_us / std.time.us_per_ms);
+        }
+    }
+
+    // --- chaos control channel -------------------------------------------
+
+    fn faultDraw(r: *Self) u32 {
+        // xorshift64* — drop decisions only; reproducibility lives in
+        // the driver's schedule, not these draws.
+        var x = r.fault_rng;
+        x ^= x >> 12;
+        x ^= x << 25;
+        x ^= x >> 27;
+        r.fault_rng = x;
+        return @truncate((x *% 0x2545F4914F6CDD1D) >> 32);
+    }
+
+    fn portBlackholed(ports: []const u16, addr: ?quic.Address) bool {
+        const a = addr orelse return false;
+        const port = switch (a) {
+            .ipv4 => |v4| v4.port,
+            .ipv6 => |v6| v6.port,
+            .unspecified => return false,
+        };
+        for (ports) |p| {
+            if (p == port) return true;
+        }
+        return false;
+    }
+
+    fn dropIn(r: *Self, from: ?quic.Address) bool {
+        if (portBlackholed(r.faults.bh_in[0..r.faults.bh_in_len], from)) return true;
+        return r.faults.drop_in_bp > 0 and r.faultDraw() % 10_000 < r.faults.drop_in_bp;
+    }
+
+    fn dropOut(r: *Self, dst: ?quic.Address) bool {
+        if (portBlackholed(r.faults.bh_out[0..r.faults.bh_out_len], dst)) return true;
+        return r.faults.drop_out_bp > 0 and r.faultDraw() % 10_000 < r.faults.drop_out_bp;
+    }
+
+    /// Drain and apply control commands (one datagram each, text).
+    fn drainControl(r: *Self) void {
+        const cs = r.control_sock orelse return;
+        var guard: usize = 0;
+        while (guard < 32) : (guard += 1) {
+            var cmd: [128]u8 = undefined;
+            var from: posix.sockaddr.storage = std.mem.zeroes(posix.sockaddr.storage);
+            var from_len: posix.socklen_t = @sizeOf(posix.sockaddr.storage);
+            const rc = posix.system.recvfrom(cs, &cmd, cmd.len, posix.MSG.DONTWAIT, @ptrCast(&from), &from_len);
+            if (posix.errno(rc) != .SUCCESS) return;
+            const n: usize = @intCast(rc);
+            r.applyControl(cmd[0..n]);
+        }
+    }
+
+    fn applyControl(r: *Self, bytes: []const u8) void {
+        var it = std.mem.tokenizeScalar(u8, bytes, ' ');
+        const cmd = it.next() orelse return;
+        const arg1 = it.next() orelse "";
+        const arg2 = it.next() orelse "";
+        const now = nowUs();
+        if (std.mem.eql(u8, cmd, "freeze")) {
+            const ms = std.fmt.parseInt(u64, arg1, 10) catch return;
+            r.faults.freeze_until_us = now + ms * std.time.us_per_ms;
+        } else if (std.mem.eql(u8, cmd, "drop")) {
+            const bp = std.fmt.parseInt(u32, arg1, 10) catch return;
+            if (std.mem.eql(u8, arg2, "in")) {
+                r.faults.drop_in_bp = bp;
+            } else if (std.mem.eql(u8, arg2, "out")) {
+                r.faults.drop_out_bp = bp;
+            } else {
+                r.faults.drop_in_bp = bp;
+                r.faults.drop_out_bp = bp;
+            }
+        } else if (std.mem.eql(u8, cmd, "bh")) {
+            const port = std.fmt.parseInt(u16, arg1, 10) catch return;
+            const dir: u8 = if (std.mem.eql(u8, arg2, "out")) 1 else if (std.mem.eql(u8, arg2, "in")) 2 else @as(u8, 0);
+            if ((dir == 0 or dir == 2) and r.faults.bh_in_len < r.faults.bh_in.len) {
+                r.faults.bh_in[r.faults.bh_in_len] = port;
+                r.faults.bh_in_len += 1;
+            }
+            if ((dir == 0 or dir == 1) and r.faults.bh_out_len < r.faults.bh_out.len) {
+                r.faults.bh_out[r.faults.bh_out_len] = port;
+                r.faults.bh_out_len += 1;
+            }
+        } else if (std.mem.eql(u8, cmd, "slow")) {
+            const ms = std.fmt.parseInt(u64, arg1, 10) catch return;
+            r.faults.delay_us = ms * std.time.us_per_ms;
+        } else if (std.mem.eql(u8, cmd, "clear")) {
+            r.faults.clearFlaky();
+        } else if (std.mem.eql(u8, cmd, "crash")) {
+            std.process.exit(70);
         }
     }
 
@@ -244,6 +393,7 @@ pub const Runner = struct {
             const n = (try sysRecvfrom(r.sock, &r.buf, &from, &from_len)) orelse break;
             if (n == 0) break;
             const from_addr = fromSockAddr(&from);
+            if (r.dropIn(from_addr)) continue; // chaos: inbound loss
             // Server-routed first (slots + stateless); datagrams the
             // server drops may belong to our outbound DIALS — offer
             // them to each dial connection (wrong-CID packets are
@@ -300,6 +450,7 @@ pub const Runner = struct {
                 while (try slot.conn.pollDatagram(&r.buf, now)) |out| {
                     const dst = out.to orelse slot.peer_addr orelse continue;
                     var sa = toSockAddr(dst) orelse continue;
+                    if (r.dropOut(dst)) continue; // chaos: outbound loss
                     sysSendto(r.sock, r.buf[0..out.len], &sa);
                 }
             }
@@ -308,6 +459,7 @@ pub const Runner = struct {
             const cli = s.client orelse continue;
             while (try cli.conn.pollDatagram(&r.buf, now)) |out| {
                 var sa = toSockAddr(s.dial_addr) orelse continue;
+                if (r.dropOut(s.dial_addr)) continue; // chaos: outbound loss
                 sysSendto(r.sock, r.buf[0..out.len], &sa);
             }
         }
