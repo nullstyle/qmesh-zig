@@ -88,6 +88,10 @@ pub const Options = struct {
     /// protocol-level counters.
     qlog_callback: ?quic.QlogCallback = null,
     qlog_user_data: ?*anyopaque = null,
+    /// Opt-in per-packet qlog events (packet_sent / packet_received /
+    /// packet_lost) alongside the always-on event set — high volume,
+    /// diagnosis only.
+    qlog_packet_events: bool = false,
     rng_seed: u64 = 0,
     now_us: u64 = 0,
 };
@@ -233,8 +237,16 @@ pub const Endpoint = struct {
         // token flow, so they arm only when explicitly provided (the
         // in-memory Loopback harness, for one, assumes retry-less
         // handshakes).
-        var stateless_reset_key = e.opts.stateless_reset_key;
-        if (stateless_reset_key == null) stateless_reset_key = quic.Server.Config.mintKey() catch null;
+        // The reset key arms ONLY when explicitly provided (like the
+        // other deployment keys). A mesh node accepts and dials on ONE
+        // socket, so every inbound packet passes the server first —
+        // a minted reset key makes the server answer our own dials'
+        // connection packets with stateless resets, seeding a
+        // reset ping-pong between peers whose auth-failure noise
+        // drives key updates and kills real traffic in the update
+        // windows (found in the fly smoke + loopback diagnosis:
+        // ~25-45% probe loss from exactly this chain).
+        const stateless_reset_key = e.opts.stateless_reset_key;
         srv.* = try quic.Server.init(.{
             .allocator = e.allocator,
             .tls_cert_pem = e.opts.tls_cert_pem,
@@ -276,6 +288,7 @@ pub const Endpoint = struct {
         applyPmtuCap(slot.conn, e.opts.pmtu_max);
         if (e.opts.qlog_callback) |cb| {
             slot.conn.setQlogCallback(cb, e.opts.qlog_user_data);
+            if (e.opts.qlog_packet_events) slot.conn.setQlogPacketEvents(true);
         }
         const digest = slot.conn.peerCertSpkiDigest() orelse {
             // Unreachable with client_ca_pem set (required client
@@ -397,6 +410,7 @@ pub const Endpoint = struct {
         applyPmtuCap(cli.conn, e.opts.pmtu_max);
         if (e.opts.qlog_callback) |cb| {
             cli.conn.setQlogCallback(cb, e.opts.qlog_user_data);
+            if (e.opts.qlog_packet_events) cli.conn.setQlogPacketEvents(true);
         }
         e.stats.dials += 1;
 
@@ -706,13 +720,20 @@ pub const Endpoint = struct {
     /// the established-session gauge.
     pub fn metrics(e: *const Self) EndpointMetrics {
         var established: usize = 0;
+        var datagrams_shed: u64 = 0;
         for (e.sessions.items) |s| {
             if (s.state == .established) established += 1;
+            if (s.state != .closed) {
+                const cs = s.conn.stats();
+                datagrams_shed += cs.datagrams_dropped_recv;
+            }
         }
         return .{
             .mesh = e.node.metrics(),
             .transport = .{
                 .established = established,
+                .session_records = e.sessions.items.len,
+                .datagrams_shed = datagrams_shed,
                 .dials = e.stats.dials,
                 .accepts = e.stats.accepts,
                 .hellos_sent = e.stats.hellos_sent,
@@ -730,9 +751,11 @@ pub const Endpoint = struct {
     /// Transport-level counters beside the mesh snapshot (see
     /// `Endpoint.metrics`).
     pub const TransportMetrics = struct {
-        // Gauge.
+        // Gauges.
         established: usize,
+        session_records: usize,
         // Counters.
+        datagrams_shed: u64,
         dials: u64,
         accepts: u64,
         hellos_sent: u64,

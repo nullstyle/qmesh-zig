@@ -37,6 +37,7 @@
 const std = @import("std");
 const qmesh = @import("qmesh");
 const qmesh_quic = @import("qmesh_quic");
+const quic = @import("quic");
 
 const posix = std.posix;
 
@@ -44,6 +45,71 @@ var shutdown_flag = std.atomic.Value(bool).init(false);
 
 fn onSignal(_: posix.SIG) callconv(.c) void {
     shutdown_flag.store(true, .release);
+}
+
+/// Wire-level event counters for `--qlog-count` diagnosis: quic sees
+/// every packet before the mesh does, so a gap between these and the
+/// swim counters localates loss to one half of the seam. Single
+/// thread; the callback fires synchronously from the loop.
+var wire = struct {
+    packet_sent: u64 = 0,
+    packet_received: u64 = 0,
+    packet_dropped: u64 = 0,
+    drop_min_size: u32 = 0,
+    drop_max_size: u32 = 0,
+    drop_header: u64 = 0,
+    drop_decrypt: u64 = 0,
+    drop_version: u64 = 0,
+    drop_unknown_cid: u64 = 0,
+    drop_too_large: u64 = 0,
+    drop_reset: u64 = 0,
+    drop_keys: u64 = 0,
+    drop_other: u64 = 0,
+    loss_detected: u64 = 0,
+    packets_lost: u64 = 0,
+    enabled: bool = false,
+}{};
+
+var qlog_dump = false;
+
+fn qlogDumpSink(_: ?*anyopaque, ev: quic.QlogEvent) void {
+    wireCountSink(null, ev);
+    if (!qlog_dump) return;
+    std.debug.print("EV {s} t={d} pn={d} sz={d} det={s}\n", .{
+        @tagName(ev.name),
+        ev.at_us,
+        ev.packet_number orelse 0,
+        ev.packet_size orelse 0,
+        ev.details,
+    });
+}
+
+fn wireCountSink(_: ?*anyopaque, ev: quic.QlogEvent) void {
+    switch (ev.name) {
+        .packet_sent => wire.packet_sent += 1,
+        .packet_received => wire.packet_received += 1,
+        .packet_dropped => {
+            wire.packet_dropped += 1;
+            if (ev.packet_size) |sz| {
+                if (wire.drop_min_size == 0 or sz < wire.drop_min_size) wire.drop_min_size = sz;
+                if (sz > wire.drop_max_size) wire.drop_max_size = sz;
+            }
+            const r = ev.drop_reason orelse .other;
+            switch (r) {
+                .header_decode_failure => wire.drop_header += 1,
+                .decryption_failure => wire.drop_decrypt += 1,
+                .unsupported_version => wire.drop_version += 1,
+                .unknown_connection_id => wire.drop_unknown_cid += 1,
+                .payload_too_large => wire.drop_too_large += 1,
+                .stateless_reset => wire.drop_reset += 1,
+                .keys_unavailable => wire.drop_keys += 1,
+                .other => wire.drop_other += 1,
+            }
+        },
+        .loss_detected => wire.loss_detected += 1,
+        .packet_lost => wire.packets_lost += 1,
+        else => {},
+    }
 }
 
 fn installSignalHandlers() void {
@@ -165,7 +231,7 @@ const Runtime = struct {
         const m = rt.runner.endpoint().metrics();
         std.debug.print(
             "metrics alive={d} suspect={d} dead={d} active={d} passive={d} ranked={d} eager={d} lazy={d} sess={d} lh={d} rtt_min={d}us rtt_max={d}us " ++
-                "probes={d} suspects={d} confirms={d} frames_tx={d} frames_rx={d} sends_failed={d} closes={d}\n",
+                "probes={d} acks_tx={d} acks_rx={d} suspects={d} confirms={d} frames_tx={d} frames_rx={d} sends_failed={d} closes={d}\n",
             .{
                 m.mesh.swim.members_alive,      m.mesh.swim.members_suspect,
                 m.mesh.swim.members_dead,       m.mesh.overlay.active,
@@ -173,12 +239,20 @@ const Runtime = struct {
                 m.mesh.broadcast.eager_peers,   m.mesh.broadcast.lazy_peers,
                 m.transport.established,        m.mesh.swim.local_health,
                 m.mesh.swim.rtt_min_us,         m.mesh.swim.rtt_max_us,
-                m.mesh.swim.probes_sent,        m.mesh.swim.suspects_declared,
+                m.mesh.swim.probes_sent,        m.mesh.swim.acks_sent,
+                m.mesh.swim.acks_received,      m.mesh.swim.suspects_declared,
                 m.mesh.swim.confirms_declared,  m.mesh.driver.frames_sent,
                 m.mesh.driver.frames_received,  m.mesh.driver.sends_failed,
                 m.transport.sessions_closed,
             },
         );
+        std.debug.print("transport sessrec={d} shed={d} ep_dgram_rx={d} decode_err={d} unknown_proto={d}\n", .{ m.transport.session_records, m.transport.datagrams_shed, m.transport.datagrams_received, m.mesh.driver.decode_errors, m.mesh.driver.unknown_protocol });
+        if (wire.enabled) {
+            std.debug.print(
+                "wire pkt_tx={d} pkt_rx={d} dropped={d} [hdr={d} dec={d} ver={d} cid={d} big={d} rst={d} keys={d} other={d} sz={d}-{d}] loss_ev={d} lost={d}\n",
+                .{ wire.packet_sent, wire.packet_received, wire.packet_dropped, wire.drop_header, wire.drop_decrypt, wire.drop_version, wire.drop_unknown_cid, wire.drop_too_large, wire.drop_reset, wire.drop_keys, wire.drop_other, wire.drop_min_size, wire.drop_max_size, wire.loss_detected, wire.packets_lost },
+            );
+        }
     }
 
     fn onBroadcast(ctx: ?*anyopaque, origin: qmesh.PeerId, seq: u64, payload: []const u8) void {
@@ -202,6 +276,7 @@ pub fn main(init: std.process.Init) !void {
     var metrics_secs: u64 = 10;
     var publish_secs: u64 = 0;
     var pmtu_max: u16 = 1380;
+    var qlog_count = false;
     var joins_buf: [8]qmesh.PeerDesc = undefined;
     var joins_len: usize = 0;
 
@@ -233,6 +308,11 @@ pub fn main(init: std.process.Init) !void {
         } else if (std.mem.eql(u8, arg, "--pmtu-max")) {
             const v = args.next() orelse return badFlag("--pmtu-max needs a number");
             pmtu_max = std.fmt.parseInt(u16, v, 10) catch return error.BadPmtuMax;
+        } else if (std.mem.eql(u8, arg, "--qlog-count")) {
+            qlog_count = true;
+        } else if (std.mem.eql(u8, arg, "--qlog-dump")) {
+            qlog_dump = true;
+            qlog_count = true;
         } else {
             std.debug.print("unknown flag: {s}\n", .{arg});
             printUsage();
@@ -249,6 +329,9 @@ pub fn main(init: std.process.Init) !void {
     }
     if (init.environ_map.get("QMESH_PMTU_MAX")) |v| {
         pmtu_max = std.fmt.parseInt(u16, v, 10) catch return error.BadPmtuMax;
+    }
+    if (init.environ_map.get("QMESH_QLOG_COUNT")) |v| {
+        qlog_count = std.mem.eql(u8, v, "1") or std.mem.eql(u8, v, "true");
     }
     if (joins_len == 0) {
         if (init.environ_map.get("QMESH_JOIN")) |joined| {
@@ -278,6 +361,7 @@ pub fn main(init: std.process.Init) !void {
     defer alloc.free(ca);
 
     installSignalHandlers();
+    wire.enabled = qlog_count;
 
     const profile = qmesh.profiles.fly_multi_region;
     var rt_storage: Runtime = undefined;
@@ -289,6 +373,8 @@ pub fn main(init: std.process.Init) !void {
             .ca_pem = ca,
             .dial_server_name = "qmesh",
             .pmtu_max = pmtu_max,
+            .qlog_callback = if (qlog_dump or qlog_count) qlogDumpSink else null,
+            .qlog_packet_events = qlog_count,
             .overlay_cfg = profile.overlay,
             .swim_cfg = profile.swim,
             .broadcast_cfg = profile.broadcast,

@@ -250,10 +250,18 @@ pub const Runner = struct {
             // ignored by the connection).
             const outcome = srv.feed(r.buf[0..n], from_addr, now) catch continue;
             if (outcome == .dropped) {
+                // Copy before the fallback: `feed` takes the buffer
+                // mutable and does not document a read-only contract
+                // for dropped routing outcomes, so the dial
+                // connections get pristine bytes regardless of what
+                // server-side processing touched.
+                var pkt: [2048]u8 = undefined;
+                const len = @min(n, pkt.len);
+                @memcpy(pkt[0..len], r.buf[0..len]);
                 for (r.ep.sessions.items) |s| {
                     const cli = s.client orelse continue;
                     if (s.conn.isClosed()) continue;
-                    cli.conn.handle(r.buf[0..n], from_addr, now) catch {};
+                    cli.conn.handle(pkt[0..len], from_addr, now) catch {};
                 }
             }
         }

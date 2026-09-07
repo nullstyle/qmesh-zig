@@ -547,13 +547,20 @@ pub const Overlay = struct {
     // --- timers ---------------------------------------------------------------
 
     pub fn tick(o: *Self, now: u64, rng: std.Random, out: *Effects) void {
-        // JOIN retry / give-up.
+        // JOIN retry / give-up. A node with NO active edges keeps
+        // knocking on its provisioned contact forever (saturating the
+        // attempt counter): a cold-starting cluster's joiners must
+        // outlive their seed's restart — the fly smoke test watched a
+        // lone joiner exhaust join_max_attempts against a down seed
+        // and then never dial again, with nothing in any view to
+        // recover from. With any active edge the stale join lapses as
+        // before (the application may restart a join elsewhere).
         if (o.join) |*j| {
             if (now >= j.deadline_us) {
-                if (j.attempts >= o.cfg.join_max_attempts) {
-                    o.join = null; // caller may restart with another contact
+                if (j.attempts >= o.cfg.join_max_attempts and o.active_len > 0) {
+                    o.join = null;
                 } else {
-                    j.attempts += 1;
+                    j.attempts +|= 1;
                     j.deadline_us = now + o.cfg.join_timeout_us;
                     out.push(.{ .send = .{
                         .to = j.contact.id,
@@ -1287,6 +1294,41 @@ test "initiated shuffle leads with self and respects sample bound" {
         else => {},
     };
     try testing.expect(found);
+    o.checkInvariants();
+}
+
+test "lone node keeps retrying its join contact; meshed node gives up" {
+    var o = Overlay.init(descOf(1200), .{ .join_timeout_us = 100, .join_max_attempts = 2, .active_min = 1 }, 0);
+    var fx: Effects = .{};
+    const rng = testRng();
+    const contact = descOf(1201);
+    o.startJoin(contact, 0, &fx);
+
+    // Burn past join_max_attempts with no answer and no mesh: the
+    // lone node keeps knocking (JOIN + connect every timeout).
+    o.tick(100, rng, &fx); // attempt 2
+    o.tick(200, rng, &fx); // attempts exhausted — alone, so re-armed
+    try testing.expect(o.join != null);
+    fx.clear();
+    o.tick(300, rng, &fx);
+    try testing.expect(o.join != null);
+    var saw_join = false;
+    var saw_connect = false;
+    for (fx.slice()) |e| switch (e) {
+        .send => |s| {
+            if (s.msg == .join) saw_join = true;
+        },
+        .connect => saw_connect = true,
+    };
+    try testing.expect(saw_join);
+    try testing.expect(saw_connect);
+
+    // With any active edge, the stale join lapses instead.
+    const peer = descOf(1202);
+    o.handle(peer.id, .{ .join = peer }, 301, rng, &fx);
+    try testing.expect(o.inActive(peer.id) != null);
+    o.tick(401, rng, &fx); // deadline 300 + 100 passed
+    try testing.expect(o.join == null);
     o.checkInvariants();
 }
 

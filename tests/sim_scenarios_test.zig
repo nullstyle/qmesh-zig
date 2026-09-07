@@ -381,15 +381,42 @@ test "two regions: ranked minority goes near, random majority stays one componen
     }
 }
 
+test "fly profile, two clean nodes: probing must not fabricate failures" {
+    // Investigation repro for the fly smoke finding: on real
+    // transports (fly 6pn AND loopback) the fly profile suspects a
+    // healthy lone peer at a ~25-45% probe failure rate despite 0%
+    // path loss. The sim is the deterministic bisector: if the rate
+    // reproduces here the bug is in the pure cores; if the sim is
+    // clean the bug lives in the real transport seam.
+    const p = qmesh.profiles.fly_multi_region;
+    var world = qsim.World.init(testing.allocator, 151, p.overlay, p.swim, p.broadcast, .{});
+    defer world.deinit();
+    _ = try world.spawn();
+    _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(60_000_000);
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+
+    var probes: u64 = 0;
+    var suspects: u64 = 0;
+    var acks_rx: u64 = 0;
+    var acks_tx: u64 = 0;
+    for (world.nodes.items, 0..) |sn, i| {
+        if (!world.alive.items[i]) continue;
+        probes += sn.node.swim.stats.probes_sent;
+        suspects += sn.node.swim.stats.suspects_declared;
+        acks_rx += sn.node.swim.stats.acks_received;
+        acks_tx += sn.node.swim.stats.acks_sent;
+    }
+    std.debug.print("sim fly-profile anatomy: probes={d} suspects={d} acks_tx={d} acks_rx={d}\n", .{ probes, suspects, acks_tx, acks_rx });
+    // A clean pair on a lossless virtual link: failures must be
+    // negligible (bootstrap races aside), never tens of percent.
+    if (probes > 20) {
+        try testing.expect(suspects * 20 < probes); // < 5%
+    }
+}
+
 test "fly migration pause: multi-region profile does not evict a pausing node" {
-    // PARKED (hangs even at 15s windows): under the fly profile the
-    // simulated world livelocks somewhere in this scenario (suspects:
-    // a same-timestamp timer loop, or the paused node's frozen-clock
-    // deadline conversion in toGlobal interacting with the 8s
-    // suspicion window). Debug with a minimal world: init with
-    // profiles.fly_multi_region, spawn 2 nodes, join, runFor(5s).
-    // The profile itself is inert config; this validation is the
-    // only consumer.
     const p = qmesh.profiles.fly_multi_region;
     var world = qsim.World.init(testing.allocator, 61, p.overlay, p.swim, p.broadcast, .{});
     defer world.deinit();

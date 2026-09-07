@@ -48,6 +48,7 @@ pub const SwimMetrics = struct {
     rtt_max_us: u64,
     // Counters.
     probes_sent: u64,
+    acks_sent: u64,
     acks_received: u64,
     suspects_declared: u64,
     confirms_declared: u64,
@@ -119,6 +120,7 @@ pub fn swim(s: *const swim_mod.Swim) SwimMetrics {
         .rtt_min_us = 0,
         .rtt_max_us = 0,
         .probes_sent = s.stats.probes_sent,
+        .acks_sent = s.stats.acks_sent,
         .acks_received = s.stats.acks_received,
         .suspects_declared = s.stats.suspects_declared,
         .confirms_declared = s.stats.confirms_declared,

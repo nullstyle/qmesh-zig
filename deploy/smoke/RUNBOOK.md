@@ -74,29 +74,33 @@ Teardown (destructive): `fly apps destroy <app>`.
   session churn confirmed a live peer; session-evidence resurrection
   (d458e12) re-fused the pair with no operator action.
 
-## Findings (open)
+## Findings (resolved after the first smoke)
 
-1. **Join give-up cold-start race**: `join_max_attempts` (4 × 3s in
-   the fly profile) exhausts permanently when the joiner restarts
-   while the seed is down — a lone node with an empty table never
-   dials again. Mitigation in ops: start the seed first. Fix worth
-   making: retry the last contact periodically while the member
-   table is empty.
+1. **Join give-up cold-start race — FIXED**: `join_max_attempts`
+   used to exhaust permanently when a joiner restarted while its
+   seed was down (empty table => never dials again). A node with no
+   active edges now retries its provisioned contact forever. The
+   redeploy exercised it directly: the joiner came up before the
+   seed and connected the moment the seed appeared.
 
-2. **Ephemeral-class probe loss ~25-45% on a pristine path**: probes
-   time out (no ACK within 800ms) at a rate far above wire loss —
-   ICMP measured 0% loss / 0.1ms jitter between the same machines,
-   and the same pattern reproduces on loopback (`::1`) with the fly
-   profile (~44%). Not fly-specific, not a today-regression (present
-   before the PMTU change), and the mesh self-heals through it (every
-   suspicion is refuted or resurrected; stream-class traffic is
-   unaffected). Suspects: a datagram-class drop/timeout inside the
-   endpoint↔quic seam (asymmetrically swept sessions are one
-   candidate; the probe PING is not re-sent when its connect effect
-   completes mid-probe is another). The deterministic sim with the
-   fly profile is the right place to corner it — if it reproduces
-   there, it's a pure-core bug; if not, it's in the real transport
-   seam (qlog callback wiring is already in place for that hunt).
+2. **Ephemeral-class probe loss ~25-45% on a pristine path — ROOT
+   CAUSED AND FIXED**: probes timed out at ~25-45% despite 0% ICMP
+   loss, reproducing on loopback. Bisected by instrumentation: the
+   sim (fly profile, two clean nodes) showed 118 probes / 0
+   suspects — pure cores exonerated. Wire-level qlog counters then
+   showed the receiving dial-connection dropping genuine peer
+   packets with decryption_failure, correlated with key updates.
+   The chain: qmesh minted a stateless-reset key by default; a mesh
+   node accepts and dials on ONE socket, so every inbound packet
+   passes the server first, and the server answered our own dials'
+   connection packets with stateless resets — a self-sustaining
+   reset ping-pong whose auth-failure noise drove key updates, and
+   real traffic died in each update window. Fix: the reset key arms
+   only when explicitly provided (like the other deployment keys).
+   After: 44 probes / 44 acks / 0 suspects locally; 94/94/0 on fly
+   across regions. Diagnosis surface kept: `--qlog-count` /
+   `--qlog-dump` wire-event counters, acks_tx/acks_rx and datagram
+   shed counters in the metrics line.
 
 ## Cost
 
