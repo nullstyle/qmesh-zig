@@ -10,19 +10,25 @@
 //!   openssl x509 -in node.pem -pubkey -noout \
 //!     | openssl pkey -pubin -outform DER | openssl dgst -sha256
 //!
-//! Usage:
+//! Usage (every flag has an env fallback of the same meaning —
+//! QMESH_ID, QMESH_BIND, QMESH_JOIN (comma-separated), QMESH_CERT /
+//! QMESH_KEY / QMESH_CA (file path or inline PEM), QMESH_METRICS_SECS,
+//! QMESH_PUBLISH_EVERY):
 //!
 //!   qmesh-node --id <64-hex> --bind '[fdxx::1]:4451' \
 //!              --cert node.pem --key node.key --ca ca.pem \
-//!              [--join <64-hex>:<addr> ...] [--metrics-secs 10]
+//!              [--join <64-hex>:<addr> ...] [--metrics-secs 10] \
+//!              [--publish-every <secs>]
 //!
 //! Runtime observability: a compact metrics line on stderr every
 //! `--metrics-secs` (gauges: member states, views, tree shape,
-//! sessions, Lifeguard health; plus monotonic counters), and every
-//! delivered broadcast is logged. SIGTERM/SIGINT stop the loop
-//! cleanly. The smoke-test posture: deploy one process per fly
-//! machine over the 6pn network, point --bind at the machine's
-//! private v6, join at least one node to a seeded peer.
+//! sessions, Lifeguard health, RTT envelope; plus monotonic
+//! counters), every delivered broadcast is logged, and
+//! `--publish-every` periodically broadcasts a smoke payload (its
+//! delivery on the far side is the end-to-end datagram proof).
+//! SIGTERM/SIGINT stop the loop cleanly. The smoke-test posture:
+//! deploy one process per fly machine over the 6pn network, bind the
+//! machine's private v6, join at least one node to a seeded peer.
 
 const std = @import("std");
 const qmesh = @import("qmesh");
@@ -84,11 +90,40 @@ fn readFileAlloc(io: std.Io, alloc: std.mem.Allocator, path: []const u8) ![]u8 {
     return std.Io.Dir.cwd().readFileAlloc(io, path, alloc, .limited(1 << 20));
 }
 
+/// Resolve PEM material: explicit flag (always a path), else the
+/// `env_name` env var holding either a file path or inline PEM
+/// (detected by its header). Returns allocator-owned bytes.
+fn resolvePem(
+    init: std.process.Init,
+    alloc: std.mem.Allocator,
+    flag_path: ?[]const u8,
+    env_name: []const u8,
+    err: anyerror,
+) ![]u8 {
+    if (flag_path) |p| return readFileAlloc(init.io, alloc, p);
+    if (init.environ_map.get(env_name)) |v| {
+        if (std.mem.startsWith(u8, v, "-----BEGIN")) {
+            return alloc.dupe(u8, v);
+        }
+        return readFileAlloc(init.io, alloc, v);
+    }
+    return err;
+}
+
+/// Flag value with env fallback (`env_name`).
+fn flagOrEnv(init: std.process.Init, flag_val: ?[]const u8, env_name: []const u8) ?[]const u8 {
+    return flag_val orelse init.environ_map.get(env_name);
+}
+
 fn printUsage() void {
     std.debug.print(
         \\usage: qmesh-node --id <64-hex-spki-digest> --bind <[v6]:port|v4:port>
         \\                  --cert <pem> --key <pem> --ca <pem>
         \\                  [--join <64-hex>:<addr>] [--metrics-secs <n>]
+        \\                  [--publish-every <secs>]
+        \\  (env fallbacks: QMESH_ID, QMESH_BIND, QMESH_JOIN (comma list),
+        \\   QMESH_CERT/QMESH_KEY/QMESH_CA (path or inline PEM),
+        \\   QMESH_METRICS_SECS, QMESH_PUBLISH_EVERY)
         \\
     , .{});
 }
@@ -96,16 +131,36 @@ fn printUsage() void {
 const Runtime = struct {
     runner: *qmesh_quic.Runner,
     next_metrics_us: u64,
-    interval_us: u64,
+    metrics_interval_us: u64,
+    /// Periodic smoke broadcast (0 disables).
+    publish_interval_us: u64,
+    next_publish_us: u64,
+    publish_count: u64 = 0,
 
     fn onIteration(ctx: ?*anyopaque, r: *qmesh_quic.Runner, now_us: u64) anyerror!void {
         _ = r;
         const rt: *Runtime = @ptrCast(@alignCast(ctx.?));
-        if (now_us < rt.next_metrics_us) return;
-        rt.next_metrics_us = now_us + rt.interval_us;
+        if (now_us >= rt.next_metrics_us) {
+            rt.next_metrics_us = now_us + rt.metrics_interval_us;
+            rt.logMetrics();
+        }
+        if (rt.publish_interval_us > 0 and now_us >= rt.next_publish_us) {
+            rt.next_publish_us = now_us + rt.publish_interval_us;
+            rt.publish_count += 1;
+            var payload_buf: [64]u8 = undefined;
+            const payload = std.fmt.bufPrint(&payload_buf, "qmesh-smoke/{d}", .{rt.publish_count}) catch unreachable;
+            if (rt.runner.endpoint().publish(payload) != null) {
+                std.debug.print("published seq={d}\n", .{rt.publish_count});
+            } else {
+                std.debug.print("publish failed (payload too large?)\n", .{});
+            }
+        }
+    }
+
+    fn logMetrics(rt: *Runtime) void {
         const m = rt.runner.endpoint().metrics();
         std.debug.print(
-            "metrics alive={d} suspect={d} dead={d} active={d} passive={d} ranked={d} eager={d} lazy={d} sess={d} lh={d} " ++
+            "metrics alive={d} suspect={d} dead={d} active={d} passive={d} ranked={d} eager={d} lazy={d} sess={d} lh={d} rtt_min={d}us rtt_max={d}us " ++
                 "probes={d} suspects={d} confirms={d} frames_tx={d} frames_rx={d} sends_failed={d} closes={d}\n",
             .{
                 m.mesh.swim.members_alive,      m.mesh.swim.members_suspect,
@@ -113,6 +168,7 @@ const Runtime = struct {
                 m.mesh.overlay.passive,         m.mesh.overlay.ranked,
                 m.mesh.broadcast.eager_peers,   m.mesh.broadcast.lazy_peers,
                 m.transport.established,        m.mesh.swim.local_health,
+                m.mesh.swim.rtt_min_us,         m.mesh.swim.rtt_max_us,
                 m.mesh.swim.probes_sent,        m.mesh.swim.suspects_declared,
                 m.mesh.swim.confirms_declared,  m.mesh.driver.frames_sent,
                 m.mesh.driver.frames_received,  m.mesh.driver.sends_failed,
@@ -124,7 +180,7 @@ const Runtime = struct {
     fn onBroadcast(ctx: ?*anyopaque, origin: qmesh.PeerId, seq: u64, payload: []const u8) void {
         _ = ctx;
         const origin_hex = origin.hex();
-        std.debug.print("broadcast origin={s} seq={d} len={d}\n", .{ origin_hex, seq, payload.len });
+        std.debug.print("broadcast origin={s} seq={d} payload={s}\n", .{ origin_hex, seq, payload });
     }
 };
 
@@ -140,6 +196,7 @@ pub fn main(init: std.process.Init) !void {
     var key_path: ?[]const u8 = null;
     var ca_path: ?[]const u8 = null;
     var metrics_secs: u64 = 10;
+    var publish_secs: u64 = 0;
     var joins_buf: [8]qmesh.PeerDesc = undefined;
     var joins_len: usize = 0;
 
@@ -165,6 +222,9 @@ pub fn main(init: std.process.Init) !void {
         } else if (std.mem.eql(u8, arg, "--metrics-secs")) {
             const v = args.next() orelse return badFlag("--metrics-secs needs a number");
             metrics_secs = std.fmt.parseInt(u64, v, 10) catch return error.BadMetricsSecs;
+        } else if (std.mem.eql(u8, arg, "--publish-every")) {
+            const v = args.next() orelse return badFlag("--publish-every needs a number");
+            publish_secs = std.fmt.parseInt(u64, v, 10) catch return error.BadPublishSecs;
         } else {
             std.debug.print("unknown flag: {s}\n", .{arg});
             printUsage();
@@ -172,19 +232,38 @@ pub fn main(init: std.process.Init) !void {
         }
     }
 
-    const id = try idFromHex(id_hex orelse {
+    // Env fallbacks (fly machine env / secrets posture).
+    if (init.environ_map.get("QMESH_METRICS_SECS")) |v| {
+        metrics_secs = std.fmt.parseInt(u64, v, 10) catch return error.BadMetricsSecs;
+    }
+    if (init.environ_map.get("QMESH_PUBLISH_EVERY")) |v| {
+        publish_secs = std.fmt.parseInt(u64, v, 10) catch return error.BadPublishSecs;
+    }
+    if (joins_len == 0) {
+        if (init.environ_map.get("QMESH_JOIN")) |joined| {
+            var it = std.mem.splitScalar(u8, joined, ',');
+            while (it.next()) |j| {
+                if (j.len == 0) continue;
+                if (joins_len == joins_buf.len) return error.TooManyJoins;
+                joins_buf[joins_len] = try parseJoin(j);
+                joins_len += 1;
+            }
+        }
+    }
+
+    const id = try idFromHex(flagOrEnv(init, id_hex, "QMESH_ID") orelse {
         printUsage();
         return error.MissingId;
     });
-    const bind = try parseAddr(bind_str orelse {
+    const bind = try parseAddr(flagOrEnv(init, bind_str, "QMESH_BIND") orelse {
         printUsage();
         return error.MissingBind;
     });
-    const cert = try readFileAlloc(init.io, alloc, cert_path orelse return error.MissingCert);
+    const cert = try resolvePem(init, alloc, cert_path, "QMESH_CERT", error.MissingCert);
     defer alloc.free(cert);
-    const key = try readFileAlloc(init.io, alloc, key_path orelse return error.MissingKey);
+    const key = try resolvePem(init, alloc, key_path, "QMESH_KEY", error.MissingKey);
     defer alloc.free(key);
-    const ca = try readFileAlloc(init.io, alloc, ca_path orelse return error.MissingCa);
+    const ca = try resolvePem(init, alloc, ca_path, "QMESH_CA", error.MissingCa);
     defer alloc.free(ca);
 
     installSignalHandlers();
@@ -212,7 +291,9 @@ pub fn main(init: std.process.Init) !void {
     rt_storage = .{
         .runner = runner,
         .next_metrics_us = 0,
-        .interval_us = metrics_secs * std.time.us_per_s,
+        .metrics_interval_us = metrics_secs * std.time.us_per_s,
+        .publish_interval_us = publish_secs * std.time.us_per_s,
+        .next_publish_us = 0,
     };
 
     const id_hex_str = id.hex();

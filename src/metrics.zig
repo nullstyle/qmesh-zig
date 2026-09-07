@@ -42,6 +42,10 @@ pub const SwimMetrics = struct {
     /// Lifeguard local-health exponent (0 = healthy; windows scale
     /// by 2^local_health).
     local_health: u4,
+    /// Smoothed-RTT envelope over members with a measurement
+    /// (0 = nothing measured yet) — the cheap RTT matrix.
+    rtt_min_us: u64,
+    rtt_max_us: u64,
     // Counters.
     probes_sent: u64,
     acks_received: u64,
@@ -112,6 +116,8 @@ pub fn swim(s: *const swim_mod.Swim) SwimMetrics {
         .members_suspect = 0,
         .members_dead = 0,
         .local_health = s.local_health,
+        .rtt_min_us = 0,
+        .rtt_max_us = 0,
         .probes_sent = s.stats.probes_sent,
         .acks_received = s.stats.acks_received,
         .suspects_declared = s.stats.suspects_declared,
@@ -123,6 +129,11 @@ pub fn swim(s: *const swim_mod.Swim) SwimMetrics {
         .suspect => m.members_suspect += 1,
         .dead => m.members_dead += 1,
     };
+    for (s.memberSlice()) |mem| {
+        if (mem.rtt_us == 0) continue;
+        if (m.rtt_min_us == 0 or mem.rtt_us < m.rtt_min_us) m.rtt_min_us = mem.rtt_us;
+        if (mem.rtt_us > m.rtt_max_us) m.rtt_max_us = mem.rtt_us;
+    }
     return m;
 }
 
