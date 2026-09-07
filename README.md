@@ -129,6 +129,22 @@ distributed systems. It is **not** an actor runtime.
       events wire through `Endpoint.Options.qlog_callback`, installed
       on every owned connection — the wire-level view beside the
       protocol-level counters.
+- [x] Event ring (`src/events.zig`) — the incidents timeline's data
+      source (docs/observability-ux.md Concept 2): swim, plumtree,
+      and the node driver each own a bounded overwrite-oldest ring of
+      plain-data events recorded at the exact transition sites
+      (suspect/confirm/refute/resurrect through the incarnation
+      lattice chokepoint, Lifeguard lh changes, self-refutations,
+      broadcast repairs armed/lapsed, session up/down). The cores
+      stay pure — the ring is derived state, deterministic under
+      replay, proven by a sim scenario (a killed member's
+      session→suspect→confirm story lands in causal order on every
+      survivor's merged ring, and loss publishes record their
+      repairs). Surfaced two ways: `event ...` lines on qmesh-node's
+      stderr each metrics interval, and an `events` control-socket
+      query whose reply pairs the node's monotonic ring clock with
+      unix-epoch now — so `qmesh-top` merges every node's ring into
+      one wall-clock-ordered fleet timeline beside the fleet cards.
 
 ## Architecture
 
@@ -381,6 +397,7 @@ src/
   peer.zig        PeerId, Addr, PeerDesc
   frame.zig       wire envelopes, bounded codecs, stream framing
   effects.zig     bounded effect lists
+  events.zig      bounded event rings (incidents timeline source)
   session.zig     session-state vocabulary + QUIC mapping notes
   hyparview.zig   active/passive overlay (pure state machine)
   node.zig        Node(Transport) driver + transport contract

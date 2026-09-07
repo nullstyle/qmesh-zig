@@ -28,6 +28,7 @@ pub const swim = @import("swim.zig");
 pub const profiles = @import("profiles.zig");
 pub const plumtree = @import("plumtree.zig");
 pub const metrics = @import("metrics.zig");
+pub const events = @import("events.zig");
 pub const node = @import("node.zig");
 
 // Convenience re-exports for the types every consumer names.
@@ -56,5 +57,6 @@ test {
     _ = plumtree;
     _ = profiles;
     _ = metrics;
+    _ = events;
     _ = node;
 }

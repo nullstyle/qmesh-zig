@@ -34,6 +34,16 @@ First vertical slice (this doc ships with it): `qmesh top` attaches
 to control sockets and renders live fleet cards from metrics
 snapshots with the completeness line.
 
+Concept 2's data source also ships: the bounded per-node event ring
+(`src/events.zig`) — swim/plumtree/driver transitions recorded at the
+exact sites they happen, pure derived state under the cores'
+discipline — served by the `events` control query with a
+monotonic↔wall clock pairing so `qmesh-top` renders one merged,
+wall-clock-ordered fleet timeline beside the cards (and qmesh-node
+emits the same ring as `event ...` stderr lines for log-based
+correlation). The fusion with app metrics and traces — rule-based
+root-cause annotations on top — is the next increment.
+
 ## Concept 2 — "The incident timeline": app signals fused with mesh events
 
 Invert the metric-first UX: incident-first. Alerts evaluate INSIDE the

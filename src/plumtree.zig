@@ -47,6 +47,7 @@ const std = @import("std");
 const peer_mod = @import("peer.zig");
 const frame = @import("frame.zig");
 const effects_mod = @import("effects.zig");
+const evlog = @import("events.zig");
 
 const PeerId = peer_mod.PeerId;
 
@@ -291,6 +292,12 @@ pub const Plumtree = struct {
     deliveries: [max_deliveries]Delivery = undefined,
     deliveries_len: usize = 0,
     stats: Stats = .{},
+
+    /// Recent delivery-health events (the incidents-timeline ring; see
+    /// `events.zig`): repairs armed and repairs lapsed — the eager
+    /// path missing a message, and the gap standing long enough that
+    /// only anti-entropy can close it.
+    events: evlog.Ring(evlog.default_cap) = .{},
 
     pub fn init(self_id: PeerId, cfg: Config, now: u64) Self {
         return .{
@@ -687,6 +694,10 @@ pub const Plumtree = struct {
                         .class = .ephemeral,
                     } });
                     p.stats.iwants_sent += 1;
+                    // One ring entry per IWANT batch (same peer, one
+                    // repair conversation): the timeline wants "had to
+                    // pull from peer X", not one line per message id.
+                    p.events.push(now, .repair, m.from, @truncate(m.id.seq));
                 }
                 continue;
             }
@@ -697,6 +708,7 @@ pub const Plumtree = struct {
         i = 0;
         while (i < p.iwants_len) {
             if (now >= p.iwants[i].deadline_us) {
+                p.events.push(now, .repair_lapsed, p.iwants[i].from, @truncate(p.iwants[i].id.seq));
                 p.iwants[i] = p.iwants[p.iwants_len - 1];
                 p.iwants_len -= 1;
                 continue;
@@ -951,6 +963,33 @@ test "ihave → missing timeout → iwant → reliable repair → graft" {
         }
     }
     try testing.expectEqual(@as(usize, 1), repairs);
+    p.checkInvariants();
+}
+
+test "event ring records repairs armed and lapsed" {
+    const s = fanoutSetup();
+    var p = s.p;
+    var fx: Effects = .{};
+    const rng = testRng();
+
+    p.handle(s.c, .prune, 0, &fx); // repairs come from lazy edges
+
+    // An IHAVE for a message that never arrives eagerly: at the
+    // missing timeout the repair arms — and lands on the ring with
+    // the announcer and the message seq.
+    const mid = MsgId{ .origin = s.b, .seq = 5 };
+    p.handle(s.c, .{ .ihave = .{ .items = &.{mid} } }, 0, &fx);
+    try testing.expectEqual(@as(usize, 0), p.events.len); // not before the timeout
+    p.tick(p.cfg.missing_timeout_us, rng, &fx);
+    try testing.expectEqual(evlog.Kind.repair, p.events.atNewest(0).?.kind);
+    try testing.expect(p.events.atNewest(0).?.peer.eql(s.c));
+    try testing.expectEqual(@as(u32, 5), p.events.atNewest(0).?.arg);
+
+    // No answer within the IWANT window: the lapse is the delivery-dip
+    // event — the gap now needs anti-entropy.
+    p.tick(p.cfg.missing_timeout_us + p.cfg.iwant_timeout_us, rng, &fx);
+    try testing.expectEqual(evlog.Kind.repair_lapsed, p.events.atNewest(0).?.kind);
+    try testing.expect(p.events.atNewest(0).?.peer.eql(s.c));
     p.checkInvariants();
 }
 

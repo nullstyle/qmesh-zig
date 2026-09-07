@@ -27,7 +27,11 @@
 //! Runtime observability: a compact metrics line on stderr every
 //! `--metrics-secs` (gauges: member states, views, tree shape,
 //! sessions, Lifeguard health, RTT envelope; plus monotonic
-//! counters), every delivered broadcast is logged, and
+//! counters), `event ...` lines as the mesh's event rings record
+//! transitions (suspicions/refutations/confirms/resurrections,
+//! Lifeguard changes, session churn, broadcast repairs — the
+//! incidents-timeline data source, also served on the control socket
+//! via the `events` query), every delivered broadcast is logged, and
 //! `--publish-every` periodically broadcasts a smoke payload (its
 //! delivery on the far side is the end-to-end datagram proof).
 //! SIGTERM/SIGINT stop the loop cleanly. The smoke-test posture:
@@ -208,12 +212,20 @@ const Runtime = struct {
     publish_count: u64 = 0,
     last_probes: u64 = 0,
     stall_intervals: u8 = 0,
+    /// Event-ring drain cursors (driver / swim / broadcast rings):
+    /// how many pushes each had at the last metrics dump. The delta
+    /// is the new window; overflow past ring capacity prints the
+    /// whole retained window (the ring is recent-history-shaped, so
+    /// at most `cap` lines can be lost, and only under a burst bigger
+    /// than the ring between two metrics intervals).
+    last_evt_pushes: [3]u64 = @splat(0),
 
     fn onIteration(ctx: ?*anyopaque, r: *qmesh_quic.Runner, now_us: u64) anyerror!void {
         _ = r;
         const rt: *Runtime = @ptrCast(@alignCast(ctx.?));
         if (now_us >= rt.next_metrics_us) {
             rt.next_metrics_us = now_us + rt.metrics_interval_us;
+            rt.logEvents();
             rt.logMetrics();
         }
         if (rt.publish_interval_us > 0 and now_us >= rt.next_publish_us) {
@@ -225,6 +237,28 @@ const Runtime = struct {
                 std.debug.print("published seq={d}\n", .{rt.publish_count});
             } else {
                 std.debug.print("publish failed (payload too large?)\n", .{});
+            }
+        }
+    }
+
+    /// Drain the event rings to stderr since the last interval — the
+    /// chaos campaigns' grep-able incident lines, printed in
+    /// chronological order within the window (oldest first).
+    fn logEvents(rt: *Runtime) void {
+        const node = &rt.runner.endpoint().node;
+        const rings = .{ &node.events, &node.swim.events, &node.broadcast.events };
+        inline for (rings, 0..) |ring, ri| {
+            if (ring.pushed > rt.last_evt_pushes[ri]) {
+                const fresh = @min(ring.len, ring.pushed - rt.last_evt_pushes[ri]);
+                rt.last_evt_pushes[ri] = ring.pushed;
+                var out: [qmesh.events.default_cap]qmesh.events.Event = undefined;
+                const got = ring.newestFirst(out[0..fresh]);
+                var i = got;
+                while (i > 0) {
+                    i -= 1;
+                    var buf: [96]u8 = undefined;
+                    std.debug.print("event {s}\n", .{qmesh.events.formatEvent(out[i], &buf)});
+                }
             }
         }
     }

@@ -56,6 +56,7 @@ const std = @import("std");
 const peer_mod = @import("peer.zig");
 const frame = @import("frame.zig");
 const effects_mod = @import("effects.zig");
+const evlog = @import("events.zig");
 
 const PeerId = peer_mod.PeerId;
 const PeerDesc = peer_mod.PeerDesc;
@@ -419,6 +420,11 @@ pub const Swim = struct {
     piggyback_len: usize = 0,
     piggyback_next: usize = 0,
 
+    /// Recent member-table transitions and Lifeguard changes (the
+    /// incidents-timeline event ring; see `events.zig`). Pure derived
+    /// state, recorded at the exact transition sites.
+    events: evlog.Ring(evlog.default_cap) = .{},
+
     /// Lifeguard local-health exponent: 0 = healthy; each doubling of
     /// observed app delay beyond the probe budget bumps it (capped).
     local_health: u4 = 0,
@@ -584,6 +590,7 @@ pub const Swim = struct {
 
     fn lattice(s: *Self, i: usize, new_state: MemberState, inc: u32, desc: PeerDesc, now: u64) bool {
         const m = &s.members[i];
+        const old_state = m.state;
         const greater = inc > m.incarnation;
         const equal_stronger = inc == m.incarnation and stateRank(new_state) > stateRank(m.state);
         if (!greater and !equal_stronger) {
@@ -600,6 +607,21 @@ pub const Swim = struct {
         // need `desc.addr` to re-open the connection.
         if (new_state == .alive and desc.addr != .none) m.desc = desc;
         s.stats.events_applied += 1;
+        // Event ring: this is the single chokepoint every member-table
+        // transition passes through (local detection, gossip, and the
+        // resurrection paths all land here), so the timeline cannot
+        // miss a transition. An alive->alive incarnation bump is not a
+        // transition — we never suspected the member; a fresh-
+        // incarnation SUSPECT re-arming on a standing suspicion is.
+        switch (new_state) {
+            .suspect => s.events.push(now, .suspect, m.desc.id, inc),
+            .dead => s.events.push(now, .confirm, m.desc.id, inc),
+            .alive => switch (old_state) {
+                .suspect => s.events.push(now, .refute, m.desc.id, inc),
+                .dead => s.events.push(now, .resurrect, m.desc.id, inc),
+                .alive => {},
+            },
+        }
         return true;
     }
 
@@ -635,7 +657,8 @@ pub const Swim = struct {
     /// windows cover the stall itself — one step per call would leave
     /// the post-stall timer burst confirming live members whose
     /// refutation traffic was merely delayed with them.
-    pub fn noteAppDelay(s: *Self, delay_us: u64) void {
+    pub fn noteAppDelay(s: *Self, now: u64, delay_us: u64) void {
+        const before = s.local_health;
         var budget = s.scaledProbeTimeout();
         if (delay_us > budget) {
             const cap: u4 = @intCast(@min(s.cfg.max_local_health, 15));
@@ -645,6 +668,9 @@ pub const Swim = struct {
             }
         } else if (delay_us * 2 < budget and s.local_health > 0) {
             s.local_health -= 1;
+        }
+        if (s.local_health != before) {
+            s.events.push(now, .lh_change, .zero, s.local_health);
         }
     }
 
@@ -885,7 +911,7 @@ pub const Swim = struct {
                 if (now -| s.members[bi].last_heard_us > s.scaledSuspicionTimeout()) silent += 1;
             }
             if (considered >= 2 and silent * 2 > considered) {
-                s.noteAppDelay(s.scaledProbeTimeout() + 1);
+                s.noteAppDelay(now, s.scaledProbeTimeout() + 1);
             }
         }
         s.sweepSusMeta();
@@ -1165,6 +1191,7 @@ pub const Swim = struct {
                     const refutation: Event = .{ .alive = .{ .desc = s.self, .incarnation = s.self_incarnation } };
                     s.disseminate(refutation);
                     s.stats.refutations += 1;
+                    s.events.push(now, .self_refute, s.self.id, s.self_incarnation);
                     out.push(.{ .send = .{
                         .to = from,
                         .msg = .{ .alive = refutation },
@@ -1526,16 +1553,55 @@ test "lifeguard: local health scales probe and suspicion windows" {
     const base_probe = s.scaledProbeTimeout();
     const base_suspicion = s.scaledSuspicionTimeout();
 
-    // A bad app delay doubles the windows.
-    s.noteAppDelay(base_probe * 2);
+    // A bad app delay doubles the windows (and lands on the event ring).
+    try testing.expectEqual(@as(usize, 0), s.events.len);
+    s.noteAppDelay(1, base_probe * 2);
     try testing.expectEqual(@as(u4, 1), s.local_health);
     try testing.expectEqual(base_probe * 2, s.scaledProbeTimeout());
     try testing.expectEqual(base_suspicion * 2, s.scaledSuspicionTimeout());
+    try testing.expectEqual(evlog.Kind.lh_change, s.events.atNewest(0).?.kind);
+    try testing.expectEqual(@as(u32, 1), s.events.atNewest(0).?.arg);
 
     // Sustained good delays recover one step at a time.
-    s.noteAppDelay(base_probe / 4);
+    s.noteAppDelay(2, base_probe / 4);
     try testing.expectEqual(@as(u4, 0), s.local_health);
     try testing.expectEqual(base_probe, s.scaledProbeTimeout());
+    try testing.expectEqual(@as(usize, 2), s.events.len); // both changes recorded
+}
+
+test "event ring records the membership timeline through the lattice" {
+    var s = Swim.init(descOf(160), .{}, 0);
+    var fx: Effects = .{};
+    const rng = testRng();
+    const x = descOf(161);
+    s.observe(x, 0);
+
+    // alive -> suspect (gossiped): recorded with the incarnation.
+    _ = s.apply(.{ .suspect = .{ .id = x.id, .incarnation = 0 } }, 1);
+    // Rejected re-suspicion at the same incarnation: no duplicate.
+    _ = s.apply(.{ .suspect = .{ .id = x.id, .incarnation = 0 } }, 2);
+
+    // suspect -> refute, then -> confirm, then -> resurrect (session
+    // evidence path) — the full incident shape in order.
+    _ = s.apply(.{ .alive = .{ .desc = x, .incarnation = 1 } }, 3);
+    _ = s.apply(.{ .confirm = .{ .id = x.id, .incarnation = 2 } }, 4);
+    s.noteSessionAlive(x.id, 5);
+
+    var out: [8]evlog.Event = undefined;
+    const n = s.events.newestFirst(&out);
+    try testing.expectEqual(@as(usize, 4), n);
+    const want_kinds = [_]evlog.Kind{ .resurrect, .confirm, .refute, .suspect };
+    const want_args = [_]u32{ 3, 2, 1, 0 };
+    for (want_kinds, want_args, 0..) |wk, wa, i| {
+        try testing.expectEqual(wk, out[i].kind);
+        try testing.expectEqual(wa, out[i].arg);
+        try testing.expect(out[i].peer.eql(x.id));
+    }
+
+    // A self-directed suspicion refutes on the ring too.
+    s.handle(descOf(162).id, .{ .suspect = .{ .suspect = .{ .id = s.self.id, .incarnation = 7 } } }, 6, rng, &fx);
+    try testing.expectEqual(evlog.Kind.self_refute, s.events.atNewest(0).?.kind);
+    try testing.expect(s.events.atNewest(0).?.peer.eql(s.self.id));
 }
 
 test "piggyback: disseminated events ride pings and acks, bounded" {

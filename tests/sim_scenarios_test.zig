@@ -561,6 +561,80 @@ test "fly migration pause: multi-region profile does not evict a pausing node" {
     }
 }
 
+test "event ring: kill and loss leave a causal timeline in witness rings" {
+    // Concept 2's data source proven in the deterministic world
+    // (docs/observability-ux.md): a crashed member's story — session
+    // loss, suspicion, confirm — lands on every survivor's merged
+    // ring in causal order for the right peer, and delivery loss
+    // records the repairs that recovered it.
+    var world = qsim.World.init(testing.allocator, 91, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
+    defer world.deinit();
+    var i: u32 = 0;
+    while (i < 8) : (i += 1) _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(20_000_000);
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+
+    // Kill node 5 (no goodbyes — sessions sever with notifications).
+    try world.kill(5);
+    try world.runFor(10_000_000); // fast profile: probe, indirect, suspect, confirm
+
+    const victim = world.descs.items[5].id;
+    var witnesses: usize = 0;
+    for (world.nodes.items, 0..) |sn, idx| {
+        if (idx == 5 or !world.alive.items[idx]) continue;
+        witnesses += 1;
+        var ev: [96]qmesh.events.Event = undefined;
+        const n = sn.node.recentEvents(&ev);
+        var saw_down = false;
+        var saw_sus = false;
+        var saw_conf = false;
+        var sus_older_than_conf = false;
+        for (ev[0..n]) |e| {
+            if (!e.peer.eql(victim)) continue;
+            // newest-first iteration: the confirm must appear BEFORE
+            // (newer than) the suspicion it grew out of.
+            if (e.kind == .suspect and saw_conf) sus_older_than_conf = true;
+            switch (e.kind) {
+                .session_down => saw_down = true,
+                .suspect => saw_sus = true,
+                .confirm => saw_conf = true,
+                else => {},
+            }
+        }
+        try testing.expect(saw_down);
+        try testing.expect(saw_sus);
+        try testing.expect(saw_conf);
+        try testing.expect(sus_older_than_conf);
+    }
+
+    // Delivery loss: publish repeated rounds under heavy datagram
+    // loss and the rings record the repair activity that pulled
+    // missed broadcasts — the delivery-dip texture beside the
+    // membership story. (Eager push is redundant by design, so a
+    // light-loss single round can slip every path; 30% over several
+    // rounds reliably leaves eager-path gaps for IWANT to close.)
+    world.policy.drop_bp = 3000;
+    var round: u32 = 0;
+    while (round < 4) : (round += 1) {
+        for (0..8) |n| {
+            if (world.alive.items[n]) _ = world.broadcast(@intCast(n), "lossy");
+        }
+        try world.runFor(3_000_000);
+    }
+    var any_repair = false;
+    for (world.nodes.items, 0..) |sn, idx| {
+        if (!world.alive.items[idx]) continue;
+        var ev: [96]qmesh.events.Event = undefined;
+        const n = sn.node.recentEvents(&ev);
+        for (ev[0..n]) |e| {
+            if (e.kind == .repair or e.kind == .repair_lapsed) any_repair = true;
+        }
+    }
+    try testing.expect(any_repair);
+    std.debug.print("event ring: {d} witnesses hold session+suspect+confirm in causal order; repairs recorded\n", .{witnesses});
+}
+
 test "identical seeds produce byte-identical overlay state" {
     const run = struct {
         fn f(allocator: std.mem.Allocator, out_fingerprint: *u64, out_stats: *qsim.world.WorldStats) !void {

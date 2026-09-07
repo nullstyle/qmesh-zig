@@ -37,7 +37,14 @@ sendto, `blackhole <peer> [in|out]` is the one-way-link fault,
 
 Control protocol: one UDP datagram per command to the node's control
 port (`freeze 3000`, `drop 1500 in`, `blackhole <hex> out`, `clear`,
-`stats`); replies none. Tiny, text, grep-able.
+`stats`); replies none. Tiny, text, grep-able. Two queries DO reply:
+`stats` (the fleet-card line qmesh-top renders) and `events` (the
+node's recent event ring — suspicions/refutations/confirms/
+resurrections, Lifeguard lh changes, session churn, broadcast
+repairs — with a monotonic↔wall clock pairing so timelines merge
+across nodes). The same ring drains to stderr as `event ...` lines
+every metrics interval, so campaign logs now carry the mesh's own
+view of each fault window beside the driver's schedule log.
 
 New surface: `Runner.Options.faults: ?*FaultKnobs` (shared struct the
 control listener mutates; the loop reads) — opt-in, null by default,

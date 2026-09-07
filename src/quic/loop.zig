@@ -353,6 +353,19 @@ pub const Runner = struct {
                 _ = posix.system.sendto(cs, line.ptr, line.len, 0, @ptrCast(&from), from_len);
                 continue;
             }
+            if (std.mem.eql(u8, cmd[0..n], "events")) {
+                // Console timeline query (Concept 2 slice): this
+                // node's merged event ring, newest first, prefixed
+                // with the clock pairing a cross-node consumer needs
+                // — `mono` is the ring's clock, `wall` is unix-epoch
+                // now, so the asker can order events ACROSS nodes
+                // despite per-process monotonic origins. One datagram;
+                // as many of the newest events as fit.
+                var reply: [1200]u8 = undefined;
+                const payload = r.eventsReply(&reply, nowUs());
+                _ = posix.system.sendto(cs, payload.ptr, payload.len, 0, @ptrCast(&from), from_len);
+                continue;
+            }
             r.applyControl(cmd[0..n]);
         }
     }
@@ -379,6 +392,35 @@ pub const Runner = struct {
             m.mesh.broadcast.published,
             m.mesh.broadcast.delivered,
         }) catch "stats?";
+    }
+
+    /// Timeline reply for the console's `events` query (Concept 2
+    /// slice): header (short id + clock pairing) then the newest
+    /// merged events that fit the datagram, newest first.
+    fn eventsReply(r: *Self, buf: []u8, now_mono_us: u64) []const u8 {
+        var wall: std.c.timespec = undefined;
+        _ = std.c.clock_gettime(std.c.CLOCK.REALTIME, &wall);
+        const wall_us: u64 = @as(u64, @intCast(wall.sec)) * std.time.us_per_s +
+            @as(u64, @intCast(@divTrunc(wall.nsec, 1000)));
+        var pos: usize = 0;
+        const hex8 = r.ep.opts.self.id.hex();
+        const head = std.fmt.bufPrint(buf[pos..], "events id={s} mono={d} wall={d}\n", .{
+            hex8[0..8], now_mono_us, wall_us,
+        }) catch return "events?";
+        pos += head.len;
+        var ev: [24]qmesh.events.Event = undefined;
+        const n = r.ep.node.recentEvents(&ev);
+        var i: usize = 0;
+        while (i < n) : (i += 1) {
+            var line: [96]u8 = undefined;
+            const s = qmesh.events.formatEvent(ev[i], &line);
+            if (pos + s.len + 1 > buf.len) break;
+            @memcpy(buf[pos..][0..s.len], s);
+            pos += s.len;
+            buf[pos] = '\n';
+            pos += 1;
+        }
+        return buf[0..pos];
     }
 
     fn applyControl(r: *Self, bytes: []const u8) void {
@@ -430,7 +472,7 @@ pub const Runner = struct {
     /// the multiplier is inert and any stall long enough to expire a
     /// suspicion escalates to CONFIRM and eviction.
     fn feedLocalHealth(r: *Self, now: u64) void {
-        r.ep.node.swim.noteAppDelay(now -| r.last_step_us);
+        r.ep.node.swim.noteAppDelay(now, now -| r.last_step_us);
         r.last_step_us = now;
     }
 

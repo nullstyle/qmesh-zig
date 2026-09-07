@@ -60,6 +60,7 @@ const frame = @import("frame.zig");
 const hv = @import("hyparview.zig");
 const swim_mod = @import("swim.zig");
 const plum_mod = @import("plumtree.zig");
+const evlog = @import("events.zig");
 
 const PeerId = peer_mod.PeerId;
 const PeerDesc = peer_mod.PeerDesc;
@@ -112,6 +113,10 @@ pub fn Node(comptime Transport: type) type {
         fx: hv.Effects = .{},
         swim_fx: swim_mod.Effects = .{},
         plum_fx: plum_mod.Effects = .{},
+
+        /// Driver-level events (session churn); merged with the cores'
+        /// rings by `recentEvents` — the per-node incidents timeline.
+        events: evlog.Ring(evlog.default_cap) = .{},
 
         pub fn init(self_desc: PeerDesc, cfg: Config, transport: *Transport, hooks: Hooks) Self {
             const now = transport.now();
@@ -195,6 +200,7 @@ pub fn Node(comptime Transport: type) type {
         pub fn onSessionUp(self: *Self, peer: PeerId) void {
             self.stats.sessions_up += 1;
             const now = self.transport.now();
+            self.events.push(now, .session_up, peer, 0);
             // SWIM learns the member with its best-known descriptor;
             // if the table holds it suspect/dead, the session's
             // authenticated handshake is direct liveness evidence that
@@ -209,6 +215,7 @@ pub fn Node(comptime Transport: type) type {
 
         pub fn onSessionDown(self: *Self, peer: PeerId) void {
             self.stats.sessions_down += 1;
+            self.events.push(self.transport.now(), .session_down, peer, 0);
             // Session loss is an overlay concern; SWIM owns liveness
             // separately (a dropped session ≠ a dead member). The
             // broadcast tree loses the peer with the connection.
@@ -343,6 +350,65 @@ pub fn Node(comptime Transport: type) type {
                     .sessions_down = self.stats.sessions_down,
                 },
             );
+        }
+
+        /// Merge this node's event rings (driver session churn, SWIM
+        /// membership transitions, broadcast repairs) newest-first
+        /// into `out`; returns how many were written (truncated at
+        /// `out.len`). This is the per-node incidents timeline's data
+        /// source (docs/observability-ux.md Concept 2): "what did the
+        /// mesh layer do and when", beside the metrics snapshot.
+        ///
+        /// Timestamps are this node's transport clock — comparable
+        /// within the node only. Cross-node fusion is the display
+        /// seam's job (it pairs each dump with the node's clocks).
+        pub fn recentEvents(self: *const Self, out: []evlog.Event) usize {
+            var written: usize = 0;
+            var ci: usize = 0; // driver
+            var si: usize = 0; // swim
+            var bi: usize = 0; // broadcast
+            while (written < out.len) {
+                const c = self.events.atNewest(ci);
+                const s = self.swim.events.atNewest(si);
+                const b = self.broadcast.events.atNewest(bi);
+                if (c == null and s == null and b == null) break;
+                // Newest wins; ties keep the earlier source in the
+                // driver > swim > broadcast order (a session event and
+                // the transition it caused share a tick — the cause
+                // reads first).
+                var took: u2 = undefined;
+                var chosen: evlog.Event = undefined;
+                if (c) |e| {
+                    chosen = e;
+                    took = 0;
+                } else if (s) |e| {
+                    chosen = e;
+                    took = 1;
+                } else {
+                    chosen = b.?;
+                    took = 2;
+                }
+                if (s) |e| {
+                    if (e.at_us > chosen.at_us) {
+                        chosen = e;
+                        took = 1;
+                    }
+                }
+                if (b) |e| {
+                    if (e.at_us > chosen.at_us) {
+                        chosen = e;
+                        took = 2;
+                    }
+                }
+                switch (took) {
+                    0 => ci += 1,
+                    1 => si += 1,
+                    else => bi += 1,
+                }
+                out[written] = chosen;
+                written += 1;
+            }
+            return written;
         }
 
         fn syncBroadcastPeers(self: *Self) void {
@@ -553,6 +619,20 @@ test "node multiplexes swim beside the overlay and purges on confirm" {
     node.onSessionUp(victim.id);
     try std.testing.expect(node.swim.stateOf(victim.id) == .alive);
 
+    // The same incident is on the merged event ring: the confirm and
+    // the session-evidence resurrection that healed it.
+    var ev: [16]@import("events.zig").Event = undefined;
+    const n = node.recentEvents(&ev);
+    var saw_confirm = false;
+    var saw_resurrect = false;
+    for (ev[0..n]) |e| {
+        if (!e.peer.eql(victim.id)) continue;
+        saw_confirm = saw_confirm or e.kind == .confirm;
+        saw_resurrect = saw_resurrect or e.kind == .resurrect;
+    }
+    try std.testing.expect(saw_confirm);
+    try std.testing.expect(saw_resurrect);
+
     // Metrics snapshot: gauges mirror the views, counters the flow.
     const m = node.metrics();
     try std.testing.expectEqual(@as(usize, 1), m.swim.members_alive);
@@ -561,6 +641,69 @@ test "node multiplexes swim beside the overlay and purges on confirm" {
     try std.testing.expectEqual(@as(u64, 0), m.driver.sessions_down);
     try std.testing.expectEqual(@as(u64, 1), m.driver.frames_received);
     try std.testing.expectEqual(@as(u64, 1), m.driver.frames_sent);
+}
+
+test "recentEvents merges the recorder rings newest-first" {
+    const FakeTransport = struct {
+        clock: u64 = 0,
+        prng: std.Random.DefaultPrng = std.Random.DefaultPrng.init(12),
+        fn now(t: *@This()) u64 {
+            return t.clock;
+        }
+        fn rng(t: *@This()) std.Random {
+            return t.prng.random();
+        }
+        fn descOf(t: *@This(), id: PeerId) ?PeerDesc {
+            _ = t;
+            return PeerDesc{ .id = id };
+        }
+        fn sendDatagram(t: *@This(), to: PeerId, bytes: []const u8) !void {
+            _ = t;
+            _ = to;
+            _ = bytes;
+        }
+        fn sendReliable(t: *@This(), to: PeerId, bytes: []const u8) !void {
+            _ = t;
+            _ = to;
+            _ = bytes;
+        }
+        fn connect(t: *@This(), desc: PeerDesc) !void {
+            _ = t;
+            _ = desc;
+        }
+    };
+
+    var transport: FakeTransport = .{};
+    var prng = std.Random.DefaultPrng.init(21);
+    const me = PeerDesc{ .id = PeerId.fromRandom(prng.random()), .addr = peer_mod.Addr.sim(1) };
+    const a = PeerDesc{ .id = PeerId.fromRandom(prng.random()), .addr = peer_mod.Addr.sim(2) };
+
+    var node = Node(FakeTransport).init(me, .{}, &transport, .{});
+
+    // The incident shape: session up, suspicion, confirm, session
+    // loss, and (driven directly — plumtree's own test covers the
+    // arming) a broadcast repair, each on its own tick of the clock.
+    node.onSessionUp(a.id); // t=0: session_up
+    transport.clock = 1;
+    _ = node.swim.apply(.{ .suspect = .{ .id = a.id, .incarnation = 0 } }, 1); // t=1: suspect
+    transport.clock = 2;
+    _ = node.swim.apply(.{ .confirm = .{ .id = a.id, .incarnation = 0 } }, 2); // t=2: confirm
+    node.broadcast.events.push(2, .repair, a.id, 5); // t=2 tie: swim outranks broadcast
+    transport.clock = 3;
+    node.onSessionDown(a.id); // t=3: session_down
+
+    var out: [16]evlog.Event = undefined;
+    const n = node.recentEvents(&out);
+    try std.testing.expectEqual(@as(usize, 5), n);
+    const want = [_]evlog.Kind{ .session_down, .confirm, .repair, .suspect, .session_up };
+    for (want, 0..) |wk, i| try std.testing.expectEqual(wk, out[i].kind);
+    for (out[0..n]) |e| try std.testing.expect(e.peer.eql(a.id));
+
+    // Truncation is the caller's bound.
+    var tiny: [2]evlog.Event = undefined;
+    try std.testing.expectEqual(@as(usize, 2), node.recentEvents(&tiny));
+    try std.testing.expectEqual(evlog.Kind.session_down, tiny[0].kind);
+    try std.testing.expectEqual(evlog.Kind.confirm, tiny[1].kind);
 }
 
 test "aliveMembers is the directory an embedder dials from" {
