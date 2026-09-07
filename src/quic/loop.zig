@@ -328,8 +328,42 @@ pub const Runner = struct {
             const rc = posix.system.recvfrom(cs, &cmd, cmd.len, posix.MSG.DONTWAIT, @ptrCast(&from), &from_len);
             if (posix.errno(rc) != .SUCCESS) return;
             const n: usize = @intCast(rc);
+            if (std.mem.eql(u8, cmd[0..n], "stats")) {
+                // Console query (qmesh top): one compact status line
+                // back to the asker — the metrics snapshot in wire
+                // form. Completeness is the asker's job: nodes that
+                // don't answer within its window ARE the story.
+                var reply: [256]u8 = undefined;
+                const line = r.statsLine(&reply);
+                _ = posix.system.sendto(cs, line.ptr, line.len, 0, @ptrCast(&from), from_len);
+                continue;
+            }
             r.applyControl(cmd[0..n]);
         }
+    }
+
+    /// One-line fleet-card status for the console (Concept 1 slice,
+    /// docs/observability-ux.md).
+    fn statsLine(r: *Self, buf: []u8) []const u8 {
+        const m = r.ep.metrics();
+        var hex8: [16]u8 = undefined;
+        const full = r.ep.opts.self.id.hex();
+        @memcpy(&hex8, full[0..16]);
+        return std.fmt.bufPrint(buf, "{s} alive={d} sus={d} dead={d} act={d} rank={d} sess={d} slots={d} lh={d} rtt={d}-{d}us pub={d} del={d}", .{
+            hex8[0..],
+            m.mesh.swim.members_alive,
+            m.mesh.swim.members_suspect,
+            m.mesh.swim.members_dead,
+            m.mesh.overlay.active,
+            m.mesh.overlay.ranked,
+            m.transport.established,
+            m.transport.server_slots,
+            m.mesh.swim.local_health,
+            m.mesh.swim.rtt_min_us,
+            m.mesh.swim.rtt_max_us,
+            m.mesh.broadcast.published,
+            m.mesh.broadcast.delivered,
+        }) catch "stats?";
     }
 
     fn applyControl(r: *Self, bytes: []const u8) void {

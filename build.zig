@@ -84,6 +84,15 @@ pub fn build(b: *std.Build) !void {
     const node_exe = b.addExecutable(.{ .name = "qmesh-node", .root_module = node_exe_mod });
     b.installArtifact(node_exe);
 
+    // The backend-less fleet console (docs/observability-ux.md).
+    const top_exe_mod = b.createModule(.{
+        .root_source_file = b.path("src/quic/top.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    const top_exe = b.addExecutable(.{ .name = "qmesh-top", .root_module = top_exe_mod });
+    b.installArtifact(top_exe);
+
     // --- composition example ---------------------------------------------
     //
     // Option A glue: qmesh names and watches peers, qmsg carries the
