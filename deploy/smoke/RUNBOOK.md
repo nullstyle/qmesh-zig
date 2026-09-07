@@ -59,6 +59,35 @@ fly logs --app <app> | grep -E "metrics|broadcast|published"
 
 Teardown (destructive): `fly apps destroy <app>`.
 
+## Findings (later deploys)
+
+3. **`fly deploy` resets per-machine env — re-apply after every
+   deploy** (2026-09-07): a deploy updates machines to the new image
+   and clears the `QMESH_*` env set on each machine (they exit with
+   code 1 at config parsing). Re-apply the full per-machine set with
+   `fly machine update` (scripted in the session that hit it; the
+   inventory in `fly.toml.live` + the PKI in `/tmp/qmesh-smoke-pki`
+   carry everything needed: id = SPKI digest of the node cert, bind =
+   machine 6pn addr, join = the sea seed, `QMESH_PUBLISH_EVERY=30`
+   `QMESH_PMTU_MAX=1372` `QMESH_CONTROL=[6pn]:5901`), then start.
+   Staggered `machine update` restarts produce a minutes-long
+   suspicion storm on bring-up (high incarnations from mutual
+   refutations) that fully converges — expected, not a regression;
+   the fleet's event-ring fingerprints now annotate exactly this
+   shape as "restart churn".
+
+4. **The image ships `qmesh-top`** (2026-09-07): the fleet console
+   renders cards + the merged wall-clock incident timeline with
+   root-cause fingerprints from anywhere in the 6pn:
+
+   ```sh
+   fly ssh console --app qmesh-smoke-nullstyle -C "timeout 10 /qmesh-top '[fdaa:…]:5901' …"
+   ```
+
+   (`fly ssh console -C` execs argv directly — no shell — so `2>&1 |
+   tail` tokens become phantom targets; keep the pipeline outside the
+   -C string. qmesh-top loops forever: wrap in `timeout`.)
+
 ## What it proved
 
 - mTLS handshake, HELLO identity binding, JOIN/NEIGHBOR, SWIM probes,
