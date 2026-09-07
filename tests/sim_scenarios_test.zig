@@ -416,6 +416,86 @@ test "fly profile, two clean nodes: probing must not fabricate failures" {
     }
 }
 
+test "corroborated suspicion accelerates eviction (Ta)" {
+    // A/B on identical worlds (same seed): 5s suspicion window, kills
+    // at t0, observe at t0+5s. Without Ta nobody can confirm yet
+    // (first suspicions arm ~1.5s in; +5s window > observation). With
+    // Ta (3 distinct forwarders halve the window) the cluster agrees
+    // on the kill inside the budget.
+    const run = struct {
+        fn f(allocator: std.mem.Allocator, ta: bool, out_confirms: *usize, out_accel: *u64) !void {
+            var world = qsim.World.init(allocator, 161, defaultCfg(), .{
+                .probe_period_us = 200_000,
+                .probe_timeout_us = 100_000,
+                .indirect_timeout_us = 100_000,
+                .suspicion_timeout_us = 5_000_000,
+                .ta_min_corroborators = if (ta) 3 else 0,
+            }, fastBroadcastCfg(), .{});
+            defer world.deinit();
+            var i: u32 = 0;
+            while (i < 12) : (i += 1) _ = try world.spawn();
+            world.bootstrapAll(0);
+            try world.runFor(20_000_000);
+            for ([_]u32{ 4, 9 }) |victim| try world.kill(victim);
+            try world.runFor(5_000_000);
+            out_confirms.* = 0;
+            out_accel.* = 0;
+            for (world.nodes.items, 0..) |sn, idx| {
+                if (!world.alive.items[idx]) continue;
+                out_accel.* += sn.node.swim.stats.ta_accelerations;
+                for ([_]u32{ 4, 9 }) |victim| {
+                    const st = sn.node.swim.stateOf(world.descs.items[victim].id) orelse continue;
+                    if (st == .dead) out_confirms.* += 1;
+                }
+            }
+        }
+    }.f;
+
+    var with_confirms: usize = 0;
+    var with_accel: u64 = 0;
+    var without_confirms: usize = 0;
+    var without_accel: u64 = 0;
+    try run(testing.allocator, true, &with_confirms, &with_accel);
+    try run(testing.allocator, false, &without_confirms, &without_accel);
+    std.debug.print("ta A/B: with={d}/20 (accel={d}) without={d}/20\n", .{ with_confirms, with_accel, without_confirms });
+    try testing.expectEqual(@as(usize, 0), without_confirms);
+    try testing.expect(with_accel > 0);
+    try testing.expect(with_confirms >= 15);
+}
+
+test "flaky node is never confirmed dead (buddy self-diagnosis posture)" {
+    // Node 3 drops 30% of inbound frames: its probes of others fail
+    // often enough to suspect, but its buddy set goes quiet too —
+    // the majority-silence signal feeds its own local health, the
+    // suspicion windows extend, refutations land, and the cluster
+    // (which hears node 3 fine) never agrees on its death.
+    var world = qsim.World.init(testing.allocator, 171, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
+    defer world.deinit();
+    var i: u32 = 0;
+    while (i < 8) : (i += 1) _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(10_000_000);
+    world.flaky(3, 3_000);
+    try world.runFor(30_000_000);
+
+    const n3 = world.descs.items[3].id;
+    for (world.nodes.items, 0..) |sn, idx| {
+        if (!world.alive.items[idx] or idx == 3) continue;
+        const st = sn.node.swim.stateOf(n3) orelse return error.MemberLost;
+        try testing.expect(st != .dead);
+    }
+    // The flaky node itself must not wedge-confirm its whole table.
+    var alive_peers: usize = 0;
+    for (world.descs.items, 0..) |d, j| {
+        if (j == 3) continue;
+        const st = world.nodes.items[3].node.swim.stateOf(d.id) orelse continue;
+        if (st == .alive) alive_peers += 1;
+    }
+    std.debug.print("flaky: node3 alive peers={d}/7 lh={d}\n", .{ alive_peers, world.nodes.items[3].node.swim.local_health });
+    try testing.expect(alive_peers >= 1);
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+}
+
 test "fly migration pause: multi-region profile does not evict a pausing node" {
     const p = qmesh.profiles.fly_multi_region;
     var world = qsim.World.init(testing.allocator, 61, p.overlay, p.swim, p.broadcast, .{});

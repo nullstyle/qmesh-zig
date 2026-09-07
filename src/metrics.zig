@@ -53,6 +53,7 @@ pub const SwimMetrics = struct {
     suspects_declared: u64,
     confirms_declared: u64,
     refutations: u64,
+    ta_accelerations: u64,
 };
 
 /// Broadcast (Plumtree) tree shape and traffic counters.
@@ -125,6 +126,7 @@ pub fn swim(s: *const swim_mod.Swim) SwimMetrics {
         .suspects_declared = s.stats.suspects_declared,
         .confirms_declared = s.stats.confirms_declared,
         .refutations = s.stats.refutations,
+        .ta_accelerations = s.stats.ta_accelerations,
     };
     for (s.memberSlice()) |mem| switch (mem.state) {
         .alive => m.members_alive += 1,

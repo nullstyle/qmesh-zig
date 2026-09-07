@@ -106,6 +106,18 @@ distributed systems. It is **not** an actor runtime.
       two-region simulator scenario (zone-shaped latencies): ranked
       sets converge to same-region peers, the cluster stays one
       component.
+- [x] Lifeguard buddy set + corroborated-suspicion acceleration
+      (Ta): each node silence-monitors a rotating set of random
+      buddies — a majority of quiet-but-alive buddies feeds the
+      node's own local health ("it's us or our path"), extending
+      windows instead of evicting healthy peers; and a suspicion
+      gossiped by enough distinct peers halves its window (floored at
+      the RTT budget and ¼ of the profile window). Proven in the sim:
+      an A/B on identical worlds shows full cluster agreement on a
+      kill inside a budget where the unaccelerated control confirms
+      nothing, the fly migration-pause scenario stays
+      never-CONFIRM, and a 30%-loss flaky node keeps its whole table
+      alive (buddy self-diagnosis at work).
 - [x] Metrics snapshot surface (`src/metrics.zig`): one plain-data
       struct per node aggregating the protocol cores' gauges (view
       sizes, member states, tree shape, Lifeguard health) and

@@ -85,6 +85,9 @@ pub const World = struct {
     scen_rng: std.Random.DefaultPrng,
 
     groups: std.ArrayListUnmanaged(u8) = .empty,
+    /// Per-node inbound drop rate in basis points (flaky links /
+    /// degraded receivers). 0 = clean.
+    flaky_bp: std.ArrayListUnmanaged(u32) = .empty,
     blocked_pair: ?[2]u8 = null,
     /// Locality zones for latency shaping (see Policy.zone_*): zone 0
     /// is the default; scenarios assign via `setZone` before running.
@@ -140,6 +143,7 @@ pub const World = struct {
         w.prngs.deinit(w.allocator);
         w.groups.deinit(w.allocator);
         w.zones.deinit(w.allocator);
+        w.flaky_bp.deinit(w.allocator);
         w.one_way_drops.deinit(w.allocator);
         w.network.deinit();
         w.sessions.deinit();
@@ -166,6 +170,7 @@ pub const World = struct {
         try w.prngs.append(w.allocator, std.Random.DefaultPrng.init(sm.next()));
         try w.groups.append(w.allocator, 0);
         try w.zones.append(w.allocator, 0);
+        try w.flaky_bp.append(w.allocator, 0);
 
         const sn = try w.allocator.create(SimNode);
         errdefer w.allocator.destroy(sn);
@@ -226,6 +231,14 @@ pub const World = struct {
     /// Call before running; zone 0 is the spawn default.
     pub fn setZone(w: *Self, node: NodeId, zone: u8) void {
         w.zones.items[node] = zone;
+    }
+
+    /// Make `node` a flaky receiver: it stays alive and its outbound
+    /// works, but inbound frames drop at `drop_bp` basis points — the
+    /// partial-degradation fault (lossy path, wedged rcvbuf) that
+    /// buddy-set self-diagnosis exists for.
+    pub fn flaky(w: *Self, node: NodeId, drop_bp: u32) void {
+        w.flaky_bp.items[node] = drop_bp;
     }
 
     /// Split the listed nodes into two groups (1 and 2), block traffic
@@ -427,6 +440,13 @@ pub const World = struct {
                 if (d.reliable and !w.sessions.establishedPair(d.src, d.dst)) {
                     w.stats.dropped_no_session += 1;
                     return;
+                }
+                if (w.flaky_bp.items[d.dst] > 0) {
+                    const draw = w.net_rng.random().uintLessThan(u32, 10_000);
+                    if (draw < w.flaky_bp.items[d.dst]) {
+                        w.stats.dropped_loss += 1;
+                        return;
+                    }
                 }
                 w.nodes.items[d.dst].node.handleWire(w.descs.items[d.src].id, d.bytes);
                 w.stats.delivered += 1;

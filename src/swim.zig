@@ -35,12 +35,18 @@
 //!   refutations additionally go out as standalone messages.
 //!   Anti-entropy (later milestone) is the eventual-repair backstop.
 //!
-//! Lifeguard (first cut): `local_health` scales probe timeouts and
-//! the suspicion window when this node is itself struggling (the
-//! caller feeds observed scheduler delays via `noteAppDelay`). An
-//! unhealthy node probes more patiently and suspects more slowly —
-//! the paper's Local Health Multiplier. Buddy-system / T-man props
-//! come later.
+//! Lifeguard: `local_health` scales probe timeouts and the suspicion
+//! window when this node is itself struggling (fed from two signals:
+//! observed scheduler delays via `noteAppDelay`, and buddy-set
+//! silence — a majority of monitored buddies going quiet while the
+//! table holds them alive means the degradation is here or on our
+//! path, not in the cluster). Corroborated-suspicion acceleration
+//! (Ta-flavored): once enough distinct peers have gossiped the same
+//! (member, incarnation) suspicion, the window halves — floored at
+//! the member's RTT budget and a quarter of the profile window, so a
+//! live migration pause that peers transiently suspect still
+//! outlives it (the fly-profile scenario pins this). Full T-man
+//! props remain future work.
 //!
 //! Class mapping: all SWIM traffic is `ephemeral` — probes are
 //! periodic by design; lost probes cost one period, never
@@ -78,6 +84,23 @@ pub const Config = struct {
     /// sides' tables hold the other side CONFIRMed dead, and
     /// equal-incarnation ACKs cannot beat a CONFIRM.
     dead_probe_every: u16 = 8,
+    /// Lifeguard buddy set: this many random alive members are
+    /// monitored for silence (any frame from a member refreshes its
+    /// last-heard time). When a MAJORITY of buddies fall silent while
+    /// the table holds them alive, the node feeds its own local
+    /// health — the degradation is here or on our network path, not
+    /// in the cluster, so suspicion windows extend instead of
+    /// evicting healthy peers. 0 disables. Buddies rotate on a probe
+    /// cadence.
+    buddy_count: u8 = 3,
+    /// Corroborated-suspicion acceleration (Lifeguard Ta-flavored):
+    /// once at least this many DISTINCT peers have gossiped the same
+    /// (member, incarnation) suspicion, the suspicion window halves —
+    /// floored at the member's RTT budget and a quarter of the
+    /// profile window, so a live migration pause that peers
+    /// transiently suspect still outlives the accelerated window.
+    /// 0 disables.
+    ta_min_corroborators: u8 = 3,
 };
 
 pub const msg_type = struct {
@@ -277,6 +300,9 @@ pub const Member = struct {
     /// while high-RTT peers get headroom, so profile timers no longer
     /// need worst-case padding for everyone.
     rtt_us: u64 = 0,
+    /// Last time any frame arrived from this member (buddy-silence
+    /// monitoring; 0 = never, set at introduction).
+    last_heard_us: u64 = 0,
 };
 
 const Probe = struct {
@@ -293,6 +319,40 @@ const Relay = struct {
     requester: PeerId,
     deadline_us: u64,
 };
+
+/// Corroboration bookkeeping for one standing suspicion (Ta). Bounded
+/// side table, cleaned as suspicions resolve; overflow degrades to
+/// "no acceleration" — always safe.
+const SusMeta = struct {
+    id: PeerId,
+    incarnation: u32,
+    /// Distinct senders of this exact (id, incarnation) suspicion.
+    corrob: u8,
+    /// Dedupe ring: the first `seen_max` senders; later repeats still
+    /// count once each beyond the ring (threshold-sized precision is
+    /// enough for an accelerator, not a safety mechanism).
+    seen: [3]PeerId = undefined,
+    seen_len: u8 = 0,
+
+    const seen_max = 3;
+
+    fn noteSender(m: *SusMeta, sender: PeerId) void {
+        for (m.seen[0..m.seen_len]) |s| {
+            if (s.eql(sender)) return;
+        }
+        m.corrob += 1;
+        if (m.seen_len < seen_max) {
+            m.seen[m.seen_len] = sender;
+            m.seen_len += 1;
+        }
+    }
+};
+
+pub const max_buddies: usize = 8;
+pub const max_sus_meta: usize = 8;
+/// Buddies re-draw every Nth probe (probe cadence keeps it
+/// deterministic and cadence-free of new timers).
+pub const buddy_rotate_probes: u64 = 32;
 
 /// Strength ordering at equal incarnation: alive < suspect < confirm.
 fn stateRank(s: MemberState) u8 {
@@ -323,6 +383,7 @@ pub const Swim = struct {
         suspects_declared: u64 = 0,
         confirms_declared: u64 = 0,
         refutations: u64 = 0,
+        ta_accelerations: u64 = 0,
         events_applied: u64 = 0,
         events_stale: u64 = 0,
     };
@@ -344,6 +405,14 @@ pub const Swim = struct {
     /// Outstanding indirect-probe relays we promised to service.
     relays: [max_relays]Relay = undefined,
     relays_len: usize = 0,
+
+    /// Lifeguard buddy set (silence-monitored, rotated).
+    buddies: [max_buddies]PeerId = undefined,
+    buddies_len: usize = 0,
+
+    /// Corroboration side table for standing suspicions (Ta).
+    sus_meta: [max_sus_meta]SusMeta = undefined,
+    sus_meta_len: usize = 0,
 
     /// Recent events re-piggybacked on probes (bounded ring window).
     piggyback: [max_events_per_msg]Event = undefined,
@@ -405,6 +474,7 @@ pub const Swim = struct {
             .incarnation = 0,
             .state = .alive,
             .state_since_us = now,
+            .last_heard_us = now,
         };
         s.members_len += 1;
     }
@@ -451,6 +521,7 @@ pub const Swim = struct {
                         .incarnation = a.incarnation,
                         .state = .alive,
                         .state_since_us = now,
+                        .last_heard_us = now,
                     };
                     s.members_len += 1;
                     s.stats.events_applied += 1;
@@ -472,6 +543,7 @@ pub const Swim = struct {
                         .incarnation = sus.incarnation,
                         .state = .suspect,
                         .state_since_us = now,
+                        .last_heard_us = now,
                     };
                     s.members_len += 1;
                     s.stats.events_applied += 1;
@@ -488,6 +560,7 @@ pub const Swim = struct {
                         .incarnation = c.incarnation,
                         .state = .dead,
                         .state_since_us = now,
+                        .last_heard_us = now,
                     };
                     s.members_len += 1;
                     s.stats.events_applied += 1;
@@ -584,9 +657,92 @@ pub const Swim = struct {
     }
 
     /// Suspicion window for one member (public: nextDeadline and the
-    /// expiry scan share the exact arithmetic).
+    /// expiry scan share the exact arithmetic). With Ta: a
+    /// sufficiently-corroborated suspicion halves the window, floored
+    /// at the member's RTT budget and a quarter of the profile window.
     pub fn suspicionBudgetFor(s: *const Self, m: Member) u64 {
-        return @max(s.scaledSuspicionTimeout(), rtt_suspicion_factor *| m.rtt_us);
+        const base = @max(s.scaledSuspicionTimeout(), rtt_suspicion_factor *| m.rtt_us);
+        if (s.cfg.ta_min_corroborators > 0 and s.susAccelerated(m)) {
+            const floor = @max(s.scaledSuspicionTimeout() / 4, rtt_suspicion_factor *| m.rtt_us);
+            return @max(base / 2, floor);
+        }
+        return base;
+    }
+
+    fn susAccelerated(s: *const Self, m: Member) bool {
+        for (s.sus_meta[0..s.sus_meta_len]) |meta| {
+            if (meta.id.eql(m.desc.id) and meta.incarnation == m.incarnation) {
+                return meta.corrob >= s.cfg.ta_min_corroborators;
+            }
+        }
+        return false;
+    }
+
+    /// (Re)arm the corroboration meta for a fresh suspicion.
+    fn resetSusMeta(s: *Self, id: PeerId, inc: u32, first_sender: PeerId) void {
+        if (s.cfg.ta_min_corroborators == 0) return;
+        for (s.sus_meta[0..s.sus_meta_len]) |*meta| {
+            if (meta.id.eql(id)) {
+                meta.* = .{ .id = id, .incarnation = inc, .corrob = 0 };
+                meta.noteSender(first_sender); // distinct-sender #1
+                return;
+            }
+        }
+        if (s.sus_meta_len >= max_sus_meta) return; // bounded; degrade safely
+        s.sus_meta[s.sus_meta_len] = .{ .id = id, .incarnation = inc, .corrob = 0 };
+        s.sus_meta[s.sus_meta_len].noteSender(first_sender);
+        s.sus_meta_len += 1;
+    }
+
+    fn noteSusCorrob(s: *Self, id: PeerId, inc: u32, sender: PeerId) void {
+        if (s.cfg.ta_min_corroborators == 0) return;
+        for (s.sus_meta[0..s.sus_meta_len]) |*meta| {
+            if (meta.id.eql(id) and meta.incarnation == inc) {
+                meta.noteSender(sender);
+                return;
+            }
+        }
+    }
+
+    /// Drop corroboration entries whose suspicion resolved elsewhere
+    /// (refutation, resurrection, new incarnation).
+    fn sweepSusMeta(s: *Self) void {
+        var i: usize = 0;
+        while (i < s.sus_meta_len) {
+            const meta = s.sus_meta[i];
+            const live = for (s.members[0..s.members_len]) |m| {
+                if (m.desc.id.eql(meta.id)) break m.state == .suspect and m.incarnation == meta.incarnation;
+            } else false;
+            if (live) {
+                i += 1;
+            } else {
+                s.sus_meta[i] = s.sus_meta[s.sus_meta_len - 1];
+                s.sus_meta_len -= 1;
+            }
+        }
+    }
+
+    /// Re-draw the buddy set from alive members (rotation).
+    fn rotateBuddies(s: *Self, rng: std.Random) void {
+        s.buddies_len = 0;
+        const want: usize = @min(s.cfg.buddy_count, max_buddies);
+        if (want == 0 or s.members_len == 0) return;
+        var tries: usize = 0;
+        const max_tries = 4 * s.members_len + 8;
+        while (s.buddies_len < want and tries < max_tries) : (tries += 1) {
+            const m = s.members[rng.uintLessThan(usize, s.members_len)];
+            if (m.state != .alive) continue;
+            var dup = false;
+            for (s.buddies[0..s.buddies_len]) |b| {
+                if (b.eql(m.desc.id)) {
+                    dup = true;
+                    break;
+                }
+            }
+            if (dup) continue;
+            s.buddies[s.buddies_len] = m.desc.id;
+            s.buddies_len += 1;
+        }
     }
 
     // --- timers -------------------------------------------------------------
@@ -662,7 +818,7 @@ pub const Swim = struct {
             }
         } else if (now >= s.next_probe_us) {
             s.next_probe_us = now + s.cfg.probe_period_us;
-            s.startProbe(now, out);
+            s.startProbe(now, rng, out);
         }
 
         // Suspicion expiry → confirm.
@@ -670,7 +826,11 @@ pub const Swim = struct {
         while (i < s.members_len) : (i += 1) {
             const m = s.members[i];
             if (m.state != .suspect) continue;
-            if (now >= m.state_since_us + s.suspicionBudgetFor(m)) {
+            const budget = s.suspicionBudgetFor(m);
+            if (now >= m.state_since_us + budget) {
+                if (budget < @max(s.scaledSuspicionTimeout(), rtt_suspicion_factor *| m.rtt_us)) {
+                    s.stats.ta_accelerations += 1;
+                }
                 const ev: Event = .{ .confirm = .{ .id = m.desc.id, .incarnation = m.incarnation } };
                 _ = s.apply(ev, now);
                 s.disseminate(ev);
@@ -685,6 +845,25 @@ pub const Swim = struct {
             }
         }
 
+        // Buddy silence → local health: if a majority of buddies we
+        // still hold alive have gone quiet past a suspicion window,
+        // the degradation is on OUR side or path — grow local health
+        // so our own suspicion windows extend instead of evicting.
+        if (s.cfg.buddy_count > 0 and s.buddies_len >= 2) {
+            var considered: usize = 0;
+            var silent: usize = 0;
+            for (s.buddies[0..s.buddies_len]) |b| {
+                const bi = s.find(b) orelse continue;
+                if (s.members[bi].state != .alive) continue;
+                considered += 1;
+                if (now -| s.members[bi].last_heard_us > s.scaledSuspicionTimeout()) silent += 1;
+            }
+            if (considered >= 2 and silent * 2 > considered) {
+                s.noteAppDelay(s.scaledProbeTimeout() + 1);
+            }
+        }
+        s.sweepSusMeta();
+
         // Relay table GC.
         var r: usize = 0;
         while (r < s.relays_len) {
@@ -697,9 +876,12 @@ pub const Swim = struct {
         }
     }
 
-    fn startProbe(s: *Self, now: u64, out: *Effects) void {
+    fn startProbe(s: *Self, now: u64, rng: std.Random, out: *Effects) void {
         if (s.members_len == 0) return;
         s.probe_seq += 1;
+        if (s.cfg.buddy_count > 0 and s.probe_seq % buddy_rotate_probes == 0) {
+            s.rotateBuddies(rng);
+        }
 
         var target: ?usize = null;
 
@@ -779,6 +961,7 @@ pub const Swim = struct {
         // stuck suspect forever because its prober re-suspected faster
         // than the window expired).
         if (!s.apply(ev, now)) return;
+        s.resetSusMeta(target, inc, s.self.id);
         s.disseminate(ev);
         s.stats.suspects_declared += 1;
         if (s.gossipTargetExcluding(target, rng)) |dest| {
@@ -815,6 +998,9 @@ pub const Swim = struct {
         out: *Effects,
     ) void {
         _ = rng; // uniform with overlay.handle; SWIM's handlers are rng-free
+        if (s.find(from)) |i| {
+            s.members[i].last_heard_us = now;
+        }
         switch (msg) {
             .ping => |m| {
                 // Direct-evidence resurrection (mirror of the ack
@@ -950,7 +1136,19 @@ pub const Swim = struct {
             },
             else => {},
         }
-        if (s.apply(ev, now)) s.disseminate(ev);
+        const applied = s.apply(ev, now);
+        if (applied) {
+            s.disseminate(ev);
+            switch (ev) {
+                .suspect => |sus| s.resetSusMeta(sus.id, sus.incarnation, from),
+                else => {},
+            }
+        } else switch (ev) {
+            // A rejected same-incarnation suspect is CORROBORATION of
+            // the standing suspicion (Ta): tally the distinct sender.
+            .suspect => |sus| s.noteSusCorrob(sus.id, sus.incarnation, from),
+            else => {},
+        }
     }
 
     fn descFor(s: *const Self, id: PeerId) ?PeerDesc {
@@ -1326,4 +1524,86 @@ test "piggyback: disseminated events ride pings and acks, bounded" {
     const ack = fx.slice()[0].send.msg.ack;
     try testing.expect(ack.events.len >= 1);
     try testing.expect(ack.events[0] == .suspect);
+}
+
+test "ta: distinct corroboration halves the suspicion window; duplicates do not" {
+    var s = Swim.init(descOf(130), .{}, 0);
+    const x = descOf(131);
+    s.observe(x, 0);
+
+    // Self-originated suspicion (probe timeout): corrob starts at 1.
+    _ = s.apply(.{ .suspect = .{ .id = x.id, .incarnation = 0 } }, 1);
+    s.resetSusMeta(x.id, 0, s.self.id); // what suspectMember does on transition
+    const m0 = s.members[s.find(x.id).?];
+    try testing.expectEqual(s.scaledSuspicionTimeout(), s.suspicionBudgetFor(m0));
+
+    // Same-incarnation suspects gossiped by distinct peers accumulate:
+    // corroborators 1 (self) and 2 (p1) leave the window alone;
+    // the third distinct sender (p2) crosses the default threshold
+    // of 3 and halves it.
+    const p1 = descOf(132);
+    const p2 = descOf(133);
+    var fx: Effects = .{};
+    const rng = testRng();
+    const ev: Msg = .{ .suspect = .{ .suspect = .{ .id = x.id, .incarnation = 0 } } };
+    s.handle(p1.id, ev, 2, rng, &fx);
+    try testing.expectEqual(s.scaledSuspicionTimeout(), s.suspicionBudgetFor(m0));
+    s.handle(p2.id, ev, 3, rng, &fx);
+    const base = @max(s.scaledSuspicionTimeout(), rtt_suspicion_factor * m0.rtt_us);
+    const accelerated = s.suspicionBudgetFor(m0);
+    try testing.expect(accelerated < base);
+    try testing.expectEqual(@max(base / 2, s.scaledSuspicionTimeout() / 4), accelerated);
+
+    // Duplicate forwards from an already-counted peer add nothing.
+    const before = s.suspicionBudgetFor(m0);
+    s.handle(p1.id, ev, 4, rng, &fx);
+    try testing.expectEqual(before, s.suspicionBudgetFor(m0));
+
+    // Resolution (refutation) sweeps the meta; the window restores.
+    _ = s.apply(.{ .alive = .{ .desc = x, .incarnation = 1 } }, 5);
+    s.sweepSusMeta();
+    try testing.expectEqual(@as(usize, 0), s.sus_meta_len);
+}
+
+test "buddies: silence majority grows local health; rotation stays bounded" {
+    var s = Swim.init(descOf(140), .{ .buddy_count = 2 }, 0);
+    var fx: Effects = .{};
+    const rng = testRng();
+    const b1 = descOf(141);
+    const b2 = descOf(142);
+    const other = descOf(143);
+    s.observe(b1, 0);
+    s.observe(b2, 0);
+    s.observe(other, 0);
+
+    // Stage the buddy set directly (rotation is cadence-driven).
+    s.buddies_len = 2;
+    s.buddies[0] = b1.id;
+    s.buddies[1] = b2.id;
+
+    // Fresh last_heard: no silence signal.
+    s.tick(1_000_000, rng, &fx);
+    try testing.expectEqual(@as(u4, 0), s.local_health);
+
+    // Both buddies silent past a suspicion window (only `other` talks):
+    // the majority signal feeds local health one step per tick.
+    const bi1 = s.find(b1.id).?;
+    const bi2 = s.find(b2.id).?;
+    s.members[bi1].last_heard_us = 0;
+    s.members[bi2].last_heard_us = 0;
+    s.tick(10_000_000, rng, &fx);
+    try testing.expect(s.local_health > 0);
+
+    // Rotation redraws bounded, distinct, alive-only buddies.
+    s.rotateBuddies(rng);
+    try testing.expect(s.buddies_len <= 2);
+    var idx: usize = 0;
+    while (idx < s.buddies_len) : (idx += 1) {
+        const mi = s.find(s.buddies[idx]).?;
+        try testing.expect(s.members[mi].state == .alive);
+        var j = idx + 1;
+        while (j < s.buddies_len) : (j += 1) {
+            try testing.expect(!s.buddies[idx].eql(s.buddies[j]));
+        }
+    }
 }
