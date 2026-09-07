@@ -31,14 +31,14 @@ ef531a6d6d6f198625e0051c74feb69aa9d6896e6fb64664e56554f7c95e4cb9
 87f28cec0e9743ad96f90d96ae6064b27f61e9973940de3d3499b760430502df
 37f9bb584bf5c6db63830b0ecc4d0a51eed1aac6656bff8af526eccafdd98ce5
 b8791ed5f95d7981b8153640aa1fcee42cc8a2dd5814e113bd01db652146bdb3
-dcb8a1301be134790a5e4c0a61b5bfdfcdece75b7113a4d297f12774279abb7
+dcb8a1301be134790e5e4c0a61b5bfdf8cdece75b7113a4d297f12774279abb7
 EOF
 }
 
 ID=()
 while IFS= read -r line; do
-  [ -n "$line" ] && ID+=("$line")
-done < <(ids; echo)
+  if [ -n "$line" ]; then ID+=("$line"); fi
+done < <(ids)
 letters=(a b c d e f g h i j k l)
 PIDS=()
 RSS0=()
