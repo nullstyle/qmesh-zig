@@ -7,14 +7,15 @@
 //!   the story);
 //! * the incident timeline — every node's `events` ring dump, merged
 //!   across nodes on wall clock (each reply pairs the node's monotonic
-//!   ring clock with unix-epoch now, so per-process origins cancel) and
-//!   rendered newest-first: membership transitions, Lifeguard changes,
-//!   session churn, and broadcast repairs in one causal view —
-//!   Concept 2's data, live.
+//!   ring clock with unix-epoch now, so per-process origins cancel),
+//!   rendered newest-first, with rule-based root-cause fingerprints
+//!   (qmesh.events.annotate) fusing the merged window into leads —
+//!   Concept 2, live.
 //!
 //! Usage: qmesh-top '[::1]:5901' '[::1]:5902' ...   (refresh ~3.5s)
 
 const std = @import("std");
+const qmesh = @import("qmesh");
 const posix = std.posix;
 
 fn die(comptime msg: []const u8) noreturn {
@@ -27,10 +28,15 @@ fn parseU64(s: []const u8) ?u64 {
 }
 
 /// One timeline entry, mapped onto wall clock at collection time.
+/// Structured fields (kind/subject/arg) feed the fingerprint pass;
+/// `tail` is the rendered remainder for display.
 const Ev = struct {
     wall_us: u64,
-    node: [8]u8,
-    tail: [72]u8 = undefined,
+    node: [16]u8,
+    kind: qmesh.events.Kind,
+    subj: [16]u8 = @splat('.'),
+    arg: u32 = 0,
+    tail: [88]u8 = undefined,
     tail_len: usize = 0,
 };
 
@@ -147,6 +153,22 @@ pub fn main(init: std.process.Init) !void {
         } else {
             std.debug.print("completeness: {d}/{d} answered — {d} silent (suspect/down; their data anti-entropies in when they resume)\n", .{ answered, n_targets, n_targets - answered });
         }
+
+        // Root-cause fingerprints over the newest merged window.
+        var tagged: [96]qmesh.events.Tagged = undefined;
+        const tw = @min(n_evs, tagged.len);
+        for (0..tw) |k| {
+            tagged[k] = .{ .node = timeline[k].node, .kind = timeline[k].kind, .subj = timeline[k].subj, .arg = timeline[k].arg };
+        }
+        var notes: [5]qmesh.events.Note = undefined;
+        const nn = qmesh.events.annotate(tagged[0..tw], &notes);
+        if (nn > 0) {
+            std.debug.print("fingerprints · root-cause leads\n", .{});
+            for (notes[0..nn]) |note| {
+                std.debug.print("  {s}  {s}\n", .{ note.subj[0..], note.textSlice() });
+            }
+        }
+
         const show = @min(n_evs, 15);
         std.debug.print("recent fleet events (merged, UTC) · {d} collected\n", .{n_evs});
         if (show == 0) {
@@ -169,13 +191,14 @@ pub fn main(init: std.process.Init) !void {
 
 /// Parse one `events` reply into `out` (header line first, then
 /// `t=<us> <text>` lines), mapping each event onto wall clock via the
-/// header's mono/wall pairing. Returns the new fill level.
+/// header's mono/wall pairing and keeping the structured fields the
+/// fingerprint pass needs. Returns the new fill level.
 fn parseEventsReply(reply: []const u8, out: []Ev, fill: usize) usize {
     var n = fill;
     const header_end = std.mem.indexOfScalar(u8, reply, '\n') orelse return n;
     var hit = std.mem.tokenizeAny(u8, reply[0..header_end], " ");
     _ = hit.next(); // "events"
-    var node: [8]u8 = @splat('.');
+    var node: [16]u8 = @splat('.');
     var mono: u64 = 0;
     var wall: u64 = 0;
     while (hit.next()) |tok| {
@@ -198,9 +221,26 @@ fn parseEventsReply(reply: []const u8, out: []Ev, fill: usize) usize {
         if (!std.mem.startsWith(u8, line, "t=")) continue;
         const sp = std.mem.indexOfScalar(u8, line, ' ') orelse continue;
         const at = parseU64(line[2..sp]) orelse continue;
+        var ev: Ev = .{ .wall_us = 0, .node = node, .kind = .lh_change };
         // wall_now - (mono_now - at): the event's wall-clock instant.
         const delta = mono -| at;
-        var ev: Ev = .{ .wall_us = wall -| delta, .node = node };
+        ev.wall_us = wall -| delta;
+        var toks = std.mem.tokenizeAny(u8, line[sp + 1 ..], " ");
+        if (toks.next()) |k| {
+            ev.kind = std.meta.stringToEnum(qmesh.events.Kind, k) orelse continue;
+        } else continue;
+        while (toks.next()) |tok| {
+            if (std.mem.startsWith(u8, tok, "peer=")) {
+                const v = tok[5..];
+                const c = @min(v.len, ev.subj.len);
+                @memcpy(ev.subj[0..c], v[0..c]);
+            } else if (std.mem.startsWith(u8, tok, "lh=") or
+                std.mem.startsWith(u8, tok, "inc=") or
+                std.mem.startsWith(u8, tok, "seq="))
+            {
+                ev.arg = @truncate(parseU64(tok[4..]) orelse 0);
+            }
+        }
         const tail = line[sp + 1 ..];
         const c = @min(tail.len, ev.tail.len);
         @memcpy(ev.tail[0..c], tail[0..c]);

@@ -91,6 +91,7 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
         .link_libc = true,
     });
+    top_exe_mod.addImport("qmesh", qmesh_mod);
     const top_exe = b.addExecutable(.{ .name = "qmesh-top", .root_module = top_exe_mod });
     b.installArtifact(top_exe);
 

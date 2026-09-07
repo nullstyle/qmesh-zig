@@ -420,9 +420,9 @@ pub const Runner = struct {
         const wall_us: u64 = @as(u64, @intCast(wall.sec)) * std.time.us_per_s +
             @as(u64, @intCast(@divTrunc(wall.nsec, 1000)));
         var pos: usize = 0;
-        const hex8 = r.ep.opts.self.id.hex();
+        const hex16 = r.ep.opts.self.id.hex();
         const head = std.fmt.bufPrint(buf[pos..], "events id={s} mono={d} wall={d}\n", .{
-            hex8[0..8], now_mono_us, wall_us,
+            hex16[0..16], now_mono_us, wall_us,
         }) catch return "events?";
         pos += head.len;
         var ev: [24]qmesh.events.Event = undefined;
