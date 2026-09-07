@@ -278,6 +278,39 @@ pub fn Node(comptime Transport: type) type {
 
         /// Soonest armed protocol deadline on the transport clock, for
         /// the driver loop's sleep calculation.
+        /// Snapshot the peers the failure detector currently holds
+        /// ALIVE, copying their descriptors into `out` and returning
+        /// how many were written (truncated at `out.len`). A node is
+        /// not a member of its own table, so self never appears.
+        ///
+        /// This is the directory an embedder dials from. `PeerDesc.id`
+        /// is the peer's CERTIFICATE identity — the same 32 bytes
+        /// `quic.Connection.peerCertSpkiDigest()` returns — so a
+        /// second protocol that also runs mutual TLS against the same
+        /// PKI identifies the peer identically without a second
+        /// naming scheme. `PeerDesc.addr` is the peer's gossip
+        /// address; a co-resident protocol on another port derives its
+        /// own address from it.
+        ///
+        /// The result is a snapshot, not a live view: SWIM may change
+        /// its mind on the next `tick`.
+        ///
+        /// A descriptor's `addr` is whatever the transport's `descOf`
+        /// knew when the member was introduced, so it can be
+        /// `.none` — a member observed before its address was learned
+        /// is alive but NOT dialable. Callers that dial must skip
+        /// those rather than assume an address is present.
+        pub fn aliveMembers(self: *const Self, out: []PeerDesc) usize {
+            var written: usize = 0;
+            for (self.swim.memberSlice()) |m| {
+                if (written == out.len) break;
+                if (m.state != .alive) continue;
+                out[written] = m.desc;
+                written += 1;
+            }
+            return written;
+        }
+
         pub fn nextDeadline(self: *const Self) ?u64 {
             var best: ?u64 = null;
             for ([_]?u64{
@@ -528,4 +561,88 @@ test "node multiplexes swim beside the overlay and purges on confirm" {
     try std.testing.expectEqual(@as(u64, 0), m.driver.sessions_down);
     try std.testing.expectEqual(@as(u64, 1), m.driver.frames_received);
     try std.testing.expectEqual(@as(u64, 1), m.driver.frames_sent);
+}
+
+test "aliveMembers is the directory an embedder dials from" {
+    const FakeTransport = struct {
+        clock: u64 = 0,
+        prng: std.Random.DefaultPrng = std.Random.DefaultPrng.init(9),
+        allocator: std.mem.Allocator,
+        known: []const PeerDesc = &.{},
+
+        fn now(t: *@This()) u64 {
+            return t.clock;
+        }
+        fn rng(t: *@This()) std.Random {
+            return t.prng.random();
+        }
+        fn descOf(t: *@This(), id: PeerId) ?PeerDesc {
+            for (t.known) |d| if (d.id.eql(id)) return d;
+            return null;
+        }
+        fn sendDatagram(t: *@This(), to: PeerId, bytes: []const u8) !void {
+            _ = t;
+            _ = to;
+            _ = bytes;
+        }
+        fn sendReliable(t: *@This(), to: PeerId, bytes: []const u8) !void {
+            _ = t;
+            _ = to;
+            _ = bytes;
+        }
+        fn connect(t: *@This(), desc: PeerDesc) !void {
+            _ = t;
+            _ = desc;
+        }
+    };
+
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+
+    var prng = std.Random.DefaultPrng.init(11);
+    const me = PeerDesc{ .id = PeerId.fromRandom(prng.random()), .addr = peer_mod.Addr.sim(1) };
+    const a = PeerDesc{ .id = PeerId.fromRandom(prng.random()), .addr = peer_mod.Addr.sim(2) };
+    const b = PeerDesc{ .id = PeerId.fromRandom(prng.random()), .addr = peer_mod.Addr.sim(3) };
+
+    // A real transport (qmesh_quic.Endpoint) learns peer addresses
+    // from the session HELLO, so descOf answers with the dialable
+    // descriptor; model that rather than an address-less stub.
+    const known = [_]PeerDesc{ a, b };
+    var transport: FakeTransport = .{ .allocator = arena.allocator(), .known = &known };
+
+    var node = Node(FakeTransport).init(me, .{}, &transport, .{});
+
+    var out: [8]PeerDesc = undefined;
+
+    // Empty table: nothing to dial.
+    try std.testing.expectEqual(@as(usize, 0), node.aliveMembers(&out));
+
+    // Two sessions up: both are dialable, and self never appears.
+    node.onSessionUp(a.id);
+    node.onSessionUp(b.id);
+    node.swim.observe(a, 1);
+    node.swim.observe(b, 1);
+    try std.testing.expectEqual(@as(usize, 2), node.aliveMembers(&out));
+    for (out[0..2]) |desc| try std.testing.expect(!desc.id.eql(me.id));
+
+    // The descriptor carries the address the embedder derives from.
+    var saw_a = false;
+    for (out[0..2]) |desc| {
+        if (desc.id.eql(a.id)) {
+            saw_a = true;
+            try std.testing.expect(desc.addr.eql(a.addr));
+        }
+    }
+    try std.testing.expect(saw_a);
+
+    // A confirmed-dead member drops out of the directory.
+    _ = node.swim.apply(.{ .confirm = .{ .id = b.id, .incarnation = 1 } }, 2);
+    try std.testing.expectEqual(@as(usize, 1), node.aliveMembers(&out));
+    try std.testing.expect(out[0].id.eql(a.id));
+
+    // Truncation is bounded by the caller's buffer, never overflowing.
+    var tiny: [1]PeerDesc = undefined;
+    node.onSessionUp(b.id);
+    node.swim.observe(b, 3);
+    try std.testing.expectEqual(@as(usize, 1), node.aliveMembers(&tiny));
 }

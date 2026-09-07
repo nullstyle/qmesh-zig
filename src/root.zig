@@ -35,6 +35,9 @@ pub const PeerId = peer.PeerId;
 pub const PeerDesc = peer.PeerDesc;
 pub const Addr = peer.Addr;
 
+pub const Member = swim.Member;
+pub const MemberState = swim.MemberState;
+
 pub const Overlay = hyparview.Overlay;
 pub const OverlayConfig = hyparview.Config;
 pub const OverlayMsg = hyparview.Msg;
