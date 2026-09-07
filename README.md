@@ -295,6 +295,24 @@ Non-gaps worth noting: RTT (`pathStats(.srtt_us)`), close-cause
 classification (`CloseEvent`/`CloseSource` — maps cleanly onto
 `session.SessionLostReason`), DATAGRAM + stream ergonomics, and the
 in-memory `quic.testing.Loopback` harness are all sufficient as-is.
+Re-analyzed 2026-09-07 — two former "deferred" items are NOT quic-zig
+gaps at all, and no session briefs are warranted for them:
+
+- **0-RTT resumption**: quic-zig ships it complete — client
+  `Config.resumption_state` (versioned envelope) +
+  `new_session_callback` (persistence half), server `early_data`
+  posture with anti-replay gating. Any qmesh adoption is pure
+  adapter wiring (persist one envelope per peer, feed it back on
+  reconnect). Adoption trigger: measured reconnect paths dominated
+  by handshake RTT — today's are timer-dominated (probe rotations,
+  promotion cadence), healing inside one metrics interval on fly.
+- **Stream priorities**: quic-zig ships RFC 9218 complete
+  (`StreamPriority` urgency + incremental, `streamSetPriority`,
+  priority-ordered packetization). qmesh's reliable class is rare,
+  tiny, single-frame uni-streams and the hot path is datagrams —
+  nothing contends. Adoption trigger: reliable-frame contention
+  (large anti-entropy windows starving JOIN/IWANT — the same
+  window-growth family as the IBLT trigger).
 
 ## Layout
 
