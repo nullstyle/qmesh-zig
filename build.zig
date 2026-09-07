@@ -89,6 +89,7 @@ pub fn build(b: *std.Build) !void {
         .root_source_file = b.path("src/quic/top.zig"),
         .target = target,
         .optimize = optimize,
+        .link_libc = true,
     });
     const top_exe = b.addExecutable(.{ .name = "qmesh-top", .root_module = top_exe_mod });
     b.installArtifact(top_exe);

@@ -34,22 +34,24 @@ pub fn main(init: std.process.Init) !void {
     if (posix.errno(sock) != .SUCCESS) die("socket failed");
     const fd: posix.socket_t = @intCast(sock);
     const tv = posix.timeval{ .sec = 0, .usec = 750_000 };
-    _ = posix.system.setsockopt(fd, posix.SOL.SOCKET, posix.SO.RCVTIMEO, &tv, @sizeOf(posix.timeval));
+    _ = posix.system.setsockopt(fd, posix.SOL.SOCKET, posix.SO.RCVTIMEO, @ptrCast(&tv), @sizeOf(posix.timeval));
 
     var round: usize = 0;
     while (true) {
-        // Ask everyone.
+        // Ask everyone. Targets are IP literals ([v6]:port — fly 6pn
+        // addresses, loopback, etc.) via the stdlib parser.
         for (targets[0..n_targets]) |t| {
-            const host_end = if (t[0] == '[') std.mem.indexOfScalar(u8, t, ']') orelse continue else std.mem.lastIndexOfScalar(u8, t, ':') orelse continue;
-            const port_str = if (t[0] == '[') t[host_end + 2 ..] else t[host_end + 1 ..];
-            const port = std.fmt.parseInt(u16, port_str, 10) catch continue;
-            var sa: posix.sockaddr.in6 = std.mem.zeroes(posix.sockaddr.in6);
-            sa.family = posix.AF.INET6;
-            sa.port = std.mem.nativeToBig(u16, port);
-            const host = if (t[0] == '[') t[1..host_end] else t[0..host_end];
-            if (!std.mem.eql(u8, host, "::1")) continue; // slice: loopback v6 only for now
-            @memcpy(&sa.addr, &[_]u8{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 });
-            _ = posix.system.sendto(fd, "stats", 5, 0, @ptrCast(&sa), @sizeOf(posix.sockaddr.in6));
+            const ip = std.Io.net.IpAddress.parseLiteral(t) catch continue;
+            switch (ip) {
+                .ip6 => |v6| {
+                    var sa: posix.sockaddr.in6 = std.mem.zeroes(posix.sockaddr.in6);
+                    sa.family = posix.AF.INET6;
+                    sa.port = std.mem.nativeToBig(u16, v6.port);
+                    sa.addr = v6.bytes;
+                    _ = posix.system.sendto(fd, "stats", 5, 0, @ptrCast(&sa), @sizeOf(posix.sockaddr.in6));
+                },
+                .ip4 => continue, // slice: v6 literals only
+            }
         }
         // Collect replies until the window closes.
         var answered: usize = 0;
