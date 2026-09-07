@@ -250,6 +250,45 @@ Documented in `src/hyparview.zig`:
   `active_min`) exists so healed partitions re-merge even when both
   sides refilled their active views while split.
 
+## Composing with qmsg (the uncoupled way)
+
+qmesh is a mesh substrate, not a messaging framework. To send
+application messages between cluster members, run
+[qmsg](https://github.com/nullstyle/qmsg) beside it — qmesh names and
+watches peers, qmsg carries the traffic:
+
+```text
+  qmesh Node.aliveMembers()  ->  Directory.reconcile()  ->  qmsg dialQuic()
+                                          |
+                                     lookup(PeerId) -> SessionId
+```
+
+Each library keeps its own UDP port, its own event loop, and its own
+handshake. The only thing they share is an identity, and neither
+invents it — both derive it from the same TLS certificate:
+
+| | identity |
+| --- | --- |
+| qmesh | `PeerId` = `Connection.peerCertSpkiDigest()` |
+| qmsg | `Session.peer_cert_spki` = `Connection.peerCertSpkiDigest()` |
+
+so `qmesh.PeerId.hex()` and `qmsg.Session.certPeerIdHex()` are the same
+64 characters for the same peer. `examples/qmsg_directory.zig` is the
+~200-line embedder-owned glue that follows from that.
+
+Requires qmsg >= 0.6.1 (earlier releases forwarded a different option
+set to quic-zig, which instantiated quic twice in one binary). Set
+`AuthConfig.cert_binding = .require_match` on the qmsg listener so a
+peer cannot announce an id its certificate does not back.
+
+What this deliberately does NOT do: share a socket, share a quic
+Connection, or run qmsg traffic over a qmesh session. Those couple the
+two libraries and cost more than they buy — qmesh's reliable class is a
+fresh uni stream per frame with a 1152-byte frame cap and a 16-stream
+receive table, which is the wrong pipe for 1 MiB request/response
+traffic. Two connections per peer is the price of keeping both wires
+at full strength.
+
 ## quic-zig API gaps discovered
 
 Concrete gaps the QUIC adapter will need, for follow-up in quic-zig

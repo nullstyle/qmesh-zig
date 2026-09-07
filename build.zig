@@ -84,9 +84,24 @@ pub fn build(b: *std.Build) !void {
     const node_exe = b.addExecutable(.{ .name = "qmesh-node", .root_module = node_exe_mod });
     b.installArtifact(node_exe);
 
+    // --- composition example ---------------------------------------------
+    //
+    // Option A glue: qmesh names and watches peers, qmsg carries the
+    // traffic. The module imports only `qmesh`, so it does NOT couple
+    // this package to qmsg — see examples/qmsg_directory.zig.
+    const qmsg_directory_mod = b.createModule(.{
+        .root_source_file = b.path("examples/qmsg_directory.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    qmsg_directory_mod.addImport("qmesh", qmesh_mod);
+
     // --- test steps ------------------------------------------------------
 
     const test_step = b.step("test", "Run qmesh tests (unit + sim + quic boundary)");
+
+    const directory_tests = b.addTest(.{ .root_module = qmsg_directory_mod });
+    test_step.dependOn(&b.addRunArtifact(directory_tests).step);
 
     const unit_tests = b.addTest(.{ .root_module = qmesh_mod });
     const run_unit_tests = b.addRunArtifact(unit_tests);

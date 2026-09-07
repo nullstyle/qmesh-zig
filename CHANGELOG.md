@@ -7,6 +7,35 @@ changes.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-06
+
+- **`examples/qmsg_directory.zig`: composing qmesh with qmsg without
+  coupling them.** qmesh names and watches peers; qmsg carries the
+  traffic. Each runs its own endpoint on its own port, and the only
+  thing they share is an identity neither invents: both derive it from
+  the same TLS certificate, so `qmesh.PeerId.hex()` and qmsg's
+  `Session.certPeerIdHex()` are the same 64 characters for the same
+  peer.
+
+  The module is a `Directory`: a map from cluster identity to qmsg
+  session, reconciled against `aliveMembers` — dial members that gained
+  liveness, close sessions for members that lost it. Dial failures are
+  counted and retried rather than cached as absence; addressless
+  members are skipped; a short scratch buffer is reported in
+  `stats.truncated` instead of silently truncating the view. It imports
+  only `qmesh`, so this package still does not depend on qmsg.
+
+  Deliberately not offered: a shared socket, a shared quic Connection,
+  or qmsg traffic riding a qmesh session. Two connections per peer is
+  the price; it buys qmsg's full wire instead of qmesh's 1152-byte
+  single-frame gossip envelope.
+
+  Verified against the PUBLISHED packages: a program importing `qmesh`,
+  `qmesh_quic` and `qmsg` 0.6.1 compiles to a single quic module and
+  runs. This requires qmsg >= 0.6.1 — earlier releases forwarded a
+  different option set to quic-zig, which instantiated quic twice and
+  failed with `file exists in modules 'quic' and 'quic0'`.
+
 ## [0.1.0] - 2026-09-06
 
 First published release: qmesh becomes a consumable Zig package.
@@ -41,6 +70,15 @@ a real quic-zig release.
   omitted `descOf` and still described the QUIC adapter as future
   work; `qmesh_quic.Endpoint` has been the real implementation for
   some time.
+
+- **`Node.aliveMembers(out)`: the directory an embedder dials from.**
+  `Hooks` carried only `onBroadcast`, and `descOf` answers for one
+  already-known peer rather than enumerating membership, so nothing
+  could answer "who is in the cluster and how do I reach them".
+  `aliveMembers` snapshots the peers SWIM currently holds alive into a
+  caller-owned buffer. A descriptor's `addr` may be `.none` — alive but
+  not dialable — and callers must skip those. `Member` and
+  `MemberState` are re-exported from the root module.
 
 - Added `LICENSE` (Apache-2.0, matching quic-zig) and this changelog.
 
