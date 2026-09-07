@@ -99,3 +99,32 @@ No kernel-level partitions or latency shaping (OS privileges,
 non-portable); no fault injection inside the pure cores (that is the
 simulator's job); no unbounded schedules (majority protection is a
 driver invariant, not a protocol claim).
+
+## Campaign 1 findings (seed 42, 10 min) — OPEN
+
+Invariants 1-4 and 6 passed (full re-convergence in the heal window,
+~100% delivery, lh decay, suspect correlation). Two findings:
+
+1. **RSS balloon, node-e: 267MB vs ~33MB siblings.** The correlated
+   schedule froze node-e nearly continuously, then crash-restarted
+   it late. Its own counters are calm (sessrec 12-13, shed 0,
+   ep_dgram_rx normal, closes 12) — no connection explosion at the
+   endpoint layer. Unexplained; needs a deterministic repro plus
+   heap profiling (MallocStackLogging) to split real leak vs
+   allocator retention of a transient storm (the restart wake
+   processes a socket backlog of peer Initials; each half-open
+   handshake slot carries a full TLS context).
+
+2. **Probe-engine seizure, same node.** After its late restart,
+   `probes_sent` froze at 38 for the remaining ~100s while
+   `acks_tx` kept climbing (it answered ~1.1 peer pings/s) and
+   `acks_rx` froze — the node stopped probing entirely while
+   otherwise healthy (alive=11 via ingress piggyback). Same family
+   as the 0758b64 livelock class (probe-family deadlines). Repro
+   path: fresh node, freeze mid-probe repeatedly, inspect
+   `swim.probe` (phase/deadline) and `nextDeadline()` when it
+   seizes.
+
+Driver fix needed before deeper campaigns: the awk victim draws
+correlate on some seeds (linear seed mixing) — hammering one node;
+mix the seed properly (e.g. multiply and xorshift per draw).
