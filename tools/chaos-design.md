@@ -139,49 +139,35 @@ Driver fix needed before deeper campaigns: the awk victim draws
 correlate on some seeds (linear seed mixing) — hammering one node;
 mix the seed properly (e.g. multiply and xorshift per draw).
 
-## OPEN (2026-09-07, user-reported via qmesh-top): fly fleet churn loop
+## RESOLVED (2026-09-07): fly fleet churn loop — fallback ingress spray
 
-The 6-machine fly fleet never re-converged after the last rewire and
-has been in a sustained churn loop for ~15h: alive oscillating 1-4,
-suspects/confirms in the hundreds per node, active=0 on some nodes,
-sends_failed in the thousands, closes tracking confirms (~300/node).
-NOT the slot cap (slots gauge reads 0-4 of 32 all fleet). Signature:
-half the ACK traffic vanishes on a healthy net (acks_tx ~2x
-acks_rx), starving probes into repeated suspicion->confirm of live
-peers; the dead-sweep tears sessions and the loop repeats.
+The user-reported churn loop (alive oscillating, hundreds of
+confirms, ACK traffic half-lost) is fixed (d3eec4a) and the fleet is
+healthy. Diagnosis ladder, each rung exonerating the previous
+suspect: quic v0.21.0 tarball (byte-identical reset-key handling to
+HEAD; local fleets on the pin perfect), the 6pn network (0% loss,
+tight RTTs measured in-mesh), the slot cap (gauge 0-4 of 32),
+incremental-vs-simultaneous bring-up (both churned). The wire-level
+qlog counters on a live churning node ended it: ~7 decryption
+failures/sec across all packet sizes on healthy connections.
 
-Narrowed 2026-09-07 (two local experiments + image archaeology):
+Mechanism: any packet our server cannot route by CID — everything
+arriving on OUR outbound dials, whose CIDs are peer-issued — was fed
+to EVERY dial connection (the fallback ingress). The right
+connection decrypts; each other dial logs an auth failure; the
+auth-failure noise drives defensive key updates whose transition
+windows drop real traffic, and lost probe ACKs sustain
+suspicion -> confirm -> re-dial storms (more dials, more spray).
+Two-node meshes carry one dial — no spray, which is why every
+two-node test was clean and six nodes under restart churn were not.
 
-- Local 6-node loopback fleet on the CURRENT (tarball-pinned) tree:
-  PERFECT — alive=5, suspect=0, acks_tx==acks_rx exactly. Tarball
-  cleared on a lossless net.
-- Same fleet with 3% injected loss (chaos knobs): still healthy
-  (0-1 transient suspects, balanced acks). Tarball cleared at
-  loopback RTT under loss.
-- Image archaeology: the stable 6-node fly run (04:09) ran image
-  01M1WYAX… built from the pre-pin .path-HEAD tree; the churning
-  fleet (17:41+) runs 01M1YD94G5 built from the v0.21.0 pin. The
-  A/B on real 6pn therefore already exists in the registry.
+Fix: the fallback feeds a dropped packet only to the dial connection
+aimed at the packet's source address. Verified: six-node
+SIMULTANEOUS mass restart on loopback converges to alive=5/suspect=0
+with exactly balanced ACKs and zero decryption failures; the fly
+fleet deployed the same way converged within minutes and holds
+(qmesh-top: 6/6 answered, all nodes alive=5 sus=0 dead=0).
 
-RESOLVED-AS-MISDIRECTED 2026-09-07 18:05: the pre-pin image
-(01M1WYAX, .path-HEAD quic) churns IDENTICALLY when deployed the
-same way — quic v0.21.0 is exonerated. The discriminating variable
-is the BRING-UP PATTERN: the stable 04:09 fleet was built
-incrementally (machines started one at a time, hours apart); both
-churning deploys restarted all six SIMULTANEOUSLY. Local all-at-once
-bring-up converges perfectly — but at loopback RTT. Working theory:
-mass cold start on real RTT — everyone probes still-booting peers,
-corroborated suspicions halve windows (Ta), CONFIRMs fire before
-mTLS handshakes complete, and the confirm->sweep->teardown cascade
-outruns pairwise resurrection at 6pn RTT. A mass-restart recovery
-bug in qmesh proper, not a dependency issue.
-
-Next experiments (cheap to decisive): (1) bring the fly fleet up
-INCREMENTALLY — one machine every 30-60s, mirroring 04:09 — if it
-converges and holds, mass-restart-on-real-RTT is confirmed as the
-trigger; (2) then reproduce IN THE SIM: fly profile + zone delays +
-kill-and-respawn-all simultaneously — the sim could not have caught
-this before because nothing models simultaneous respawn with
-cross-zone RTT; if it reproduces there, the fix is core-side
-(resurrection must outrun the teardown cascade, e.g. resurrection
-ALIVE events suppressing sweeps fleet-wide).
+The balloon (267MB) note above predates this and remains
+bound-by-the-slot-cap; rerun a campaign to observe it at the new
+bound if it recurs.
