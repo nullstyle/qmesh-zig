@@ -132,6 +132,11 @@ const Session = struct {
     /// Set once the owning loop advanced this dial's handshake flight
     /// (Loopback.handshake / a socket loop does this; see connectPeer).
     advanced: bool = false,
+    /// Server-side: the slot was reaped (will-close fired; the
+    /// connection is destroyed immediately after the hook). The
+    /// record is then reaped by the next service pass — `conn` must
+    /// not be touched anymore.
+    slot_reaped: bool = false,
     /// Per-stream length-prefix decoders. Streams may interleave, so
     /// decoder state is per stream id, never per session.
     stream_rx: [max_rx_streams]StreamRx = undefined,
@@ -271,6 +276,7 @@ pub const Endpoint = struct {
         const e: *Self = @ptrCast(@alignCast(user_data.?));
         for (e.sessions.items) |s| {
             if (s.slot_id == slot.slot_id) {
+                s.slot_reaped = true;
                 e.closeSession(s, .remote_close);
                 return;
             }
@@ -432,6 +438,28 @@ pub const Endpoint = struct {
     /// embedder's loop (or Loopback driver) with the current time.
     pub fn service(e: *Self, now_us: u64) !void {
         e.now_us = now_us;
+
+        // Reap finished session records. Closed records used to live
+        // until `deinit` — fine for tests, an unbounded memory slope
+        // under churn (the soak watched a node accrue 100+ MB across
+        // a hundred reconnects). A record leaves when its transport
+        // is truly gone: server-side once the slot reaped (flag set
+        // in the will-close hook; the connection dies inside reap, so
+        // the flag — not `conn` — gates the free), client-side once
+        // the owned connection reports closed.
+        var si: usize = e.sessions.items.len;
+        while (si > 0) {
+            si -= 1;
+            const s = e.sessions.items[si];
+            if (s.state != .closed) continue;
+            const gone = s.slot_reaped or
+                (s.client != null and s.conn.isClosed());
+            if (gone) {
+                e.sessions.items[si] = e.sessions.items[e.sessions.items.len - 1];
+                _ = e.sessions.pop();
+                e.destroySession(s);
+            }
+        }
 
         // Server-side sessions arrive via the on_handshake_complete
         // hook (cert-bound, fires inside `feed`); nothing to scan.
@@ -601,6 +629,26 @@ pub const Endpoint = struct {
                     e.stats.stream_frames_received += 1;
                     e.ingress(s, fr.bytes);
                 }
+            }
+            // Reclamation: a terminal stream (FIN drained / RESET)
+            // never delivers again — free its decoder slot. Without
+            // this the bounded table (16) fills with dead streams and
+            // every NEW reliable stream is defensively dropped: in
+            // the 35-min soak, IWANT repairs stopped landing entirely
+            // once a session had seen 16 streams, permanently capping
+            // lazy-path delivery (the 65-95% measurement).
+            if (s.conn.streamRecvState(stream_id)) |rs| {
+                if (rs.terminal) removeStreamRx(s, stream_id);
+            }
+        }
+    }
+
+    fn removeStreamRx(s: *Session, stream_id: u64) void {
+        for (s.stream_rx[0..s.stream_rx_len], 0..) |entry, i| {
+            if (entry.stream_id == stream_id) {
+                s.stream_rx[i] = s.stream_rx[s.stream_rx_len - 1];
+                s.stream_rx_len -= 1;
+                return;
             }
         }
     }

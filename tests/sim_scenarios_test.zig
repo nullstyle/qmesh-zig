@@ -496,6 +496,45 @@ test "flaky node is never confirmed dead (buddy self-diagnosis posture)" {
     try testing.expectEqual(@as(usize, 1), world.componentCount());
 }
 
+test "fly profile cadence: sustained all-node publishing converges exactly-once" {
+    // The 35-min loopback soak measured 65-95% steady-state delivery
+    // under the fly profile with all nodes publishing every 10s. The
+    // sim runs the identical cadence deterministically to split the
+    // deficit: core (reproduces here) vs real-transport seam (clean
+    // here — and the endpoint's dead-stream-decoder table was the
+    // seam culprit, since fixed).
+    const p = qmesh.profiles.fly_multi_region;
+    var world = qsim.World.init(testing.allocator, 181, p.overlay, p.swim, p.broadcast, .{});
+    defer world.deinit();
+    var i: u32 = 0;
+    while (i < 12) : (i += 1) _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(30_000_000);
+
+    // Every node publishes every 10s for 120s (the soak cadence),
+    // driven through the same per-node timers the driver would use.
+    var t: u64 = 0;
+    while (t < 120_000_000) : (t += 10_000_000) {
+        for (0..12) |n| _ = world.broadcast(@intCast(n), "soak");
+        try world.runFor(10_000_000);
+    }
+    try world.runFor(30_000_000); // settle: repairs + anti-entropy
+
+    var total_expected: usize = 0;
+    var total_got: usize = 0;
+    var worst: usize = std.math.maxInt(usize);
+    for (0..12) |n| {
+        const got = world.deliveredCount(@intCast(n));
+        const expected = 12 * 11; // 12 publishes x 11 other nodes
+        total_expected += expected;
+        total_got += got;
+        const ratio = got * 100 / expected;
+        if (ratio < worst) worst = ratio;
+    }
+    std.debug.print("fly-cadence delivery: {d}/{d} worst-node {d}%\n", .{ total_got, total_expected, worst });
+    try testing.expectEqual(total_expected, total_got);
+}
+
 test "fly migration pause: multi-region profile does not evict a pausing node" {
     const p = qmesh.profiles.fly_multi_region;
     var world = qsim.World.init(testing.allocator, 61, p.overlay, p.swim, p.broadcast, .{});
