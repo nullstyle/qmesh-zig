@@ -151,6 +151,9 @@ pub const Runner = struct {
     /// socket stays bound (dark) until deinit.
     live: bool = true,
     buf: [4096]u8 = undefined,
+    /// Last iteration's clock sample — the Lifeguard (local health)
+    /// input. The gap between iterations is the observed app delay.
+    last_step_us: u64,
 
     pub fn init(allocator: std.mem.Allocator, opts: Options) !*Self {
         const ep = try Endpoint.init(allocator, opts.endpoint);
@@ -170,6 +173,7 @@ pub const Runner = struct {
             .opts = opts,
             .ep = ep,
             .sock = sock,
+            .last_step_us = nowUs(),
         };
         return r;
     }
@@ -194,6 +198,7 @@ pub const Runner = struct {
     pub fn step(r: *Self) !void {
         if (!r.live) return;
         const now = nowUs();
+        r.feedLocalHealth(now);
         try r.ingest(now);
         try r.service(now);
         try r.drainOutbound(now);
@@ -207,6 +212,7 @@ pub const Runner = struct {
             }
             if (!r.live) return;
             const now = nowUs();
+            r.feedLocalHealth(now);
             try r.ingest(now);
             try r.service(now);
             try r.drainOutbound(now);
@@ -215,6 +221,19 @@ pub const Runner = struct {
             }
             sleepMs(r.opts.step_sleep_ms);
         }
+    }
+
+    /// Feed the observed iteration gap to SWIM's Lifeguard local-health
+    /// multiplier: gaps beyond the probe budget (scheduler starvation,
+    /// machine stalls — the fleet test's soak contention) scale probe
+    /// and suspicion windows up so transient stalls cost at most a
+    /// suspicion; sustained clean cadence decays them back. This is the
+    /// only `noteAppDelay` caller in the real transport — without it
+    /// the multiplier is inert and any stall long enough to expire a
+    /// suspicion escalates to CONFIRM and eviction.
+    fn feedLocalHealth(r: *Self, now: u64) void {
+        r.ep.node.swim.noteAppDelay(now -| r.last_step_us);
+        r.last_step_us = now;
     }
 
     fn ingest(r: *Self, now: u64) !void {

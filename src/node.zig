@@ -14,8 +14,10 @@
 //! ```
 //!
 //! Cross-protocol coupling lives HERE, never inside the cores: session
-//! establishment feeds SWIM's member table (`observe`), and SWIM
-//! CONFIRM purges the overlay's passive view (`overlay.purge`).
+//! establishment feeds SWIM's member table (`observe`) and is direct
+//! liveness evidence (`noteSessionAlive` — an authenticated handshake
+//! with a member held suspect/dead resurrects it), and SWIM CONFIRM
+//! purges the overlay's passive view (`overlay.purge`).
 //!
 //! Transport contract (comptime duck-typed):
 //!
@@ -191,9 +193,13 @@ pub fn Node(comptime Transport: type) type {
         pub fn onSessionUp(self: *Self, peer: PeerId) void {
             self.stats.sessions_up += 1;
             const now = self.transport.now();
-            // SWIM learns the member with its best-known descriptor.
+            // SWIM learns the member with its best-known descriptor;
+            // if the table holds it suspect/dead, the session's
+            // authenticated handshake is direct liveness evidence that
+            // outranks the stale gossip (resurrection path).
             const desc = self.transport.descOf(peer) orelse PeerDesc{ .id = peer };
             self.swim.observe(desc, now);
+            self.swim.noteSessionAlive(peer, now);
             self.fx.clear();
             self.overlay.onSessionUp(peer, now, &self.fx);
             self.applyFx(hv.Msg, hv.encode, &self.fx);
@@ -480,4 +486,11 @@ test "node multiplexes swim beside the overlay and purges on confirm" {
     node.tick();
     try std.testing.expect(node.overlay.inPassive(victim.id) == null);
     try std.testing.expect(node.swim.stateOf(victim.id) == .dead);
+
+    // A later session re-establishment is direct liveness evidence:
+    // the member resurrects (the post-crash/spurious-confirm wedge
+    // exit — without it the transport keeps tearing the session to the
+    // "dead" member before any probe evidence can cross it).
+    node.onSessionUp(victim.id);
+    try std.testing.expect(node.swim.stateOf(victim.id) == .alive);
 }

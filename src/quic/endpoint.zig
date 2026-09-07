@@ -416,16 +416,22 @@ pub const Endpoint = struct {
 
         // SWIM-confirmed-dead peers lose their transport: close the
         // session (idempotent with the node's own demotion sweep).
-        // Without this, a crashed peer's connection sits idle until
-        // the QUIC idle timeout while the overlay has already
-        // declared it dead.
+        // ESTABLISHED sessions only: a by_peer entry still
+        // `.connecting` (handshake done, HELLO not yet validated) is a
+        // resurrection dial in flight — its completing handshake is
+        // the direct liveness evidence that flips the table via
+        // `noteSessionAlive`, and reaping it here kills the only
+        // recovery path (the fleet test's mutual-CONFIRM wedge).
+        // Genuinely dead peers never complete the handshake; the QUIC
+        // idle timeout reaps whatever they leave behind.
         var it = e.by_peer.iterator();
         const dead_peers = &e.dead_close_scratch;
         var dead_len: usize = 0;
         while (it.next()) |entry| {
             if (e.node.swim.stateOf(entry.key_ptr.*) == .dead) {
-                if (dead_len < dead_peers.len) {
-                    dead_peers[dead_len] = entry.value_ptr.*;
+                const s = entry.value_ptr.*;
+                if (s.state == .established and dead_len < dead_peers.len) {
+                    dead_peers[dead_len] = s;
                     dead_len += 1;
                 }
             }
@@ -641,12 +647,18 @@ pub const Endpoint = struct {
 
     /// Mark a session finished: unmap it, tell the node (once), and
     /// stop all I/O on it. The record — and any client we own — stays
-    /// allocated until `deinit`: the embedder's loop may still pump
-    /// the connection (Loopback does; a socket loop drains it), so
-    /// freeing here would pull memory out from under the pump.
+    /// allocated until `deinit`: the embedder's loop may still pump the
+    /// connection (Loopback does; a socket loop drains it), so freeing
+    /// here would pull memory out from under the pump. The underlying
+    /// QUIC connection IS closed on the wire (idempotent): without
+    /// that, the peer keeps a stale established record pointing at a
+    /// connection we will never read again — it never re-dials, and
+    /// resurrection traffic has nowhere to land (found in the fleet
+    /// test's post-crash wedge).
     fn closeSession(e: *Self, s: *Session, reason: qmesh.session.SessionLostReason) void {
         if (s.state == .closed) return;
         s.state = .closed;
+        s.conn.close(true, 0, "qmesh session closed");
         if (s.peer) |peer| {
             if (e.by_peer.get(peer)) |cur| {
                 if (cur == s) _ = e.by_peer.remove(peer);

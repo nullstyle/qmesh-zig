@@ -67,10 +67,11 @@ pub const Config = struct {
     /// Local-health cap: probe timeouts scale up to this multiple.
     max_local_health: u8 = 8,
     /// Every Nth probe targets a confirmed-dead member instead of the
-    /// round-robin alive/suspect scan — the resurrection path. Without
-    /// it, a healed partition stays split forever: both sides' tables
-    /// hold the other side CONFIRMed dead, and equal-incarnation ACKs
-    /// cannot beat a CONFIRM.
+    /// round-robin alive/suspect scan — the probe-driven resurrection
+    /// trigger (session establishment is the other: `noteSessionAlive`).
+    /// Without either, a healed partition stays split forever: both
+    /// sides' tables hold the other side CONFIRMed dead, and
+    /// equal-incarnation ACKs cannot beat a CONFIRM.
     dead_probe_every: u16 = 8,
 };
 
@@ -377,6 +378,26 @@ pub const Swim = struct {
         s.members_len += 1;
     }
 
+    /// Session (re)establishment to `id`: the transport just completed
+    /// an authenticated round trip with this peer NOW, which is direct
+    /// liveness evidence of the same class as a probe ACK — and it
+    /// outranks a stale CONFIRM/SUSPECT exactly like the `.ping`/`.ack`
+    /// overrides. Resurrect or refute at incarnation+1 and disseminate.
+    /// The node driver calls this from its session-up hook; without it,
+    /// a live peer spuriously CONFIRMed under load can never come back
+    /// (the transport keeps closing the session to the "dead" member
+    /// before any probe evidence can cross it).
+    pub fn noteSessionAlive(s: *Self, id: PeerId, now: u64) void {
+        const i = s.find(id) orelse return;
+        if (s.members[i].state == .alive) return;
+        const ev: Event = .{ .alive = .{
+            .desc = s.members[i].desc,
+            .incarnation = s.members[i].incarnation + 1,
+        } };
+        _ = s.apply(ev, now);
+        s.disseminate(ev);
+    }
+
     /// Apply one membership event under the incarnation lattice.
     /// Returns true when the table changed. Self-directed suspicions
     /// are handled by `handle` (refutation), not here.
@@ -457,8 +478,12 @@ pub const Swim = struct {
         m.incarnation = inc;
         m.state = new_state;
         m.state_since_us = now;
-        // An ALIVE may carry a fresher descriptor (address change).
-        if (new_state == .alive) m.desc = desc;
+        // An ALIVE may carry a fresher descriptor (address change) —
+        // but an id-only descriptor (gossip built from a table entry
+        // introduced by a SUSPECT/CONFIRM, which carry no address)
+        // must never erase a dialable address: resurrection probes
+        // need `desc.addr` to re-open the connection.
+        if (new_state == .alive and desc.addr != .none) m.desc = desc;
         s.stats.events_applied += 1;
         return true;
     }
@@ -490,12 +515,18 @@ pub const Swim = struct {
     /// Feed one observed application-scheduler delay (the gap between
     /// intended and actual wake, e.g. from the node driver's loop).
     /// Delays beyond the probe budget degrade local health; sustained
-    /// good behavior recovers it.
+    /// good behavior recovers it. Growth is PROPORTIONAL to the delay:
+    /// a multi-second stall bumps the multiplier until the scaled
+    /// windows cover the stall itself — one step per call would leave
+    /// the post-stall timer burst confirming live members whose
+    /// refutation traffic was merely delayed with them.
     pub fn noteAppDelay(s: *Self, delay_us: u64) void {
-        const budget = s.scaledProbeTimeout();
+        var budget = s.scaledProbeTimeout();
         if (delay_us > budget) {
-            if (s.local_health < @as(u4, @intCast(@min(s.cfg.max_local_health, 15)))) {
+            const cap: u4 = @intCast(@min(s.cfg.max_local_health, 15));
+            while (delay_us > budget and s.local_health < cap) {
                 s.local_health += 1;
+                budget = s.scaledProbeTimeout();
             }
         } else if (delay_us * 2 < budget and s.local_health > 0) {
             s.local_health -= 1;
@@ -622,9 +653,10 @@ pub const Swim = struct {
         var target: ?usize = null;
 
         // Resurrection slot: every Nth probe targets a confirmed-dead
-        // member. A live ack resurrects it (see handle .ack), which is
-        // the only thing that can beat a stale CONFIRM after a
-        // partition heals.
+        // member — the dial it triggers re-opens the connection, and
+        // either the ACK here or the session establishment itself
+        // (`noteSessionAlive`) is direct evidence that beats a stale
+        // CONFIRM after a partition heals.
         if (s.cfg.dead_probe_every > 0 and s.probe_seq % s.cfg.dead_probe_every == 0) {
             var tries: usize = 0;
             while (tries < s.members_len) : (tries += 1) {
@@ -687,12 +719,14 @@ pub const Swim = struct {
         const i = s.find(target) orelse return;
         const inc = s.members[i].incarnation;
         const ev: Event = .{ .suspect = .{ .id = target, .incarnation = inc } };
-        if (!s.apply(ev, now)) {
-            // Equal-incarnation suspect ranks above alive, so this
-            // applies unless already suspect/dead — in which case a
-            // fresh suspicion window is still useful.
-            s.members[i].state_since_us = now;
-        }
+        // NOTE: a rejected (already-suspect) re-suspicion must NOT
+        // refresh state_since_us — the expiry window is anchored at the
+        // FIRST suspicion of this incarnation. Refreshing on every
+        // failed re-probe would postpone CONFIRM indefinitely for a
+        // member nobody can reach (found in the fleet test: a victim
+        // stuck suspect forever because its prober re-suspected faster
+        // than the window expired).
+        if (!s.apply(ev, now)) return;
         s.disseminate(ev);
         s.stats.suspects_declared += 1;
         if (s.gossipTargetExcluding(target, rng)) |dest| {
@@ -1045,6 +1079,73 @@ test "suspicion refutation: target bumps incarnation and clears suspicion" {
     try testing.expectEqual(@as(u32, 1), s.self_incarnation);
     try testing.expectEqual(@as(usize, 1), fx.len); // ALIVE sent back
     try testing.expect(fx.slice()[0].send.msg == .alive);
+}
+
+test "session evidence resurrects the dead and refutes suspects" {
+    var s = Swim.init(descOf(70), .{}, 0);
+    const x = descOf(71);
+    s.observe(x, 0);
+
+    // Suspect, then session-up: refuted at incarnation+1.
+    _ = s.apply(.{ .suspect = .{ .id = x.id, .incarnation = 0 } }, 1);
+    try testing.expectEqual(MemberState.suspect, s.stateOf(x.id).?);
+    s.noteSessionAlive(x.id, 2);
+    try testing.expectEqual(MemberState.alive, s.stateOf(x.id).?);
+    try testing.expectEqual(@as(u32, 1), s.members[s.find(x.id).?].incarnation);
+
+    // Confirm, then session-up: resurrected at incarnation+1.
+    _ = s.apply(.{ .confirm = .{ .id = x.id, .incarnation = 1 } }, 3);
+    try testing.expectEqual(MemberState.dead, s.stateOf(x.id).?);
+    s.noteSessionAlive(x.id, 4);
+    try testing.expectEqual(MemberState.alive, s.stateOf(x.id).?);
+    try testing.expectEqual(@as(u32, 2), s.members[s.find(x.id).?].incarnation);
+
+    // Already alive: no-op (no incarnation inflation).
+    s.noteSessionAlive(x.id, 5);
+    try testing.expectEqual(@as(u32, 2), s.members[s.find(x.id).?].incarnation);
+
+    // Unknown member: no-op (observe owns introductions).
+    s.noteSessionAlive(descOf(72).id, 6);
+    try testing.expect(s.find(descOf(72).id) == null);
+}
+
+test "repeated failed re-suspicion does not postpone confirm" {
+    var s = Swim.init(descOf(80), .{}, 0);
+    var fx: Effects = .{};
+    const rng = testRng();
+    const x = descOf(81);
+    s.observe(x, 0);
+
+    const first_suspicion: u64 = 1_000;
+    s.suspectMember(x.id, first_suspicion, rng, &fx);
+    try testing.expectEqual(MemberState.suspect, s.stateOf(x.id).?);
+    try testing.expectEqual(first_suspicion, s.members[s.find(x.id).?].state_since_us);
+
+    // Failed re-probes re-suspect at the same incarnation; the expiry
+    // window stays anchored at the FIRST suspicion.
+    s.suspectMember(x.id, first_suspicion + 500, rng, &fx);
+    try testing.expectEqual(MemberState.suspect, s.stateOf(x.id).?);
+    try testing.expectEqual(first_suspicion, s.members[s.find(x.id).?].state_since_us);
+
+    // So CONFIRM lands at first_suspicion + window, not later —
+    // unreachable members always converge to dead.
+    s.tick(first_suspicion + s.cfg.suspicion_timeout_us, rng, &fx);
+    try testing.expectEqual(MemberState.dead, s.stateOf(x.id).?);
+}
+
+test "id-only alive events never erase a dialable descriptor" {
+    var s = Swim.init(descOf(90), .{}, 0);
+    const x = descOf(91); // carries a dialable addr
+    s.observe(x, 0);
+    try testing.expect(s.members[s.find(x.id).?].desc.addr != .none);
+
+    // Resurrect via an event whose descriptor is id-only (built from a
+    // table entry introduced by address-less SUSPECT/CONFIRM gossip):
+    // the state flips but the dialable address survives.
+    _ = s.apply(.{ .confirm = .{ .id = x.id, .incarnation = 2 } }, 1);
+    _ = s.apply(.{ .alive = .{ .desc = .{ .id = x.id }, .incarnation = 3 } }, 2);
+    try testing.expectEqual(MemberState.alive, s.stateOf(x.id).?);
+    try testing.expect(s.members[s.find(x.id).?].desc.addr != .none);
 }
 
 test "ping_req relay: forward ping, route the ack back to the requester" {

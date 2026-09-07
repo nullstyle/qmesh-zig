@@ -103,10 +103,19 @@ const Fleet = struct {
                         .active_rotate_period_us = null,
                     },
                     .swim_cfg = .{
+                        // Contested-machine baseline: a loaded host
+                        // stretches each fleet iteration (12 runners
+                        // share one thread) well past a 100ms probe
+                        // budget, which chronically suspects healthy
+                        // peers. Probe budgets sit above several
+                        // loaded iterations; Lifeguard (fed by the
+                        // runner's observed iteration gaps) scales
+                        // these further past real stalls. Still far
+                        // below the fly profile's 800ms/8s posture.
                         .probe_period_us = 150_000,
-                        .probe_timeout_us = 100_000,
-                        .indirect_timeout_us = 100_000,
-                        .suspicion_timeout_us = 600_000,
+                        .probe_timeout_us = 300_000,
+                        .indirect_timeout_us = 300_000,
+                        .suspicion_timeout_us = 1_500_000,
                     },
                     .broadcast_cfg = .{
                         .missing_timeout_us = 200_000,
@@ -164,6 +173,68 @@ fn sleepMs(ms: u64) void {
     };
     var rem: std.c.timespec = undefined;
     _ = std.c.nanosleep(&req, &rem);
+}
+
+fn idxOf(f: *Fleet, id: qmesh.PeerId) ?usize {
+    for (f.ids, 0..) |pid, i| {
+        if (pid.eql(id)) return i;
+    }
+    return null;
+}
+
+/// Per-node state snapshot for heal debugging: active view (letters),
+/// passive size, swim suspects/dead, established sessions.
+fn dumpFleet(f: *Fleet, label: []const u8) void {
+    std.debug.print("=== {s} ===\n", .{label});
+    for (0..N) |i| {
+        if (!f.runners[i].live) {
+            std.debug.print("node {d}: CRASHED\n", .{i});
+            continue;
+        }
+        const ep = f.runners[i].endpoint();
+        var act: [N]u8 = undefined;
+        var act_len: usize = 0;
+        for (ep.node.overlay.activeSlice()) |e| {
+            if (idxOf(f, e.desc.id)) |j| {
+                act[act_len] = 'a' + @as(u8, @intCast(j));
+                act_len += 1;
+            }
+        }
+        var sus: [N]u8 = undefined;
+        var sus_len: usize = 0;
+        var dead: [N]u8 = undefined;
+        var dead_len: usize = 0;
+        var sess: [N]u8 = undefined;
+        var sess_len: usize = 0;
+        for (0..N) |j| {
+            if (j == i) continue;
+            if (ep.node.swim.stateOf(f.ids[j])) |st| switch (st) {
+                .suspect => {
+                    sus[sus_len] = 'a' + @as(u8, @intCast(j));
+                    sus_len += 1;
+                },
+                .dead => {
+                    dead[dead_len] = 'a' + @as(u8, @intCast(j));
+                    dead_len += 1;
+                },
+                .alive => {},
+            };
+            if (ep.establishedWith(f.ids[j])) {
+                sess[sess_len] = 'a' + @as(u8, @intCast(j));
+                sess_len += 1;
+            }
+        }
+        std.debug.print("node {d}: act=[{s}] pass={d} sus=[{s}] dead=[{s}] sess=[{s}] lh={d} sus_win={d}ms\n", .{
+            i,
+            act[0..act_len],
+            ep.node.overlay.passiveSlice().len,
+            sus[0..sus_len],
+            dead[0..dead_len],
+            sess[0..sess_len],
+            ep.node.swim.local_health,
+            ep.node.swim.scaledSuspicionTimeout() / 1000,
+        });
+    }
 }
 
 /// Undirected overlay connectivity BFS over the listed node indices.
@@ -265,7 +336,30 @@ test "twelve-node mesh over real UDP: bootstrap, broadcast, mass crash, recovery
             return true;
         }
     };
-    f.runUntil(25_000, Dead{ .f = &f, .victims = &victims }, Dead.ok) catch { std.debug.print("PHASE-FAIL dead\n", .{}); return error.Dead; };
+    // Same shape as the heal loop: silent while converging, state
+    // dumps at 10s checkpoints once stalled (Dead converges faster;
+    // the first checkpoint is later to keep healthy runs quiet).
+    {
+        var slept: u64 = 0;
+        var next_dump: u64 = 10_000;
+        var dead_confirmed = false;
+        while (slept < 40_000) : (slept += 2) {
+            if (Dead.ok(.{ .f = &f, .victims = &victims })) {
+                dead_confirmed = true;
+                break;
+            }
+            if (slept >= next_dump) {
+                dumpFleet(&f, "dead stalled (t+ms)");
+                next_dump += 10_000;
+            }
+            try f.step();
+            sleepMs(2);
+        }
+        if (!dead_confirmed) {
+            dumpFleet(&f, "PHASE-FAIL dead final");
+            return error.Dead;
+        }
+    }
 
     // Survivors stay connected and the healed mesh still broadcasts:
     // node 1 publishes; the eight surviving subscribers all deliver.
@@ -280,14 +374,30 @@ test "twelve-node mesh over real UDP: bootstrap, broadcast, mass crash, recovery
     }
     // Survivors re-connect: mass eviction leaves holes that promotion
     // refills over seconds — assert the heal, not the instant state.
-    const Healed = struct {
-        f: *Fleet,
-        survivors: []const usize,
-        fn ok(c: @This()) bool {
-            return overlayConnected(c.f, c.survivors);
+    // The loop (not runUntil) leaves room for diagnostics: a healthy
+    // heal is silent; one that stalls past a 5s checkpoint dumps fleet
+    // state so the failure mode is legible in CI logs.
+    {
+        var slept: u64 = 0;
+        var next_dump: u64 = 5_000;
+        var healed = false;
+        while (slept < 60_000) : (slept += 2) {
+            if (overlayConnected(&f, &survivors)) {
+                healed = true;
+                break;
+            }
+            if (slept >= next_dump) {
+                dumpFleet(&f, "heal stalled (t+ms)");
+                next_dump += 5_000;
+            }
+            try f.step();
+            sleepMs(2);
         }
-    };
-    try f.runUntil(25_000, Healed{ .f = &f, .survivors = &survivors }, Healed.ok);
+        if (!healed) {
+            dumpFleet(&f, "PHASE-FAIL heal final");
+            return error.Heal;
+        }
+    }
     try testing.expect(f.broadcast(1, "after-crash"));
     // Post-crash delivery to a strong majority of survivors. All-8
     // under a fixed wall window is a timing lottery over IHAVE/IWANT

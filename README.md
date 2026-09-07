@@ -43,12 +43,18 @@ distributed systems. It is **not** an actor runtime.
       Lifeguard local-health multiplier fed by observed app delays.
 - [x] SWIM integrated: the node driver multiplexes overlay + SWIM on
       one frames-in/effects-out cycle; session-up feeds the member
-      table; CONFIRM purges the overlay passive view; alive members
-      re-enter it. Partition recovery works end-to-end: dead-slot
-      resurrection probes (direct ACK evidence outranks a stale
-      CONFIRM, resurrecting at a bumped incarnation) re-open the
-      connection, and piggybacked ALIVE re-bridges the overlay — the
-      kill/partition scenarios now assert membership convergence.
+      table and is itself liveness evidence — an authenticated
+      handshake with a member the table holds suspect/dead resurrects
+      it at incarnation+1 (the mutual-CONFIRM wedge exit: the real
+      transport tears sessions to "dead" members every service pass,
+      so without session evidence a spurious CONFIRM under scheduler
+      load has no recovery path once gossip agrees); CONFIRM purges
+      the overlay passive view; alive members re-enter it. Partition
+      recovery works end-to-end: dead-slot resurrection probes (direct
+      ACK evidence outranks a stale CONFIRM, resurrecting at a bumped
+      incarnation) re-open the connection, and piggybacked ALIVE
+      re-bridges the overlay — the kill/partition scenarios now assert
+      membership convergence.
 - [x] Plumtree broadcast (`src/plumtree.zig`, pure): eager push /
       lazy IHAVE with duplicate-driven demotion + PRUNE, IWANT repair
       (reliable class) with graft-on-repair, bounded seen/payload
@@ -66,6 +72,10 @@ distributed systems. It is **not** an actor runtime.
       outbound drain per iteration. `run()` blocks until a shutdown
       flag; `step()` is one nonblocking pass for tests and foreign
       event loops. POSIX (raw syscalls; Darwin needs fcntl nonblock).
+      Each iteration also feeds its observed clock gap into SWIM's
+      Lifeguard local-health multiplier — scheduler starvation scales
+      probe/suspicion windows up instead of escalating a stall to
+      CONFIRM + eviction, and clean cadence decays them back.
 - [x] Twelve-node mesh over REAL UDP sockets (tests/quic_mesh_test.zig)
       driving the Runner directly: bootstrap convergence with
       cert-bound identities, exactly-once cluster broadcast, a 25%
