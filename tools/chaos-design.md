@@ -138,3 +138,25 @@ Invariants 1-4 and 6 passed (full re-convergence in the heal window,
 Driver fix needed before deeper campaigns: the awk victim draws
 correlate on some seeds (linear seed mixing) — hammering one node;
 mix the seed properly (e.g. multiply and xorshift per draw).
+
+## OPEN (2026-09-07, user-reported via qmesh-top): fly fleet churn loop
+
+The 6-machine fly fleet never re-converged after the last rewire and
+has been in a sustained churn loop for ~15h: alive oscillating 1-4,
+suspects/confirms in the hundreds per node, active=0 on some nodes,
+sends_failed in the thousands, closes tracking confirms (~300/node).
+NOT the slot cap (slots gauge reads 0-4 of 32 all fleet). Signature:
+half the ACK traffic vanishes on a healthy net (acks_tx ~2x
+acks_rx), starving probes into repeated suspicion->confirm of live
+peers; the dead-sweep tears sessions and the loop repeats.
+
+Leading suspect: QUIC VERSION REGRESSION. Every stability result
+(reset-key ping-pong fix, 94/94/0 probe runs, 6-node convergence)
+was verified against quic-zig HEAD 720443e via the .path dep; 0.1.0
+pinned the v0.21.0 TARBALL, and the churn began on the first fleet
+deployed from that pin. Next steps: (1) reproduce on a local 6-node
+loopback fleet under the tarball pin; (2) diff v0.21.0 vs 720443e
+for stateless-reset-with-null-key and datagram-receive behavior;
+(3) if confirmed, the quic-zig session brief gets the regression
+report. The PROBE-STALL detector is in the deployed binary — grep
+fly logs for it to rule the probe engine in or out.
