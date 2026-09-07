@@ -12,6 +12,12 @@ distributed systems. It is **not** an actor runtime.
 > discover change; use direct QUIC paths for sustained traffic; use
 > anti-entropy to guarantee eventual repair.
 
+> New here? **[docs/tutorial.md](docs/tutorial.md)** walks the whole
+> ladder — run a mesh in three terminals, read its telemetry, drive
+> the library, prove properties in the simulator, embed real QUIC,
+> deploy to fly, and sketch what you'd build on top (sharded cache,
+> mesh-native APM, discovery, config broadcast).
+
 ## Status (milestone 1)
 
 - [x] Project skeleton, build, tests (`zig build test`)
