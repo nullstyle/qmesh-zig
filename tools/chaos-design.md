@@ -146,6 +146,15 @@ Driver fix needed before deeper campaigns: the awk victim draws
 correlate on some seeds (linear seed mixing) — hammering one node;
 mix the seed properly (e.g. multiply and xorshift per draw).
 
+> RESOLVED (2026-09-07, second attempt — the first "fix" was a
+> no-op): the real root cause was never the mixer math. Every
+> `$(nrnd ...)` call site forks a SUBSHELL, so the xorshift state
+> advance never reached the parent and every draw restarted from the
+> seed — seed 7 drew "slow node-b" 76 times straight. Draws now
+> return via a REPLY variable (no command substitution) and the
+> mixer is 63-bit-masked xorshift64* with the spread validated
+> across seeds (7/42/1/20260907: uniform victim histograms).
+
 ## RESOLVED (2026-09-07): fly fleet churn loop — fallback ingress spray
 
 The user-reported churn loop (alive oscillating, hundreds of
@@ -199,3 +208,19 @@ late-restart nodes' delivery counts cratering). Fix: the Runner seeds
 the per-boot seq base from the wall clock (transport seam, not the
 core — the simulator keeps deterministic 1..N seqs), giving each
 process lifetime a disjoint id range.
+
+## Campaign 2 (seed 7, 15 min, post-churn-fix, event-ring build)
+
+All invariants pass on a genuinely mixed schedule (11 distinct
+victims, every fault class, ≥90 s heal): full membership agreement at
+settle — **all 12 nodes alive=11/suspect=0/dead=0** — 96.7% exactly-
+once delivery (13005/13453) under faults, lh decayed to ~0, watchdog
+clean. RSS: churn-era orphans settle ~64-91MB (under the slot-cap
+bound; watch, not a finding — no slots storm, and the pre-fix balloon
+was 267MB). The event ring's stderr drain produced the fleet's own
+view of the campaign (~26k `event ...` lines, every kind represented:
+4384 suspects, 2710 refutations, 1726 confirms, 1591 resurrections,
+2465 session-downs, 3980 repairs, 350 lapsed repairs, 6151 lh changes
+— Lifeguard flapping visibly under a soak-loaded host is the design
+working). Caveat noted for later: lh_change is the chattiest kind; a
+production logger may want to rate-limit it.

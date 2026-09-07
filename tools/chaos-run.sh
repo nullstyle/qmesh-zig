@@ -52,12 +52,20 @@ ctl() { # node-index command...
   printf '%s' "$*" | nc -u -w1 "::1" $((CTL + i + 1)) >/dev/null 2>&1 || true
 }
 
-# Seed-driven xorshift stream (linear seed mixing correlated victims —
-# campaign 1 hammered one node; see chaos-design.md).
-RS=$SEED
-nrnd() { # random in [0, $1)
-  RS=$(( (RS ^ (RS << 13)) & 0x7fffffff )); RS=$(( (RS ^ (RS >> 17)) & 0x7fffffff )); RS=$(( (RS ^ (RS << 5)) & 0x7fffffff ))
-  echo $(( RS % $1 ))
+# Seed-driven xorshift64* stream. Two pitfalls buried the campaign-1
+# "fix" (see chaos-design.md): a 31-bit xorshift collapses into short
+# cycles for some seeds, and — worse — every `$(nrnd ...)` call site
+# forks a SUBSHELL, so the RS advance never reached the parent and
+# every draw restarted from the seed: seed 7 drew "slow node-b" 76
+# times in a row. Draws therefore return via REPLY (no command
+# substitution), and the mixer is 63-bit-masked xorshift64* (spread
+# validated across seeds).
+RS=$(( SEED == 0 ? 0x9e3779b97f4a7c15 : SEED ))
+nrnd() { # sets REPLY to a random in [0, $1)
+  RS=$(( RS ^ (RS >> 12) ))
+  RS=$(( (RS ^ (RS << 25)) & 0x7fffffffffffffff ))
+  RS=$(( RS ^ (RS >> 27) ))
+  REPLY=$(( ((RS * 0x2545F4914F6CDD1D) & 0x7fffffffffffffff) % $1 ))
 }
 
 for i in $(seq 0 $((N - 1))); do start_node "$i"; sleep 0.5; done
@@ -66,22 +74,22 @@ sleep 30
 
 END=$((SECONDS + MINUTES * 60))
 while [ $SECONDS -lt $END ]; do
-  sleep $((2 + $(nrnd 6)))
-  v=$((1 + $(nrnd $((N - 1)))))          # never the seed
-  cls=$(nrnd 100)
+  nrnd 6; sleep $((2 + REPLY))
+  nrnd $((N - 1)); v=$((1 + REPLY))            # never the seed
+  nrnd 100; cls=$REPLY
   case $((cls < 25 ? 0 : cls < 45 ? 1 : cls < 65 ? 2 : cls < 80 ? 3 : cls < 90 ? 4 : 5)) in
     0) echo "$(date +%H:%M:%S) crash node-${letters[$v]}" >> "$OUT/report.txt"
        kill -9 "${PIDS[$v]}" 2>/dev/null || true
-       ( sleep $((5 + $(nrnd 25))); start_node "$v" ) & ;;
-    1) echo "$(date +%H:%M:%S) freeze node-${letters[$v]} $((3 + $(nrnd 12)))s" >> "$OUT/report.txt"
-       ctl "$v" "freeze $((3000 + $(nrnd 12000)))" ;;
-    2) echo "$(date +%H:%M:%S) drop node-${letters[$v]} $((10 + $(nrnd 30)))%" >> "$OUT/report.txt"
-       ctl "$v" "drop $((1000 + $(nrnd 3000))) both" ;;
-    3) t=$(nrnd $((N - 1))); t=$((t + 1)); [ "$t" -eq "$v" ] && t=0
+       nrnd 25; ( sleep $((5 + REPLY)); start_node "$v" ) & ;;
+    1) nrnd 12; echo "$(date +%H:%M:%S) freeze node-${letters[$v]} $((3 + REPLY))s" >> "$OUT/report.txt"
+       nrnd 12000; ctl "$v" "freeze $((3000 + REPLY))" ;;
+    2) nrnd 30; echo "$(date +%H:%M:%S) drop node-${letters[$v]} $((10 + REPLY))%" >> "$OUT/report.txt"
+       nrnd 3000; ctl "$v" "drop $((1000 + REPLY)) both" ;;
+    3) nrnd $((N - 1)); t=$((REPLY + 1)); [ "$t" -eq "$v" ] && t=0
        echo "$(date +%H:%M:%S) blackhole node-${letters[$v]} -> ${letters[$t]} (in)" >> "$OUT/report.txt"
        ctl "$v" "bh $((BASE + t + 1)) in" ;;
     4) echo "$(date +%H:%M:%S) slow node-${letters[$v]}" >> "$OUT/report.txt"
-       ctl "$v" "slow $((50 + $(nrnd 150)))" ;;
+       nrnd 150; ctl "$v" "slow $((50 + REPLY))" ;;
     5) echo "$(date +%H:%M:%S) clear all" >> "$OUT/report.txt"
        for i in $(seq 1 $((N - 1))); do ctl "$i" clear; done ;;
   esac
