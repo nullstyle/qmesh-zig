@@ -1,0 +1,19 @@
+# qmesh fly smoke test: two machines (sea + mia), throwaway app.
+# Per-machine env (QMESH_*) is applied via `fly machine update` after
+# each machine's private 6pn IP is known — see tools/fly-smoke.md.
+app = "qmesh-smoke-nullstyle"
+primary_region = "sjc"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+# Live instance: the six-machine qmesh-smoke-nullstyle fleet.
+# Machine inventory (id, region, 6pn addr, cert/digest):
+#   6835447a4d00e8 sjc fdaa:0:1123:a7b:7e9:9bee:1d35:2  node-sea  626a2868...
+#   2862102a1e0d58 iad fdaa:0:1123:a7b:9a:4257:bbdd:2   node-mia  25e561e6...
+#   1854d3ef1dd058 sjc fdaa:0:1123:a7b:817:a2e0:bb0c:2  node-sjc2 7f43ef3c...
+#   48ee562ae0ee08 ord fdaa:0:1123:a7b:854:338c:8154:2  node-ord  b928d000...
+#   87061da0202e08 iad fdaa:0:1123:a7b:890:6fef:437c:2  node-iad2 0079546e...
+#   879324a0031418 dfw fdaa:0:1123:a7b:6eb:a8f9:f8e4:2  node-dfw  21c2313c...
+# SSH: fly ssh console --app qmesh-smoke-nullstyle (no fly.toml needed)
