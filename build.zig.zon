@@ -1,6 +1,6 @@
 .{
     .name = .qmesh,
-    .version = "0.2.0",
+    .version = "0.2.1",
     .fingerprint = 0xc2bbdb284c1e27c5,
     .minimum_zig_version = "0.17.0-dev.1683+5ceec001b",
     .dependencies = .{

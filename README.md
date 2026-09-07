@@ -281,6 +281,26 @@ set to quic-zig, which instantiated quic twice in one binary). Set
 `AuthConfig.cert_binding = .require_match` on the qmsg listener so a
 peer cannot announce an id its certificate does not back.
 
+### Why not just watch qmsg sessions?
+
+Because a qmsg session notices a dead peer only through the QUIC idle
+timeout, and that is slow by design. qmsg's own two-node test measures
+it: with the negotiated idle timeout at 2s, a silent peer's session is
+dropped 2169ms after last contact — the timeout plus about one probe
+interval. `max_idle_timeout_ms` defaults to **30 seconds**, and
+`heartbeat_interval_ms` does not shorten it (a heartbeat keeps a
+session alive; it does not detect death faster).
+
+SWIM is built for the question instead. On qmesh's defaults —
+`probe_period 1s`, `probe_timeout 0.5s`, `indirect_timeout 0.5s`,
+`suspicion_timeout 3s` — a death is CONFIRMed in roughly **5 seconds**,
+cluster-wide, and corroborated suspicion cuts that further. Indirect
+probing also distinguishes "the peer is gone" from "our path to it is
+gone", which a per-connection timeout structurally cannot.
+
+That gap — ~5s of cluster-agreed membership against ~30s of
+per-connection silence — is what the composition buys.
+
 What this deliberately does NOT do: share a socket, share a quic
 Connection, or run qmsg traffic over a qmesh session. Those couple the
 two libraries and cost more than they buy — qmesh's reliable class is a

@@ -7,6 +7,15 @@ changes.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-06
+
+- **README: why the composition is worth it, with numbers.** qmsg
+  0.7.0's two-node test measures its dead-peer detection at the QUIC
+  idle timeout — 2169ms at a 2s negotiated timeout, and the default is
+  30s. qmesh's SWIM defaults CONFIRM a death in roughly 5s cluster-wide
+  and distinguish a dead peer from a dead path, which a per-connection
+  timeout cannot. Documented in the "Composing with qmsg" section.
+
 ## [0.2.0] - 2026-09-06
 
 - **`examples/qmsg_directory.zig`: composing qmesh with qmsg without
