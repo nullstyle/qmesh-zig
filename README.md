@@ -91,6 +91,21 @@ distributed systems. It is **not** an actor runtime.
       nodes never escalate to CONFIRMed death — SWIM's PING_REQ
       indirect probing resolves through the healthy reverse paths,
       often before suspicion even fires.
+- [x] Multi-region locality: SWIM samples application-level RTT from
+      direct probe ACKs (per-member smoothed, no transport coupling),
+      and probe/indirect/suspicion budgets become
+      `max(profile floor, factor × smoothed RTT)` — co-located peers
+      fail fast while high-RTT pairs self-extend, so profile timers
+      no longer pad everyone to the worst region pair. The overlay
+      spends a bounded ranked minority of its active slots
+      (`ranked_slots`, 3 of 10 in the fly profile) on the lowest-RTT
+      peers — promotion preference plus ranked-only displacement, so
+      the uniform-random majority (and the small-world connectivity
+      it provides) is structurally preserved; the broadcast tree
+      inherits locality through the active view. Proven by the
+      two-region simulator scenario (zone-shaped latencies): ranked
+      sets converge to same-region peers, the cluster stays one
+      component.
 
 ## Architecture
 

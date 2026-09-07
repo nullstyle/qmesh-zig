@@ -86,6 +86,9 @@ pub const World = struct {
 
     groups: std.ArrayListUnmanaged(u8) = .empty,
     blocked_pair: ?[2]u8 = null,
+    /// Locality zones for latency shaping (see Policy.zone_*): zone 0
+    /// is the default; scenarios assign via `setZone` before running.
+    zones: std.ArrayListUnmanaged(u8) = .empty,
     /// One-directional blackholes (src→dst dropped, reverse flows).
     /// The brief's "asymmetric connectivity" fault.
     one_way_drops: std.ArrayListUnmanaged(OneWayDrop) = .empty,
@@ -136,6 +139,7 @@ pub const World = struct {
         w.paused_total.deinit(w.allocator);
         w.prngs.deinit(w.allocator);
         w.groups.deinit(w.allocator);
+        w.zones.deinit(w.allocator);
         w.one_way_drops.deinit(w.allocator);
         w.network.deinit();
         w.sessions.deinit();
@@ -161,6 +165,7 @@ pub const World = struct {
         try w.paused_total.append(w.allocator, 0);
         try w.prngs.append(w.allocator, std.Random.DefaultPrng.init(sm.next()));
         try w.groups.append(w.allocator, 0);
+        try w.zones.append(w.allocator, 0);
 
         const sn = try w.allocator.create(SimNode);
         errdefer w.allocator.destroy(sn);
@@ -216,6 +221,12 @@ pub const World = struct {
     }
 
     // --- partition ----------------------------------------------------------
+
+    /// Assign a locality zone (latency shaping — see Policy.zone_*).
+    /// Call before running; zone 0 is the spawn default.
+    pub fn setZone(w: *Self, node: NodeId, zone: u8) void {
+        w.zones.items[node] = zone;
+    }
 
     /// Split the listed nodes into two groups (1 and 2), block traffic
     /// between the groups, and sever existing cross-sessions. Unlisted
@@ -292,16 +303,28 @@ pub const World = struct {
                 return;
             }
         }
-        const delay = if (w.policy.delay_max_us <= w.policy.delay_min_us)
-            w.policy.delay_min_us
-        else
-            w.net_rng.random().intRangeAtMost(u64, w.policy.delay_min_us, w.policy.delay_max_us);
+        const delay = w.linkDelay(src, dst);
         try w.network.schedule(w.now_us + delay, .{ .deliver = .{
             .src = src,
             .dst = dst,
             .bytes = copy,
             .reliable = reliable,
         } });
+    }
+
+    /// Per-message link delay: zone-shaped when zone latencies are
+    /// configured (deterministic — no draw), else the uniform
+    /// [min, max] range.
+    fn linkDelay(w: *Self, src: NodeId, dst: NodeId) u64 {
+        if (w.policy.zone_intra_delay_us > 0) {
+            return if (w.zones.items[src] == w.zones.items[dst])
+                w.policy.zone_intra_delay_us
+            else
+                w.policy.zone_cross_delay_us;
+        }
+        if (w.policy.delay_max_us <= w.policy.delay_min_us)
+            return w.policy.delay_min_us;
+        return w.net_rng.random().intRangeAtMost(u64, w.policy.delay_min_us, w.policy.delay_max_us);
     }
 
     /// Start (or confirm) a virtual dial.

@@ -12,7 +12,12 @@
 //! * Probing: one member per `probe_period`. Direct PING → ACK; on
 //!   timeout, PING_REQ to `ping_req_fanout` other members (indirect
 //!   probing — the target may be reachable for others but not for
-//!   us); on second timeout, SUSPECT the target.
+//!   us); on second timeout, SUSPECT the target. Direct ACKs double
+//!   as RTT samples: each member carries a smoothed round-trip time,
+//!   and probe/indirect/suspicion budgets are
+//!   `max(profile floor, factor × smoothed RTT)` — co-located peers
+//!   fail fast in multi-region clusters without padding everyone's
+//!   timers to the worst region pair.
 //! * Suspicion: suspected members keep being probed; if nothing
 //!   refutes within `suspicion_timeout_us`, CONFIRM (dead). A member
 //!   that observes a SUSPECT about itself refutes by broadcasting
@@ -266,6 +271,12 @@ pub const Member = struct {
     state: MemberState,
     /// When the current state was entered (suspect windows, metrics).
     state_since_us: u64,
+    /// Smoothed application-level round-trip time to this member,
+    /// sampled from direct probe ACKs (0 = never measured). Drives
+    /// RTT-aware probe/suspicion budgets: co-located peers fail fast
+    /// while high-RTT peers get headroom, so profile timers no longer
+    /// need worst-case padding for everyone.
+    rtt_us: u64 = 0,
 };
 
 const Probe = struct {
@@ -273,6 +284,8 @@ const Probe = struct {
     nonce: u64,
     phase: enum { direct, indirect },
     deadline_us: u64,
+    /// When the PING left (direct-ACK RTT sampling).
+    started_us: u64,
 };
 
 const Relay = struct {
@@ -289,6 +302,15 @@ fn stateRank(s: MemberState) u8 {
         .dead => 2,
     };
 }
+
+// RTT-budget factors — physics, not deployment policy: a direct probe
+// must comfortably cover one round trip, indirect probing spans two
+// legs each way, and a suspicion window must survive several
+// refutation round trips. Budgets apply as
+// `max(profile floor, factor × smoothed member RTT)` per member.
+pub const rtt_direct_factor: u64 = 2;
+pub const rtt_indirect_factor: u64 = 3;
+pub const rtt_suspicion_factor: u64 = 8;
 
 pub const Swim = struct {
     const Self = @This();
@@ -361,6 +383,15 @@ pub const Swim = struct {
     pub fn stateOf(s: *const Self, id: PeerId) ?MemberState {
         const i = s.find(id) orelse return null;
         return s.members[i].state;
+    }
+
+    /// Smoothed application-level RTT to `id` in microseconds
+    /// (0 = never measured). Sampled from direct probe ACKs; feeds
+    /// per-member budgets and (via the node driver) the overlay's
+    /// locality ranking.
+    pub fn rttOf(s: *const Self, id: PeerId) u64 {
+        const i = s.find(id) orelse return 0;
+        return s.members[i].rtt_us;
     }
 
     /// Learn a member (session up, shuffle sample, ALIVE inc==0).
@@ -541,6 +572,23 @@ pub const Swim = struct {
         return s.cfg.suspicion_timeout_us * (@as(u64, 1) << s.local_health);
     }
 
+    // Per-member budgets: the Lifeguard-scaled profile floor, or the
+    // member's own RTT scaled past it — whichever is larger.
+
+    fn directBudgetFor(s: *const Self, m: Member) u64 {
+        return @max(s.scaledProbeTimeout(), rtt_direct_factor *| m.rtt_us);
+    }
+
+    fn indirectBudgetFor(s: *const Self, m: Member) u64 {
+        return @max(s.scaledIndirectTimeout(), rtt_indirect_factor *| m.rtt_us);
+    }
+
+    /// Suspicion window for one member (public: nextDeadline and the
+    /// expiry scan share the exact arithmetic).
+    pub fn suspicionBudgetFor(s: *const Self, m: Member) u64 {
+        return @max(s.scaledSuspicionTimeout(), rtt_suspicion_factor *| m.rtt_us);
+    }
+
     // --- timers -------------------------------------------------------------
 
     pub fn nextDeadline(s: *const Self) ?u64 {
@@ -551,7 +599,7 @@ pub const Swim = struct {
         // own deadline.
         for (s.members[0..s.members_len]) |m| {
             if (m.state == .suspect) {
-                const d = m.state_since_us + s.scaledSuspicionTimeout();
+                const d = m.state_since_us + s.suspicionBudgetFor(m);
                 if (best == null or d < best.?) best = d;
             }
         }
@@ -580,7 +628,10 @@ pub const Swim = struct {
                     .direct => {
                         // Escalate to indirect probing.
                         p.phase = .indirect;
-                        p.deadline_us = now + s.scaledIndirectTimeout();
+                        p.deadline_us = now + (if (s.find(p.target)) |i|
+                            s.indirectBudgetFor(s.members[i])
+                        else
+                            s.scaledIndirectTimeout());
                         // One random start, then a single rotation: every
                         // member is considered exactly once, so the
                         // fan-out count is exact (a per-iteration
@@ -619,7 +670,7 @@ pub const Swim = struct {
         while (i < s.members_len) : (i += 1) {
             const m = s.members[i];
             if (m.state != .suspect) continue;
-            if (now >= m.state_since_us + s.scaledSuspicionTimeout()) {
+            if (now >= m.state_since_us + s.suspicionBudgetFor(m)) {
                 const ev: Event = .{ .confirm = .{ .id = m.desc.id, .incarnation = m.incarnation } };
                 _ = s.apply(ev, now);
                 s.disseminate(ev);
@@ -697,7 +748,8 @@ pub const Swim = struct {
             .target = s.members[idx].desc.id,
             .nonce = nonce,
             .phase = .direct,
-            .deadline_us = now + s.scaledProbeTimeout(),
+            .deadline_us = now + s.directBudgetFor(s.members[idx]),
+            .started_us = now,
         };
         const events = s.takePiggyback(s.cfg.piggyback_max);
         out.push(.{ .send = .{
@@ -803,7 +855,21 @@ pub const Swim = struct {
                 if (s.probe) |*p| {
                     if (p.nonce == m.nonce) {
                         const target = p.target;
+                        const started_us = p.started_us;
                         s.probe = null;
+                        // RTT sample: a direct ACK from the target times
+                        // the PING this probe sent (phase-independent —
+                        // a late direct ACK still measures the original
+                        // send). Relayed ACKs (from != target) are not
+                        // samples of OUR path.
+                        if (from.eql(target)) {
+                            if (s.find(target)) |ti| {
+                                const sample = now -| started_us;
+                                const cur = s.members[ti].rtt_us;
+                                s.members[ti].rtt_us =
+                                    if (cur == 0) sample else (cur + sample) / 2;
+                            }
+                        }
                         var inc = m.incarnation;
                         if (s.find(target)) |i| {
                             if (s.members[i].state == .dead) {
@@ -1146,6 +1212,46 @@ test "id-only alive events never erase a dialable descriptor" {
     _ = s.apply(.{ .alive = .{ .desc = .{ .id = x.id }, .incarnation = 3 } }, 2);
     try testing.expectEqual(MemberState.alive, s.stateOf(x.id).?);
     try testing.expect(s.members[s.find(x.id).?].desc.addr != .none);
+}
+
+test "rtt: direct acks sample a smoothed rtt; budgets scale per member" {
+    var s = Swim.init(descOf(95), .{}, 0);
+    var fx: Effects = .{};
+    const rng = testRng();
+    const target = descOf(96);
+    s.observe(target, 0);
+
+    // Probe 1: ACKed 40ms after the PING left — one sample lands.
+    s.tick(s.cfg.probe_period_us, rng, &fx);
+    const started1 = s.probe.?.started_us;
+    try testing.expectEqual(s.cfg.probe_period_us, started1);
+    s.handle(target.id, .{ .ack = .{ .nonce = s.probe.?.nonce, .incarnation = 0, .events = &.{} } }, started1 + 40_000, rng, &fx);
+    try testing.expectEqual(@as(u64, 40_000), s.rttOf(target.id));
+
+    // Probe 2: 70ms round trip smooths toward the mean ((40+70)/2).
+    s.tick(started1 + s.cfg.probe_period_us, rng, &fx);
+    const started2 = s.probe.?.started_us;
+    s.handle(target.id, .{ .ack = .{ .nonce = s.probe.?.nonce, .incarnation = 0, .events = &.{} } }, started2 + 70_000, rng, &fx);
+    try testing.expectEqual(@as(u64, 55_000), s.rttOf(target.id));
+
+    // Budgets: with a small rtt the profile floors dominate; a
+    // high-rtt member extends past them by its factors.
+    const m0 = s.members[s.find(target.id).?];
+    try testing.expectEqual(s.scaledProbeTimeout(), s.directBudgetFor(m0));
+    try testing.expectEqual(s.scaledSuspicionTimeout(), s.suspicionBudgetFor(m0));
+
+    s.members[s.find(target.id).?].rtt_us = 400_000; // 400ms cross-region peer
+    const m1 = s.members[s.find(target.id).?];
+    try testing.expectEqual(rtt_direct_factor * 400_000, s.directBudgetFor(m1));
+    try testing.expectEqual(rtt_indirect_factor * 400_000, s.indirectBudgetFor(m1));
+    try testing.expectEqual(rtt_suspicion_factor * 400_000, s.suspicionBudgetFor(m1));
+
+    // Arming honors the member budget: probe to the high-rtt member
+    // gets the extended direct deadline.
+    fx.clear();
+    s.tick(started2 + 2 * s.cfg.probe_period_us, rng, &fx);
+    try testing.expect(s.probe != null);
+    try testing.expectEqual(started2 + 2 * s.cfg.probe_period_us + rtt_direct_factor * 400_000, s.probe.?.deadline_us);
 }
 
 test "ping_req relay: forward ping, route the ack back to the requester" {

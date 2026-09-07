@@ -48,6 +48,14 @@ fn defaultCfg() qmesh.OverlayConfig {
     };
 }
 
+fn rankedCfg() qmesh.OverlayConfig {
+    // defaultCfg plus the multi-region locality posture (fly profile
+    // shape): 3 ranked slots of a 10-slot view.
+    var cfg = defaultCfg();
+    cfg.ranked_slots = 3;
+    return cfg;
+}
+
 test "two nodes join and hold a session-backed active edge" {
     var world = qsim.World.init(testing.allocator, 1, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
     defer world.deinit();
@@ -307,6 +315,70 @@ test "asymmetric link: indirect probing rescues one-way loss" {
     }
     // The cluster stays connected through the healthy paths.
     try testing.expectEqual(@as(usize, 1), world.componentCount());
+}
+
+test "two regions: ranked minority goes near, random majority stays one component" {
+    // Zone-shaped latency: 2ms intra-region, 40ms cross (80ms RTT —
+    // inside the fast cfg's direct budget so first-contact probes
+    // measure instead of timeout; the fly profile's 800ms floor gives
+    // the same headroom over its 300ms worst pairs). Every node ranks
+    // 3 locality slots; the other 7 of its 10 stay uniformly random —
+    // the small-world majority that keeps the cluster connected.
+    const overlay_cfg = rankedCfg();
+    var world = qsim.World.init(testing.allocator, 141, overlay_cfg, fastSwimCfg(), fastBroadcastCfg(), .{
+        .zone_intra_delay_us = 2_000,
+        .zone_cross_delay_us = 40_000,
+    });
+    defer world.deinit();
+    var i: u32 = 0;
+    while (i < 12) : (i += 1) _ = try world.spawn();
+    // Two regions of six.
+    for (6..12) |n| world.setZone(@intCast(n), 1);
+    world.bootstrapAll(0);
+    try world.runFor(30_000_000);
+
+    // The random majority kept global connectivity...
+    try testing.expect(world.minActiveView() >= 6);
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+    try testing.expect(world.activeEdgesSessionBacked());
+
+    for (world.nodes.items, 0..) |sn, idx| {
+        if (!world.alive.items[idx]) continue;
+        // The ranked minority is entirely same-region (the lowest-RTT
+        // peers this node knows) and the same-region preference is
+        // visible in the active view. (Edge placement beyond the
+        // ranked set is preference-BIASED, not guaranteed — vacancies
+        // are partly filled by the uniform scan; the deterministic
+        // preference itself is unit-pinned in hyparview.zig.)
+        const ranked = qmesh.hyparview.TestHooks.rankedSlice(&sn.node.overlay);
+        try testing.expectEqual(@as(usize, 3), ranked.len);
+        var intra_active: usize = 0;
+        for (sn.node.overlay.activeSlice()) |e| {
+            const other = world.index.get(e.desc.id).?;
+            if (world.zones.items[other] == world.zones.items[idx]) intra_active += 1;
+        }
+        try testing.expect(intra_active >= 1);
+        for (ranked) |r| {
+            const other = world.index.get(r.id).?;
+            try testing.expectEqual(world.zones.items[idx], world.zones.items[other]);
+        }
+        // RTT really was measured for both distance classes (the
+        // mechanism the ranking and budgets ride on).
+        var saw_intra = false;
+        var saw_cross = false;
+        for (world.descs.items, 0..) |d, j| {
+            if (j == idx) continue;
+            const rtt = sn.node.swim.rttOf(d.id);
+            if (rtt == 0) continue;
+            if (world.zones.items[j] == world.zones.items[idx]) {
+                if (rtt < 10_000) saw_intra = true;
+            } else {
+                if (rtt > 60_000) saw_cross = true;
+            }
+        }
+        try testing.expect(saw_intra);
+        try testing.expect(saw_cross);
+    }
 }
 
 test "fly migration pause: multi-region profile does not evict a pausing node" {

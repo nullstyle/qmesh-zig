@@ -81,6 +81,15 @@ pub const Config = struct {
     join_max_attempts: u8 = 4,
     /// Promotion scan cadence while under `active_min`.
     promote_period_us: u64 = 500_000,
+    /// Locality slots: at most this many lowest-RTT peers (fed via
+    /// `notePeerRtt`) get promotion preference and may displace each
+    /// other in the active view. 0 disables ranking — the paper's
+    /// uniformly random overlay. The remainder of the view stays
+    /// random BY CONSTRUCTION: the ranked set is capped, so ranking
+    /// can never capture more than this minority of active slots and
+    /// the small-world connectivity the random majority provides is
+    /// preserved (the multi-region posture: 3 of 10).
+    ranked_slots: u8 = 0,
     /// Periodic random active-edge rotation. Null disables. See the
     /// module doc for why this exists.
     active_rotate_period_us: ?u64 = 30_000_000,
@@ -233,6 +242,7 @@ pub fn decode(bytes: []const u8, scratch: *DecodeScratch) DecodeError!Msg {
 pub const max_active: usize = 32;
 pub const max_passive: usize = 64;
 pub const max_proposals: usize = 4;
+pub const max_ranked: usize = 8;
 
 pub const ActiveEntry = struct {
     desc: PeerDesc,
@@ -252,6 +262,13 @@ const Proposal = struct {
     deadline_us: u64,
 };
 
+/// One locality-ranked candidate: a peer whose RTT we know, preferred
+/// for active-slot occupancy up to `ranked_slots` peers.
+pub const Ranked = struct {
+    id: PeerId,
+    rtt_us: u64,
+};
+
 pub const Overlay = struct {
     const Self = @This();
 
@@ -263,6 +280,7 @@ pub const Overlay = struct {
         promotions_proposed: u64 = 0,
         evictions: u64 = 0,
         disconnects_received: u64 = 0,
+        ranked_displacements: u64 = 0,
     };
 
     self: PeerDesc,
@@ -272,6 +290,12 @@ pub const Overlay = struct {
     active_len: usize = 0,
     passive: [max_passive]PeerDesc = undefined,
     passive_len: usize = 0,
+
+    /// The bounded locality minority (see Config.ranked_slots):
+    /// lowest-RTT peers, refreshed by `notePeerRtt`, dropped by
+    /// `purge` or displacement by a better candidate.
+    ranked: [max_ranked]Ranked = undefined,
+    ranked_len: usize = 0,
 
     join: ?JoinState = null,
     proposals: [max_proposals]Proposal = undefined,
@@ -293,6 +317,7 @@ pub const Overlay = struct {
         std.debug.assert(cfg.passive_max <= max_passive);
         std.debug.assert(cfg.shuffle_active + cfg.shuffle_passive <= max_sample_descs);
         std.debug.assert(cfg.forward_join_ttl >= 1);
+        std.debug.assert(cfg.ranked_slots <= max_ranked);
         return .{
             .self = self_desc,
             .cfg = cfg,
@@ -331,6 +356,19 @@ pub const Overlay = struct {
             if (p.desc.id.eql(id)) return i;
         }
         return null;
+    }
+
+    fn inRanked(o: *const Self, id: PeerId) ?usize {
+        for (o.ranked[0..o.ranked_len], 0..) |r, i| {
+            if (r.id.eql(id)) return i;
+        }
+        return null;
+    }
+
+    fn removeRankedAt(o: *Self, i: usize) void {
+        std.debug.assert(i < o.ranked_len);
+        o.ranked[i] = o.ranked[o.ranked_len - 1];
+        o.ranked_len -= 1;
     }
 
     /// Soonest deadline among all armed timers (an absolute time on
@@ -418,7 +456,7 @@ pub const Overlay = struct {
                     out.push(.{ .send = .{ .to = from, .msg = .join_ack, .class = .reliable } });
                     return;
                 }
-                if (o.active_len >= o.cfg.active_max) o.evictRandomActive(rng, out);
+                // addActive owns full-view eviction (ranked-aware).
                 o.addActive(desc, now, rng, out);
                 out.push(.{ .send = .{ .to = from, .msg = .join_ack, .class = .reliable } });
                 const fj: Msg = .{ .forward_join = .{ .joiner = desc, .ttl = o.cfg.forward_join_ttl } };
@@ -463,7 +501,9 @@ pub const Overlay = struct {
                 }
                 const has_room = o.active_len < o.cfg.active_max;
                 if (has_room or nb.urgent) {
-                    if (!has_room) o.evictRandomActive(rng, out);
+                    // addActive owns full-view eviction (ranked-aware:
+                    // an urgent ranked newcomer displaces the worst
+                    // ranked active, an urgent random one a random).
                     o.addActive(nb.desc, now, rng, out);
                     out.push(.{ .send = .{ .to = from, .msg = .neighbor_accept, .class = .reliable } });
                 } else {
@@ -591,12 +631,46 @@ pub const Overlay = struct {
         o.addPassive(desc);
     }
 
+    /// Feed an observed RTT for a peer (0 = unknown, ignored). The
+    /// bounded ranked set holds the `ranked_slots` lowest-RTT peers —
+    /// the locality minority that gets promotion preference and may
+    /// displace only each other. Entries survive demotions (a ranked
+    /// passive peer is a preferred promotion candidate); they leave
+    /// via `purge` or displacement by a better candidate.
+    pub fn notePeerRtt(o: *Self, id: PeerId, rtt_us: u64) void {
+        if (rtt_us == 0) return;
+        if (id.eql(o.self.id)) return;
+        if (o.cfg.ranked_slots == 0) return;
+        for (o.ranked[0..o.ranked_len]) |*r| {
+            if (r.id.eql(id)) {
+                r.rtt_us = rtt_us;
+                return;
+            }
+        }
+        if (o.ranked_len < o.cfg.ranked_slots) {
+            o.ranked[o.ranked_len] = .{ .id = id, .rtt_us = rtt_us };
+            o.ranked_len += 1;
+            return;
+        }
+        // Full: displace the worst ranked peer when the newcomer
+        // beats it — the set stays the best-known minority.
+        var worst: usize = 0;
+        for (o.ranked[0..o.ranked_len], 0..) |r, i| {
+            if (r.rtt_us > o.ranked[worst].rtt_us) worst = i;
+        }
+        if (rtt_us < o.ranked[worst].rtt_us) {
+            o.ranked[worst] = .{ .id = id, .rtt_us = rtt_us };
+            o.stats.ranked_displacements += 1;
+        }
+    }
+
     /// Drop a peer from the passive view and cancel any outstanding
-    /// promotion proposal toward it (idempotent). Used when SWIM
-    /// confirms the peer dead.
+    /// promotion proposal or ranking toward it (idempotent). Used
+    /// when SWIM confirms the peer dead.
     pub fn purge(o: *Self, id: PeerId) void {
         if (o.inPassive(id)) |i| o.removePassiveAt(i);
         if (o.proposedIdx(id)) |i| o.removeProposalAt(i, false);
+        if (o.inRanked(id)) |i| o.removeRankedAt(i);
     }
 
     // --- internal -----------------------------------------------------------------
@@ -624,12 +698,12 @@ pub const Overlay = struct {
     }
 
     /// Single chokepoint for active insertion: dedupes, detaches from
-    /// passive and proposals, evicts a random member when full.
+    /// passive and proposals, evicts when full.
     fn addActive(o: *Self, desc: PeerDesc, now: u64, rng: std.Random, out: *Effects) void {
         if (desc.id.eql(o.self.id)) return;
         if (o.inActive(desc.id) != null) return;
         if (o.active_len >= o.cfg.active_max) {
-            o.evictRandomActive(rng, out);
+            o.evictForEntry(desc.id, rng, out);
         }
         if (o.inPassive(desc.id)) |pi| o.removePassiveAt(pi);
         if (o.proposedIdx(desc.id)) |pi| o.removeProposalAt(pi, false);
@@ -637,13 +711,44 @@ pub const Overlay = struct {
         o.active_len += 1;
     }
 
+    /// Choose whom an incoming active member displaces when the view
+    /// is full. A RANKED newcomer displaces the worst ranked ACTIVE
+    /// member — locality churns within its own minority. Everyone
+    /// else keeps the paper's uniform random eviction, so ranking can
+    /// only ever occupy its bounded minority of the view.
+    fn evictForEntry(o: *Self, incoming: PeerId, rng: std.Random, out: *Effects) void {
+        if (o.cfg.ranked_slots > 0 and o.inRanked(incoming) != null) {
+            var worst_active: ?usize = null;
+            var worst_rtt: u64 = 0;
+            for (o.active[0..o.active_len], 0..) |e, i| {
+                const ri = o.inRanked(e.desc.id) orelse continue;
+                if (worst_active == null or o.ranked[ri].rtt_us > worst_rtt) {
+                    worst_active = i;
+                    worst_rtt = o.ranked[ri].rtt_us;
+                }
+            }
+            if (worst_active) |i| {
+                o.evictActiveAt(i, out);
+                o.stats.ranked_displacements += 1;
+                return;
+            }
+        }
+        o.evictRandomActive(rng, out);
+    }
+
     fn evictRandomActive(o: *Self, rng: std.Random, out: *Effects) void {
         std.debug.assert(o.active_len > 0);
         const i = rng.uintLessThan(usize, o.active_len);
+        o.evictActiveAt(i, out);
+    }
+
+    /// Remove active slot `i` with the paper's demotion courtesy:
+    /// both sides park the other in passive, DISCONNECT notifies.
+    fn evictActiveAt(o: *Self, i: usize, out: *Effects) void {
+        std.debug.assert(i < o.active_len);
         const victim = o.active[i].desc;
         o.removeActiveAt(i);
         o.stats.evictions += 1;
-        // Both sides park the other in passive.
         o.addPassive(victim);
         out.push(.{ .send = .{
             .to = victim.id,
@@ -717,6 +822,25 @@ pub const Overlay = struct {
 
     fn pickPromotionCandidate(o: *const Self, rng: std.Random) ?PeerDesc {
         if (o.passive_len == 0) return null;
+        // Locality first: the lowest-RTT ranked peer that is a dialable
+        // passive candidate (ranked peers already active need nothing;
+        // ranked peers outside both views are re-filed by the driver's
+        // alive sweep before they can be proposed).
+        if (o.cfg.ranked_slots > 0) {
+            var best: ?PeerDesc = null;
+            var best_rtt: u64 = std.math.maxInt(u64);
+            for (o.ranked[0..o.ranked_len]) |r| {
+                const pi = o.inPassive(r.id) orelse continue;
+                const d = o.passive[pi];
+                if (d.addr == .none) continue;
+                if (o.proposedIdx(r.id) != null) continue;
+                if (r.rtt_us < best_rtt) {
+                    best = d;
+                    best_rtt = r.rtt_us;
+                }
+            }
+            if (best) |d| return d;
+        }
         const start = rng.uintLessThan(usize, o.passive_len);
         // First pass: dialable (has an address), no outstanding proposal.
         var probe: usize = 0;
@@ -794,6 +918,7 @@ pub const Overlay = struct {
         std.debug.assert(o.active_len <= o.cfg.active_max);
         std.debug.assert(o.passive_len <= o.cfg.passive_max);
         std.debug.assert(o.proposals_len <= max_proposals);
+        std.debug.assert(o.ranked_len <= o.cfg.ranked_slots);
 
         var i: usize = 0;
         while (i < o.active_len) : (i += 1) {
@@ -811,6 +936,15 @@ pub const Overlay = struct {
                 std.debug.assert(!o.passive[i].id.eql(o.passive[j].id));
             }
         }
+        i = 0;
+        while (i < o.ranked_len) : (i += 1) {
+            std.debug.assert(!o.ranked[i].id.eql(o.self.id));
+            std.debug.assert(o.ranked[i].rtt_us > 0);
+            var j = i + 1;
+            while (j < o.ranked_len) : (j += 1) {
+                std.debug.assert(!o.ranked[i].id.eql(o.ranked[j].id));
+            }
+        }
         for (o.active[0..o.active_len]) |e| {
             std.debug.assert(o.inPassive(e.desc.id) == null);
         }
@@ -818,6 +952,13 @@ pub const Overlay = struct {
             std.debug.assert(!p.desc.id.eql(o.self.id));
             std.debug.assert(o.inActive(p.desc.id) == null);
         }
+        // The structural random-majority guarantee: ranking can never
+        // occupy more than its bounded minority of the active view.
+        var ranked_active: usize = 0;
+        for (o.active[0..o.active_len]) |e| {
+            if (o.inRanked(e.desc.id) != null) ranked_active += 1;
+        }
+        std.debug.assert(ranked_active <= o.cfg.ranked_slots);
     }
 };
 
@@ -1159,7 +1300,7 @@ test "view invariants survive a randomized operation storm" {
     var i: usize = 0;
     while (i < 5000) : (i += 1) {
         t += rng.uintLessThan(u64, 100_000);
-        const choice = rng.uintLessThan(u8, 10);
+        const choice = rng.uintLessThan(u8, 12);
         const who = descOf(rng.int(u64));
         switch (choice) {
             0 => o.handle(who.id, .{ .join = who }, t, rng, &fx),
@@ -1175,11 +1316,87 @@ test "view invariants survive a randomized operation storm" {
             },
             8 => o.onSessionDown(who.id, t),
             9 => o.tick(t, rng, &fx),
+            10 => o.notePeerRtt(who.id, rng.uintLessThan(u64, 500_000) + 1),
+            11 => o.purge(who.id),
             else => unreachable,
         }
         o.checkInvariants();
         fx.clear();
     }
+}
+
+test "ranked minority: best-rtt set, capped, purged, and never displacing random actives" {
+    var o = Overlay.init(descOf(1100), .{ .active_max = 3, .active_min = 3, .ranked_slots = 2 }, 0);
+    var fx: Effects = .{};
+    const rng = testRng();
+
+    // RTT=0 (unknown) is ignored; self is ignored.
+    const a = descOf(1101);
+    o.notePeerRtt(a.id, 0);
+    o.notePeerRtt(o.self.id, 10_000);
+    try testing.expectEqual(@as(usize, 0), TestHooks.rankedSlice(&o).len);
+
+    // Fill the ranked set: two best win; the worst is displaced by a
+    // better newcomer.
+    const b = descOf(1102);
+    const c = descOf(1103);
+    const d = descOf(1104);
+    o.notePeerRtt(a.id, 100_000);
+    o.notePeerRtt(b.id, 200_000);
+    o.notePeerRtt(c.id, 50_000); // displaces b (200ms)
+    try testing.expectEqual(@as(usize, 2), TestHooks.rankedSlice(&o).len);
+    for (TestHooks.rankedSlice(&o)) |r| {
+        try testing.expect(!r.id.eql(b.id));
+    }
+    o.notePeerRtt(d.id, 300_000); // worse than both: ignored
+    try testing.expectEqual(@as(usize, 2), TestHooks.rankedSlice(&o).len);
+
+    // Purge drops the entry (SWIM confirm).
+    o.purge(c.id);
+    try testing.expectEqual(@as(usize, 1), TestHooks.rankedSlice(&o).len);
+
+    // Displacement discipline: view full of random actives + one
+    // ranked active; a ranked newcomer must displace the RANKED
+    // member, never a random one.
+    o.notePeerRtt(c.id, 50_000);
+    const r1 = descOf(1105);
+    const r2 = descOf(1106);
+    o.handle(r1.id, .{ .join = r1 }, 1, rng, &fx);
+    o.handle(r2.id, .{ .join = r2 }, 2, rng, &fx);
+    o.handle(a.id, .{ .join = a }, 3, rng, &fx); // a is ranked
+    try testing.expectEqual(@as(usize, 3), o.active_len);
+    try testing.expect(o.inActive(a.id) != null);
+
+    fx.clear();
+    o.handle(c.id, .{ .neighbor = .{ .desc = c, .urgent = true } }, 4, rng, &fx); // c ranked, better rtt
+    try testing.expectEqual(@as(usize, 3), o.active_len);
+    try testing.expect(o.inActive(c.id) != null); // ranked newcomer in
+    try testing.expect(o.inActive(a.id) == null); // ranked member out
+    try testing.expect(o.inActive(r1.id) != null); // random majority intact
+    try testing.expect(o.inActive(r2.id) != null);
+    try testing.expect(o.stats.ranked_displacements >= 1);
+    o.checkInvariants();
+
+    // Promotion preference: with the view under active_min, the best
+    // ranked passive candidate is proposed first — deterministically,
+    // regardless of what the uniform scan would have drawn (b sits in
+    // passive as the decoy; it never enters the set at 200ms).
+    fx.clear();
+    TestHooks.addPassive(&o, b);
+    o.onSessionDown(c.id, 5); // 2 actives < active_min 3: scan armed
+    o.tick(5, rng, &fx);
+    var proposed: ?PeerId = null;
+    for (fx.slice()) |e| switch (e) {
+        .send => |s| {
+            if (s.msg == .neighbor) proposed = s.to;
+        },
+        else => {},
+    };
+    // Best dialable ranked passive not already active/proposed: c
+    // (50ms) beats a (100ms) beats the unranked decoy b (200ms).
+    try testing.expect(proposed != null);
+    try testing.expect(proposed.?.eql(c.id));
+    o.checkInvariants();
 }
 
 // Test-only hooks so tests can stage state without going through the
@@ -1190,5 +1407,9 @@ pub const TestHooks = struct {
     }
     pub fn proposalsLen(o: *const Overlay) usize {
         return o.proposals_len;
+    }
+    /// The current locality minority (assertion surface for scenarios).
+    pub fn rankedSlice(o: *const Overlay) []const Ranked {
+        return o.ranked[0..o.ranked_len];
     }
 };

@@ -16,8 +16,10 @@
 //! Cross-protocol coupling lives HERE, never inside the cores: session
 //! establishment feeds SWIM's member table (`observe`) and is direct
 //! liveness evidence (`noteSessionAlive` — an authenticated handshake
-//! with a member held suspect/dead resurrects it), and SWIM CONFIRM
-//! purges the overlay's passive view (`overlay.purge`).
+//! with a member held suspect/dead resurrects it); SWIM CONFIRM purges
+//! the overlay's passive view (`overlay.purge`); SWIM's measured member
+//! RTTs feed the overlay's locality ranking (`overlay.notePeerRtt` —
+//! the ranked active-slot minority).
 //!
 //! Transport contract (comptime duck-typed):
 //!
@@ -246,8 +248,11 @@ pub fn Node(comptime Transport: type) type {
             // transport layer closes the connection when SWIM
             // confirms; see Endpoint.service) and the broadcast tree
             // drops them; alive members with dialable addresses the
-            // views have forgotten re-enter the passive view. All
-            // idempotent — the full sweep is the honest cheap thing.
+            // views have forgotten re-enter the passive view; measured
+            // member RTTs feed the overlay's locality ranking (the
+            // ranked minority — plumtree inherits locality through the
+            // active view). All idempotent — the full sweep is the
+            // honest cheap thing.
             for (self.swim.memberSlice()) |m| {
                 switch (m.state) {
                     .dead => {
@@ -257,15 +262,16 @@ pub fn Node(comptime Transport: type) type {
                         self.overlay.purge(m.desc.id);
                         self.broadcast.removePeer(m.desc.id);
                     },
-                    .alive => {
-                        if (m.desc.addr != .none and
+                    .alive, .suspect => {
+                        if (m.state == .alive and
+                            m.desc.addr != .none and
                             self.overlay.inActive(m.desc.id) == null and
                             self.overlay.inPassive(m.desc.id) == null)
                         {
                             self.overlay.notePeer(m.desc);
                         }
+                        if (m.rtt_us > 0) self.overlay.notePeerRtt(m.desc.id, m.rtt_us);
                     },
-                    .suspect => {},
                 }
             }
         }

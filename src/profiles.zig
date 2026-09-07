@@ -21,8 +21,15 @@ pub const Profile = struct {
 /// 50-300ms; machine live-migrations pause for hundreds of ms up to a
 /// few seconds. Probe budgets sit above 2x worst RTT; the suspicion
 /// window sits at ~3x a pessimistic migration pause so a migration
-/// costs at most one suspicion cycle, never a CONFIRM. Validated by
-/// the "fly migration pause" simulator scenario.
+/// costs at most one suspicion cycle, never a CONFIRM. Per-member
+/// RTT budgets (SWIM's direct-ACK sampling) extend timers past these
+/// floors for slower pairs, so the floors only bound the FASTEST
+/// detection. 3 of the 10 overlay slots are locality-ranked (lowest
+/// RTT peers; the broadcast tree inherits the locality through the
+/// active view) while 7 stay uniformly random — the small-world
+/// majority that keeps a multi-region cluster one component.
+/// Validated by the "fly migration pause" and "two regions"
+/// simulator scenarios.
 pub const fly_multi_region: Profile = .{
     .overlay = .{
         .active_max = 10,
@@ -32,6 +39,7 @@ pub const fly_multi_region: Profile = .{
         .neighbor_timeout_us = 2_000_000,
         .join_timeout_us = 3_000_000,
         .active_rotate_period_us = 60_000_000,
+        .ranked_slots = 3,
     },
     .swim = .{
         .probe_period_us = 1_000_000,

@@ -26,6 +26,12 @@ pub const Policy = struct {
     /// A dial that has not completed after this long is considered
     /// abandoned (a fresh `connect` may re-dial).
     dial_retry_us: u64 = 25_000,
+    /// Zone-shaped latency (multi-region clusters): when nonzero,
+    /// per-message delay is determined by the zones of the endpoints
+    /// (World.setZone) instead of the uniform [min,max] draw —
+    /// deterministic, no link RNG. 0 disables zone shaping.
+    zone_intra_delay_us: u64 = 0,
+    zone_cross_delay_us: u64 = 0,
 };
 
 pub const EventKind = union(enum) {
