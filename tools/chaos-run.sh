@@ -52,11 +52,13 @@ ctl() { # node-index command...
   printf '%s' "$*" | nc -u -w1 "::1" $((CTL + i + 1)) >/dev/null 2>&1 || true
 }
 
-rnd() { # seed-driven random in [0, $1)
-  awk -v s=$((SEED * 100003 + RANDOM_CALLS)) -v m="$1" 'BEGIN { srand(s); print int(rand() * m) }'
+# Seed-driven xorshift stream (linear seed mixing correlated victims —
+# campaign 1 hammered one node; see chaos-design.md).
+RS=$SEED
+nrnd() { # random in [0, $1)
+  RS=$(( (RS ^ (RS << 13)) & 0x7fffffff )); RS=$(( (RS ^ (RS >> 17)) & 0x7fffffff )); RS=$(( (RS ^ (RS << 5)) & 0x7fffffff ))
+  echo $(( RS % $1 ))
 }
-RANDOM_CALLS=0
-nrnd() { RANDOM_CALLS=$((RANDOM_CALLS + 1)); rnd "$1"; }
 
 for i in $(seq 0 $((N - 1))); do start_node "$i"; sleep 0.5; done
 echo "$(date +%H:%M:%S) campaign start: $N nodes, seed=$SEED, ${MINUTES}min" | tee -a "$OUT/report.txt"

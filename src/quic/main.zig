@@ -206,6 +206,8 @@ const Runtime = struct {
     publish_interval_us: u64,
     next_publish_us: u64,
     publish_count: u64 = 0,
+    last_probes: u64 = 0,
+    stall_intervals: u8 = 0,
 
     fn onIteration(ctx: ?*anyopaque, r: *qmesh_quic.Runner, now_us: u64) anyerror!void {
         _ = r;
@@ -228,7 +230,19 @@ const Runtime = struct {
     }
 
     fn logMetrics(rt: *Runtime) void {
-        const m = rt.runner.endpoint().metrics();
+        const ep = rt.runner.endpoint();
+        const probes_now = ep.node.swim.stats.probes_sent;
+        if (probes_now == rt.last_probes and ep.node.swim.memberSlice().len > 0) {
+            rt.stall_intervals += 1;
+            if (rt.stall_intervals >= 3) {
+                var pbuf: [64]u8 = undefined;
+                std.debug.print("PROBE-STALL {s}\n", .{ep.node.swim.probeDebug(&pbuf)});
+            }
+        } else {
+            rt.stall_intervals = 0;
+        }
+        rt.last_probes = probes_now;
+        const m = ep.metrics();
         std.debug.print(
             "metrics alive={d} suspect={d} dead={d} active={d} passive={d} ranked={d} eager={d} lazy={d} sess={d} lh={d} rtt_min={d}us rtt_max={d}us " ++
                 "probes={d} acks_tx={d} acks_rx={d} suspects={d} confirms={d} frames_tx={d} frames_rx={d} sends_failed={d} closes={d}\n",

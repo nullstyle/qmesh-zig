@@ -449,6 +449,17 @@ pub const Swim = struct {
         return null;
     }
 
+    /// Human-readable probe-engine state for stall diagnosis (the
+    /// chaos campaign caught a post-freeze seizure; this is the
+    /// inspection surface). Caller-owned buffer.
+    pub fn probeDebug(s: *const Self, buf: []u8) []const u8 {
+        if (s.probe) |p| {
+            const phase = if (p.phase == .direct) "direct" else "indirect";
+            return std.fmt.bufPrint(buf, "probe={s} deadline_in={d}us", .{ phase, p.deadline_us -| s.cfg.probe_period_us }) catch "probe=?";
+        }
+        return std.fmt.bufPrint(buf, "probe=null next_probe_in={d}us", .{s.next_probe_us}) catch "probe=null";
+    }
+
     pub fn stateOf(s: *const Self, id: PeerId) ?MemberState {
         const i = s.find(id) orelse return null;
         return s.members[i].state;
@@ -779,6 +790,21 @@ pub const Swim = struct {
     pub fn tick(s: *Self, now: u64, rng: std.Random, out: *Effects) void {
         // Active probe phases.
         if (s.probe) |*p| {
+            // Re-clamp the armed deadline every tick: the budget that
+            // armed it may have been Lifeguard-inflated by a stall
+            // that has since healed. Without this a post-freeze probe
+            // sits armed for 2^lh × the floor while lh has already
+            // decayed — the chaos campaign's "probe seizure" (a probe
+            // 108s out on a clean 4.7ms link, engine silent, node
+            // answering everyone else).
+            if (s.find(p.target)) |ti| {
+                const budget = if (p.phase == .direct)
+                    s.directBudgetFor(s.members[ti])
+                else
+                    s.indirectBudgetFor(s.members[ti]);
+                const clamped = now + budget;
+                if (clamped < p.deadline_us) p.deadline_us = clamped;
+            }
             if (now >= p.deadline_us) {
                 switch (p.phase) {
                     .direct => {
@@ -1044,16 +1070,29 @@ pub const Swim = struct {
                         const started_us = p.started_us;
                         s.probe = null;
                         // RTT sample: a direct ACK from the target times
-                        // the PING this probe sent (phase-independent —
-                        // a late direct ACK still measures the original
-                        // send). Relayed ACKs (from != target) are not
-                        // samples of OUR path.
+                        // the PING this probe sent. Relayed ACKs
+                        // (from != target) are not samples of OUR path.
+                        // A sample beyond the Lifeguard-scaled probe
+                        // floor measured OUR stall (freeze, scheduler
+                        // gap), not the network — discard it: letting
+                        // it into the EMA inflates every rtt-keyed
+                        // budget (the chaos campaign caught a seized
+                        // probe with a 110s deadline from compounded
+                        // freeze-gap samples).
                         if (from.eql(target)) {
                             if (s.find(target)) |ti| {
                                 const sample = now -| started_us;
                                 const cur = s.members[ti].rtt_us;
-                                s.members[ti].rtt_us =
-                                    if (cur == 0) sample else (cur + sample) / 2;
+                                if (sample > s.scaledProbeTimeout()) {
+                                    // ours, not the network's
+                                } else if (cur > sample * 4) {
+                                    // wildly-stale EMA (post-pollution
+                                    // recovery): snap, don't average.
+                                    s.members[ti].rtt_us = sample;
+                                } else {
+                                    s.members[ti].rtt_us =
+                                        if (cur == 0) sample else (cur + sample) / 2;
+                                }
                             }
                         }
                         var inc = m.incarnation;
@@ -1563,6 +1602,35 @@ test "ta: distinct corroboration halves the suspicion window; duplicates do not"
     _ = s.apply(.{ .alive = .{ .desc = x, .incarnation = 1 } }, 5);
     s.sweepSusMeta();
     try testing.expectEqual(@as(usize, 0), s.sus_meta_len);
+}
+
+test "rtt: freeze-gap samples are discarded; stale EMA snaps back" {
+    var s = Swim.init(descOf(150), .{}, 0);
+    var fx: Effects = .{};
+    const rng = testRng();
+    const target = descOf(151);
+    s.observe(target, 0);
+
+    // Healthy sample first.
+    s.tick(s.cfg.probe_period_us, rng, &fx);
+    const started1 = s.probe.?.started_us;
+    s.handle(target.id, .{ .ack = .{ .nonce = s.probe.?.nonce, .incarnation = 0, .events = &.{} } }, started1 + 5_000, rng, &fx);
+    try testing.expectEqual(@as(u64, 5_000), s.rttOf(target.id));
+
+    // Freeze-shaped late ack: a sample far beyond the probe floor must
+    // NOT enter the EMA.
+    s.tick(started1 + s.cfg.probe_period_us, rng, &fx);
+    const started2 = s.probe.?.started_us;
+    s.handle(target.id, .{ .ack = .{ .nonce = s.probe.?.nonce, .incarnation = 0, .events = &.{} } }, started2 + 30_000_000, rng, &fx);
+    try testing.expectEqual(@as(u64, 5_000), s.rttOf(target.id));
+
+    // Polluted-then-clean recovery: force a stale EMA; one clean
+    // sample snaps it instead of averaging down over many probes.
+    s.members[s.find(target.id).?].rtt_us = 55_000_000;
+    s.tick(started2 + 2 * s.cfg.probe_period_us, rng, &fx);
+    const started3 = s.probe.?.started_us;
+    s.handle(target.id, .{ .ack = .{ .nonce = s.probe.?.nonce, .incarnation = 0, .events = &.{} } }, started3 + 6_000, rng, &fx);
+    try testing.expectEqual(@as(u64, 6_000), s.rttOf(target.id));
 }
 
 test "buddies: silence majority grows local health; rotation stays bounded" {

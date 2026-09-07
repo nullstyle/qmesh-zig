@@ -115,15 +115,21 @@ Invariants 1-4 and 6 passed (full re-convergence in the heal window,
    processes a socket backlog of peer Initials; each half-open
    handshake slot carries a full TLS context).
 
-2. **Probe-engine seizure, same node.** After its late restart,
-   `probes_sent` froze at 38 for the remaining ~100s while
-   `acks_tx` kept climbing (it answered ~1.1 peer pings/s) and
-   `acks_rx` froze — the node stopped probing entirely while
-   otherwise healthy (alive=11 via ingress piggyback). Same family
-   as the 0758b64 livelock class (probe-family deadlines). Repro
-   path: fresh node, freeze mid-probe repeatedly, inspect
-   `swim.probe` (phase/deadline) and `nextDeadline()` when it
-   seizes.
+2. **Probe-engine seizure, same node — FIXED.** After its late
+   restart, `probes_sent` froze while `acks_tx` kept climbing: the
+   node stopped probing entirely while otherwise healthy. Root cause
+   (reproduced deterministically with a freeze storm + a stall
+   detector in the metrics loop): a probe armed while Lifeguard
+   local-health was stall-inflated bakes in a 2^lh × floor deadline
+   (~100s at lh=7); lh then decays but the armed deadline never
+   re-evaluates, so the engine sits silent on a clean link. Fix:
+   every tick re-clamps the armed deadline to now + the CURRENT
+   budget. A second contaminant found on the way: freeze-gap ACKs
+   sampled as multi-second "RTT" polluted the EMA and inflated every
+   rtt-keyed budget — samples beyond the Lifeguard-scaled floor are
+   now discarded, and a wildly-stale EMA snaps to the next clean
+   sample. Verified: the same freeze storm that seized five times
+   now runs stall-free with probes resuming after heal.
 
 Driver fix needed before deeper campaigns: the awk victim draws
 correlate on some seeds (linear seed mixing) — hammering one node;
