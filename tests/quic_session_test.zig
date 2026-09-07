@@ -142,6 +142,14 @@ test "two-node JOIN over real QUIC with mutual TLS" {
     try testing.expect(b.stats.hellos_received >= 1);
     try testing.expect(a.stats.stream_frames_received >= 1); // HELLO + JOIN rode streams
 
+    // Whole-node metrics over the real transport: the snapshot sees
+    // both layers (protocol counters + transport gauges).
+    const a_metrics = a.metrics();
+    try testing.expectEqual(@as(usize, 1), a_metrics.transport.established);
+    try testing.expect(a_metrics.transport.hellos_received >= 1);
+    try testing.expect(a_metrics.mesh.driver.frames_received >= 1); // the JOIN
+    try testing.expectEqual(@as(usize, 1), a_metrics.mesh.overlay.active);
+
     // Drive past one shuffle period: the ephemeral class (DATAGRAM)
     // must carry SHUFFLE/SHUFFLE_REPLY between the pair.
     while (lb.now_us < 400_000) try lb.step(&driver);

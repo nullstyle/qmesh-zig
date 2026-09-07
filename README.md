@@ -106,6 +106,17 @@ distributed systems. It is **not** an actor runtime.
       two-region simulator scenario (zone-shaped latencies): ranked
       sets converge to same-region peers, the cluster stays one
       component.
+- [x] Metrics snapshot surface (`src/metrics.zig`): one plain-data
+      struct per node aggregating the protocol cores' gauges (view
+      sizes, member states, tree shape, Lifeguard health) and
+      lifetime counters (probe/suspect/confirm, shuffles,
+      displacements, repairs, frame flow, session transitions) —
+      `Node.metrics()` in the core, `qmesh_quic.Endpoint.metrics()`
+      adds the transport counters (dials, accepts, established
+      sessions, identity mismatches, …). Quic's per-connection qlog
+      events wire through `Endpoint.Options.qlog_callback`, installed
+      on every owned connection — the wire-level view beside the
+      protocol-level counters.
 
 ## Architecture
 

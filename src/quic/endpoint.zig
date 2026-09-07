@@ -78,6 +78,13 @@ pub const Options = struct {
     broadcast_cfg: qmesh.plumtree.Config = .{},
     /// Application delivery callbacks (see Node.Hooks).
     hooks: MeshNode.Hooks = .{},
+    /// Optional per-connection quic qlog event sink, installed on
+    /// every connection this endpoint owns — accepted slots at
+    /// handshake completion, dials at connect. The wire-level
+    /// observability channel beside `Endpoint.metrics()`'s
+    /// protocol-level counters.
+    qlog_callback: ?quic.QlogCallback = null,
+    qlog_user_data: ?*anyopaque = null,
     rng_seed: u64 = 0,
     now_us: u64 = 0,
 };
@@ -264,6 +271,9 @@ pub const Endpoint = struct {
     fn handshakeCompleteHook(user_data: ?*anyopaque, slot: *quic.Server.Slot) void {
         const e: *Self = @ptrCast(@alignCast(user_data.?));
         applyPmtuCap(slot.conn, e.opts.pmtu_max);
+        if (e.opts.qlog_callback) |cb| {
+            slot.conn.setQlogCallback(cb, e.opts.qlog_user_data);
+        }
         const digest = slot.conn.peerCertSpkiDigest() orelse {
             // Unreachable with client_ca_pem set (required client
             // certs); treat as a protocol violation and ignore the
@@ -382,6 +392,9 @@ pub const Endpoint = struct {
             .identity_verification = .none,
         });
         applyPmtuCap(cli.conn, e.opts.pmtu_max);
+        if (e.opts.qlog_callback) |cb| {
+            cli.conn.setQlogCallback(cb, e.opts.qlog_user_data);
+        }
         e.stats.dials += 1;
 
         const s = try e.allocator.create(Session);
@@ -684,6 +697,55 @@ pub const Endpoint = struct {
     pub fn sessionCount(e: *const Self) usize {
         return e.sessions.items.len;
     }
+
+    /// Whole-node metrics snapshot: the mesh protocol cores' gauges
+    /// and counters (qmesh.Metrics) plus the transport counters and
+    /// the established-session gauge.
+    pub fn metrics(e: *const Self) EndpointMetrics {
+        var established: usize = 0;
+        for (e.sessions.items) |s| {
+            if (s.state == .established) established += 1;
+        }
+        return .{
+            .mesh = e.node.metrics(),
+            .transport = .{
+                .established = established,
+                .dials = e.stats.dials,
+                .accepts = e.stats.accepts,
+                .hellos_sent = e.stats.hellos_sent,
+                .hellos_received = e.stats.hellos_received,
+                .datagrams_received = e.stats.datagrams_received,
+                .stream_frames_received = e.stats.stream_frames_received,
+                .frames_unresolved = e.stats.frames_unresolved,
+                .sessions_closed = e.stats.sessions_closed,
+                .tiebreaks_lost = e.stats.tiebreaks_lost,
+                .identity_mismatches = e.stats.identity_mismatches,
+            },
+        };
+    }
+
+    /// Transport-level counters beside the mesh snapshot (see
+    /// `Endpoint.metrics`).
+    pub const TransportMetrics = struct {
+        // Gauge.
+        established: usize,
+        // Counters.
+        dials: u64,
+        accepts: u64,
+        hellos_sent: u64,
+        hellos_received: u64,
+        datagrams_received: u64,
+        stream_frames_received: u64,
+        frames_unresolved: u64,
+        sessions_closed: u64,
+        tiebreaks_lost: u64,
+        identity_mismatches: u64,
+    };
+
+    pub const EndpointMetrics = struct {
+        mesh: qmesh.metrics.Metrics,
+        transport: TransportMetrics,
+    };
 
     pub fn establishedWith(e: *const Self, peer: PeerId) bool {
         const s = e.by_peer.get(peer) orelse return false;

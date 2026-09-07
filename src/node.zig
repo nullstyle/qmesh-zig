@@ -292,6 +292,26 @@ pub fn Node(comptime Transport: type) type {
             return best;
         }
 
+        /// Point-in-time metrics snapshot (see `metrics.zig`): the
+        /// cores' gauges and lifetime counters as plain data.
+        pub fn metrics(self: *const Self) @import("metrics.zig").Metrics {
+            return @import("metrics.zig").node(
+                &self.overlay,
+                &self.swim,
+                &self.broadcast,
+                .{
+                    .frames_received = self.stats.frames_received,
+                    .frames_sent = self.stats.frames_sent,
+                    .decode_errors = self.stats.decode_errors,
+                    .unknown_protocol = self.stats.unknown_protocol,
+                    .sends_failed = self.stats.sends_failed,
+                    .connects_issued = self.stats.connects_issued,
+                    .sessions_up = self.stats.sessions_up,
+                    .sessions_down = self.stats.sessions_down,
+                },
+            );
+        }
+
         fn syncBroadcastPeers(self: *Self) void {
             const now = self.transport.now();
             for (self.overlay.activeSlice()) |e| {
@@ -499,4 +519,13 @@ test "node multiplexes swim beside the overlay and purges on confirm" {
     // "dead" member before any probe evidence can cross it).
     node.onSessionUp(victim.id);
     try std.testing.expect(node.swim.stateOf(victim.id) == .alive);
+
+    // Metrics snapshot: gauges mirror the views, counters the flow.
+    const m = node.metrics();
+    try std.testing.expectEqual(@as(usize, 1), m.swim.members_alive);
+    try std.testing.expectEqual(@as(usize, 0), m.overlay.active);
+    try std.testing.expectEqual(@as(u64, 2), m.driver.sessions_up); // initial + resurrection
+    try std.testing.expectEqual(@as(u64, 0), m.driver.sessions_down);
+    try std.testing.expectEqual(@as(u64, 1), m.driver.frames_received);
+    try std.testing.expectEqual(@as(u64, 1), m.driver.frames_sent);
 }
