@@ -150,13 +150,24 @@ half the ACK traffic vanishes on a healthy net (acks_tx ~2x
 acks_rx), starving probes into repeated suspicion->confirm of live
 peers; the dead-sweep tears sessions and the loop repeats.
 
-Leading suspect: QUIC VERSION REGRESSION. Every stability result
-(reset-key ping-pong fix, 94/94/0 probe runs, 6-node convergence)
-was verified against quic-zig HEAD 720443e via the .path dep; 0.1.0
-pinned the v0.21.0 TARBALL, and the churn began on the first fleet
-deployed from that pin. Next steps: (1) reproduce on a local 6-node
-loopback fleet under the tarball pin; (2) diff v0.21.0 vs 720443e
-for stateless-reset-with-null-key and datagram-receive behavior;
-(3) if confirmed, the quic-zig session brief gets the regression
-report. The PROBE-STALL detector is in the deployed binary — grep
-fly logs for it to rule the probe engine in or out.
+Narrowed 2026-09-07 (two local experiments + image archaeology):
+
+- Local 6-node loopback fleet on the CURRENT (tarball-pinned) tree:
+  PERFECT — alive=5, suspect=0, acks_tx==acks_rx exactly. Tarball
+  cleared on a lossless net.
+- Same fleet with 3% injected loss (chaos knobs): still healthy
+  (0-1 transient suspects, balanced acks). Tarball cleared at
+  loopback RTT under loss.
+- Image archaeology: the stable 6-node fly run (04:09) ran image
+  01M1WYAX… built from the pre-pin .path-HEAD tree; the churning
+  fleet (17:41+) runs 01M1YD94G5 built from the v0.21.0 pin. The
+  A/B on real 6pn therefore already exists in the registry.
+
+Remaining difference set: {v0.21.0-vs-HEAD quic} x {real 6pn:
+cross-region RTT + loss + MTU/DPLPMTUD} x {x86_64 codegen — all
+local evidence is arm64}. Decisive next experiment, cheap: redeploy
+image 01M1WYAX to the six machines — churn stops => dependency
+interaction on real networks confirmed => pin back to 720443e (or a
+quic-zig regression brief); churn persists => 6pn/codegen hunt
+(Docker-run the x86_64 build locally to split codegen from
+network).
