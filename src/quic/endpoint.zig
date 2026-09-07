@@ -61,10 +61,13 @@ pub const Options = struct {
     /// SNI + verification name for dials (routing hint only; identity
     /// is cert-bound).
     dial_server_name: []const u8,
-    /// PMTU search ceiling. Overlay networks (WireGuard etc.) shrink
-    /// the effective MTU below the 1452 raw-internet default; DPLPMTUD
-    /// still probes but never past this. 1380 is safe under typical
-    /// WireGuard-in-v6 encapsulation.
+    /// PMTU search ceiling: the maximum IP payload (QUIC packet) size
+    /// DPLPMTUD may probe to. Must fit the deployment path's link MTU
+    /// minus IPv6+UDP headers (48 bytes): fly's 6pn WireGuard interface
+    /// is MTU 1420, so fly deployments cap at 1372 — 1380+ sends
+    /// 1428-byte datagrams that the interface silently drops (found in
+    /// the fly smoke test: ~28% probe loss from full-size packets
+    /// blackholing while small packets passed).
     pmtu_max: u16 = 1380,
     /// Deployment keys. When null, `listen` mints fresh ones from the
     /// CSPRNG — fine for tests, WRONG for production: resets/tokens
@@ -238,7 +241,7 @@ pub const Endpoint = struct {
             .tls_key_pem = e.opts.tls_key_pem,
             .client_ca_pem = e.opts.ca_pem,
             .alpn_protocols = &alpn_protocols,
-            .transport_params = meshTransportParams(),
+            .transport_params = meshTransportParams(e.opts.pmtu_max),
             .max_concurrent_connections = 256,
             .stateless_reset_key = stateless_reset_key,
             .retry_token_key = e.opts.retry_token_key,
@@ -382,7 +385,7 @@ pub const Endpoint = struct {
             .allocator = e.allocator,
             .server_name = e.opts.dial_server_name,
             .alpn_protocols = &alpn_protocols,
-            .transport_params = meshTransportParams(),
+            .transport_params = meshTransportParams(e.opts.pmtu_max),
             .ca_pem = e.opts.ca_pem,
             .client_cert_pem = e.opts.tls_cert_pem,
             .client_key_pem = e.opts.tls_key_pem,
@@ -759,12 +762,14 @@ pub const Endpoint = struct {
     }
 };
 
-pub fn meshTransportParams() quic.Connection.TransportParams {
+pub fn meshTransportParams(pmtu_max: u16) quic.Connection.TransportParams {
     var p = quic.Server.Config.defaultTransportParams();
-    // Advertise a datagram ceiling that fits under the PMTU cap once
-    // framed: frames are <=1152, so 1350 leaves headroom while
-    // bounding what peers may send us.
-    p.max_datagram_frame_size = 1350;
+    // Datagram ceiling derived from the PMTU cap: frames must fit a
+    // full-size packet alongside QUIC header + AEAD overhead (~100
+    // bytes of headroom keeps any frame below the drop threshold).
+    // Never advertise above 1350 (the generic safe ceiling) or below
+    // the QUIC minimum packet size.
+    p.max_datagram_frame_size = @min(@as(u16, 1350), @max(@as(u16, 1200), pmtu_max -| 100));
     return p;
 }
 

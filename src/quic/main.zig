@@ -18,7 +18,11 @@
 //!   qmesh-node --id <64-hex> --bind '[fdxx::1]:4451' \
 //!              --cert node.pem --key node.key --ca ca.pem \
 //!              [--join <64-hex>:<addr> ...] [--metrics-secs 10] \
-//!              [--publish-every <secs>]
+//!              [--publish-every <secs>] [--pmtu-max 1372]
+//!
+//! fly note: the 6pn WireGuard interface is MTU 1420, so fly
+//! deployments pass --pmtu-max 1372 (1420 - 48 v6+UDP headers) —
+//! at the default 1380 full-size packets are silently dropped.
 //!
 //! Runtime observability: a compact metrics line on stderr every
 //! `--metrics-secs` (gauges: member states, views, tree shape,
@@ -197,6 +201,7 @@ pub fn main(init: std.process.Init) !void {
     var ca_path: ?[]const u8 = null;
     var metrics_secs: u64 = 10;
     var publish_secs: u64 = 0;
+    var pmtu_max: u16 = 1380;
     var joins_buf: [8]qmesh.PeerDesc = undefined;
     var joins_len: usize = 0;
 
@@ -225,6 +230,9 @@ pub fn main(init: std.process.Init) !void {
         } else if (std.mem.eql(u8, arg, "--publish-every")) {
             const v = args.next() orelse return badFlag("--publish-every needs a number");
             publish_secs = std.fmt.parseInt(u64, v, 10) catch return error.BadPublishSecs;
+        } else if (std.mem.eql(u8, arg, "--pmtu-max")) {
+            const v = args.next() orelse return badFlag("--pmtu-max needs a number");
+            pmtu_max = std.fmt.parseInt(u16, v, 10) catch return error.BadPmtuMax;
         } else {
             std.debug.print("unknown flag: {s}\n", .{arg});
             printUsage();
@@ -238,6 +246,9 @@ pub fn main(init: std.process.Init) !void {
     }
     if (init.environ_map.get("QMESH_PUBLISH_EVERY")) |v| {
         publish_secs = std.fmt.parseInt(u64, v, 10) catch return error.BadPublishSecs;
+    }
+    if (init.environ_map.get("QMESH_PMTU_MAX")) |v| {
+        pmtu_max = std.fmt.parseInt(u16, v, 10) catch return error.BadPmtuMax;
     }
     if (joins_len == 0) {
         if (init.environ_map.get("QMESH_JOIN")) |joined| {
@@ -277,6 +288,7 @@ pub fn main(init: std.process.Init) !void {
             .tls_key_pem = key,
             .ca_pem = ca,
             .dial_server_name = "qmesh",
+            .pmtu_max = pmtu_max,
             .overlay_cfg = profile.overlay,
             .swim_cfg = profile.swim,
             .broadcast_cfg = profile.broadcast,

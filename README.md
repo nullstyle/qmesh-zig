@@ -338,12 +338,17 @@ openssl x509 -in node.pem -pubkey -noout \
 ```
 
 Deploy one process per fly machine over the 6pn network (bind the
-machine's private v6; PMTU is capped at 1380 for the WireGuard
-encapsulation). Metrics lines carry the gauges to watch in a smoke
-test: `alive`/`suspect`/`dead` (membership agreement), `active`/
+machine's private v6; the 6pn interface is MTU 1420, so fly
+deployments pass `--pmtu-max 1372` — 1420 minus 48 bytes of IPv6+UDP
+headers; at higher caps full-size packets are silently dropped, found
+in the fly smoke test). Metrics lines carry the gauges to watch: 
+`alive`/`suspect`/`dead` (membership agreement), `active`/
 `ranked` (overlay + locality), `sess` (transport), `lh` (Lifeguard
-health — sustained nonzero means the machine is starving the loop).
-Build deploy binaries with `-Doptimize=ReleaseSafe`.
+health — sustained nonzero means the machine is starving the loop),
+`rtt_min`/`rtt_max` (measured peer RTT envelope). Build deploy
+binaries with `-Dtarget=x86_64-linux -Doptimize=ReleaseSafe` (fly
+shared-cpu machines are x86_64). The full two-region smoke procedure
+and its findings live in [deploy/smoke/RUNBOOK.md](deploy/smoke/RUNBOOK.md).
 
 ## Next steps (milestone 2)
 

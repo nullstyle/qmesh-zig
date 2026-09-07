@@ -1,0 +1,11 @@
+# Two-machine fly smoke test (see RUNBOOK.md in this directory).
+# Replace APP with your app name; per-machine QMESH_* env is applied
+# via `fly machine update` after each machine's private 6pn IP is
+# known. NOTE: fly shared-cpu machines are x86_64 — build with
+# -Dtarget=x86_64-linux.
+app = "APP_NAME"
+primary_region = "sjc"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
