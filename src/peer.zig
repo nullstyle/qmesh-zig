@@ -1,12 +1,10 @@
 //! Peer identity and wire-level peer descriptors.
 //!
-//! `PeerId` is the primary key for every table in qmesh. The eventual
-//! production derivation is the SHA-256 digest of the peer's TLS
-//! certificate public key (DER SPKI), which makes it stable across
-//! restarts and independent of addresses. Until quic-zig exposes peer
-//! certificate bytes on a Connection (see README "quic-zig gaps"),
-//! ids are minted by the deployment/simulator; the type is the same
-//! either way.
+//! `PeerId` keys every membership table. Production QUIC adapters derive
+//! it from SHA-256 of the peer leaf certificate's DER SubjectPublicKeyInfo.
+//! It survives certificate renewal with the same key; key rotation creates
+//! a new member. Simulation injects deterministic IDs. Addresses are
+//! contact information, not identity or proof of liveness.
 
 const std = @import("std");
 

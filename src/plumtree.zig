@@ -1,7 +1,7 @@
 //! Plumtree-style epidemic broadcast (pure state machine): eager/lazy
 //! dissemination with lazy repair — the fast path of the design's
 //! "randomized gossip preserves connectivity, direct paths carry
-//! sustained traffic, anti-entropy guarantees repair".
+//! sustained traffic, recent anti-entropy attempts bounded repair".
 //!
 //! Same discipline as `hyparview.zig` / `swim.zig`: explicit `now`/
 //! `rng`, bounded effect lists, no I/O. Peer sets are FED by the node
@@ -76,10 +76,12 @@ pub const msg_type = struct {
 
 pub const MsgId = struct {
     origin: PeerId,
+    /// Unique per origin process lifetime; injected at initialization.
+    epoch: u128 = 0,
     seq: u64,
 
     pub fn eql(a: MsgId, b: MsgId) bool {
-        return a.seq == b.seq and a.origin.eql(b.origin);
+        return a.epoch == b.epoch and a.seq == b.seq and a.origin.eql(b.origin);
     }
 };
 
@@ -95,6 +97,7 @@ pub const max_pending_ihave: usize = 64;
 pub const max_deliveries: usize = 64;
 
 pub const Msg = union(enum) {
+    pub const effect_capacity = max_pending_ihave + max_missing + max_eager + 1;
     /// Full message. (Also the IWANT answer — the effect's class
     /// distinguishes solicited reliable transfer from eager push.)
     gossip: struct { id: MsgId, payload: []const u8 },
@@ -150,6 +153,8 @@ pub fn encode(msg: Msg, buf: []u8) frame.EncodeError![]const u8 {
 
 fn encodeId(w: *frame.Writer, id: MsgId) frame.EncodeError!void {
     try w.putBytes(&id.origin.bytes);
+    try w.putU64(@truncate(id.epoch));
+    try w.putU64(@truncate(id.epoch >> 64));
     try w.putU64(id.seq);
 }
 
@@ -192,6 +197,8 @@ fn decodeId(r: *frame.Reader) plumtree.DecodeError!MsgId {
     const origin = try r.bytes(32);
     var id: MsgId = undefined;
     @memcpy(&id.origin.bytes, origin);
+    id.epoch = try r.readU64();
+    id.epoch |= @as(u128, try r.readU64()) << 64;
     id.seq = try r.readU64();
     return id;
 }
@@ -263,6 +270,7 @@ pub const Plumtree = struct {
     lazy: [max_lazy]PeerId = undefined,
     lazy_len: usize = 0,
 
+    boot_epoch: u128,
     next_seq: u64 = 1,
 
     seen: [seen_cache]MsgId = undefined,
@@ -299,9 +307,12 @@ pub const Plumtree = struct {
     /// only anti-entropy can close it.
     events: evlog.Ring(evlog.default_cap) = .{},
 
-    pub fn init(self_id: PeerId, cfg: Config, now: u64) Self {
+    pub fn init(self_id: PeerId, cfg: Config, now: u64, boot_epoch: u128) Self {
+        std.debug.assert(cfg.missing_timeout_us > 0 and cfg.iwant_timeout_us > 0);
+        std.debug.assert(cfg.ihave_flush_us > 0 and cfg.anti_entropy_period_us > 0);
         return .{
             .self = self_id,
+            .boot_epoch = boot_epoch,
             .cfg = cfg,
             .next_ihave_flush_us = now + cfg.ihave_flush_us,
             .next_anti_entropy_us = now + cfg.anti_entropy_period_us,
@@ -356,11 +367,12 @@ pub const Plumtree = struct {
 
     // --- publish -----------------------------------------------------------
 
-    /// Broadcast a payload. Returns the assigned message id. The
+    /// Accept a payload for bounded dissemination, not acknowledged delivery.
+    /// Returns the complete lifetime-unique message id. The
     /// payload is copied into the bounded cache (for IWANT answers).
     pub fn publish(p: *Self, payload: []const u8, now: u64, out: *Effects) MsgId {
         std.debug.assert(payload.len <= max_payload);
-        const id = MsgId{ .origin = p.self, .seq = p.next_seq };
+        const id = MsgId{ .origin = p.self, .epoch = p.boot_epoch, .seq = p.next_seq };
         p.next_seq += 1;
         p.markSeen(id);
         p.cachePayload(id, payload);
@@ -671,7 +683,7 @@ pub const Plumtree = struct {
                     n += 1;
                     // Piggyback any other missing ids from the same peer.
                     var j: usize = 0;
-                    while (j < p.missing_len and n < max_ids_per_msg) {
+                    while (j < p.missing_len and n < max_ids_per_msg and p.iwants_len < max_iwant) {
                         if (p.missing[j].from.eql(m.from)) {
                             const mm = p.missing[j];
                             p.missing[j] = p.missing[p.missing_len - 1];
@@ -846,8 +858,7 @@ test "codec rejects malformed" {
     var w_buf: [64]u8 = undefined;
     var w = frame.Writer.init(&w_buf);
     try frame.encodeHeader(&w, proto_id, msg_type.gossip);
-    try w.putBytes(&idOf(3).bytes);
-    try w.putU64(1);
+    try encodeId(&w, .{ .origin = idOf(3), .epoch = 2, .seq = 1 });
     try w.putU16(max_payload + 1);
     try testing.expectError(DecodeError.Malformed, decode(w.written(), &scratch));
     // id count beyond bound
@@ -858,7 +869,7 @@ test "codec rejects malformed" {
 }
 
 fn fanoutSetup() struct { p: Plumtree, a: PeerId, b: PeerId, c: PeerId } {
-    var p = Plumtree.init(idOf(10), .{}, 0);
+    var p = Plumtree.init(idOf(10), .{}, 0, 0);
     const a = idOf(11);
     const b = idOf(12);
     const c = idOf(13);
@@ -1084,4 +1095,60 @@ test "invariants: bounded, disjoint, no self" {
         _ = p.takeDeliveries();
         p.checkInvariants();
     }
+}
+
+test "queued effects own distinct ID batches after protocol scratch is reused" {
+    var p = Plumtree.init(idOf(1), .{}, 0, 10);
+    const a = MsgId{ .origin = idOf(1), .epoch = 10, .seq = 11 };
+    const b = MsgId{ .origin = idOf(1), .epoch = 10, .seq = 22 };
+    var fx: Effects = .{};
+    p.addPeer(idOf(2), 0);
+    p.addPeer(idOf(3), 0);
+    p.handle(idOf(2), .prune, 0, &fx);
+    p.handle(idOf(3), .prune, 0, &fx);
+    p.handle(idOf(2), .{ .gossip = .{ .id = a, .payload = "a" } }, 1, &fx);
+    p.handle(idOf(3), .{ .gossip = .{ .id = b, .payload = "b" } }, 2, &fx);
+    var prng = std.Random.DefaultPrng.init(4);
+    p.tick(50_000, prng.random(), &fx);
+    try testing.expectEqual(@as(usize, 2), fx.len);
+    try testing.expectEqual(@as(u64, 11), fx.items[0].send.msg.ihave.items[0].seq);
+    try testing.expectEqual(@as(u64, 22), fx.items[1].send.msg.ihave.items[0].seq);
+}
+
+test "same certificate across boots produces distinct complete message IDs" {
+    var before = Plumtree.init(idOf(1), .{}, 0, 123);
+    var after = Plumtree.init(idOf(1), .{}, 0, 456);
+    var receiver = Plumtree.init(idOf(2), .{}, 0, 789);
+    var fx: Effects = .{};
+    const first = before.publish("before", 0, &fx);
+    const second = after.publish("after", 0, &fx);
+    try testing.expect(!first.eql(second));
+    receiver.handle(idOf(1), .{ .gossip = .{ .id = first, .payload = "before" } }, 0, &fx);
+    _ = receiver.takeDeliveries();
+    receiver.handle(idOf(1), .{ .gossip = .{ .id = second, .payload = "after" } }, 1, &fx);
+    try testing.expectEqual(@as(usize, 1), receiver.takeDeliveries().len);
+}
+
+test "bounded dissemination reports its retention limits through behavior" {
+    var p = Plumtree.init(idOf(1), .{}, 0, 123);
+    var fx: Effects = .{};
+    const old = p.publish("old", 0, &fx);
+    for (0..seen_cache) |_| _ = p.publish("new", 0, &fx);
+    try testing.expect(!p.seenId(old));
+    try testing.expect(p.cachedPayload(old) == null);
+    p.handle(idOf(2), .{ .iwant = .{ .items = &.{old} } }, 1, &fx);
+    for (fx.slice()) |effect| if (effect == .send) {
+        try testing.expect(effect.send.msg != .gossip); // evicted data cannot be repaired
+    };
+    fx.clear();
+    p.handle(idOf(2), .{ .gossip = .{ .id = old, .payload = "old" } }, 2, &fx);
+    try testing.expectEqual(@as(usize, 1), p.takeDeliveries().len); // dedupe is bounded too
+}
+
+test "maximum eager peer fanout fits the effect budget" {
+    var p = Plumtree.init(idOf(1), .{}, 0, 1);
+    for (0..max_eager) |i| p.addPeer(idOf(i + 2), 0);
+    var fx: Effects = .{};
+    _ = p.publish("fanout", 0, &fx);
+    try testing.expectEqual(max_eager, fx.len);
 }

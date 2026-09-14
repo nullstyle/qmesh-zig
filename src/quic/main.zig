@@ -281,16 +281,16 @@ const Runtime = struct {
             "metrics alive={d} suspect={d} dead={d} active={d} passive={d} ranked={d} eager={d} lazy={d} sess={d} lh={d} rtt_min={d}us rtt_max={d}us " ++
                 "probes={d} acks_tx={d} acks_rx={d} suspects={d} confirms={d} frames_tx={d} frames_rx={d} sends_failed={d} closes={d}\n",
             .{
-                m.mesh.swim.members_alive,      m.mesh.swim.members_suspect,
-                m.mesh.swim.members_dead,       m.mesh.overlay.active,
-                m.mesh.overlay.passive,         m.mesh.overlay.ranked,
-                m.mesh.broadcast.eager_peers,   m.mesh.broadcast.lazy_peers,
-                m.transport.established,        m.mesh.swim.local_health,
-                m.mesh.swim.rtt_min_us,         m.mesh.swim.rtt_max_us,
-                m.mesh.swim.probes_sent,        m.mesh.swim.acks_sent,
-                m.mesh.swim.acks_received,      m.mesh.swim.suspects_declared,
-                m.mesh.swim.confirms_declared,  m.mesh.driver.frames_sent,
-                m.mesh.driver.frames_received,  m.mesh.driver.sends_failed,
+                m.mesh.swim.members_alive,     m.mesh.swim.members_suspect,
+                m.mesh.swim.members_dead,      m.mesh.overlay.active,
+                m.mesh.overlay.passive,        m.mesh.overlay.ranked,
+                m.mesh.broadcast.eager_peers,  m.mesh.broadcast.lazy_peers,
+                m.transport.established,       m.mesh.swim.local_health,
+                m.mesh.swim.rtt_min_us,        m.mesh.swim.rtt_max_us,
+                m.mesh.swim.probes_sent,       m.mesh.swim.acks_sent,
+                m.mesh.swim.acks_received,     m.mesh.swim.suspects_declared,
+                m.mesh.swim.confirms_declared, m.mesh.driver.frames_sent,
+                m.mesh.driver.frames_received, m.mesh.driver.sends_failed,
                 m.transport.sessions_closed,
             },
         );
@@ -303,10 +303,10 @@ const Runtime = struct {
         }
     }
 
-    fn onBroadcast(ctx: ?*anyopaque, origin: qmesh.PeerId, seq: u64, payload: []const u8) void {
+    fn onBroadcast(ctx: ?*anyopaque, id: qmesh.plumtree.MsgId, payload: []const u8) void {
         _ = ctx;
-        const origin_hex = origin.hex();
-        std.debug.print("broadcast origin={s} seq={d} payload={s}\n", .{ origin_hex, seq, payload });
+        const origin_hex = id.origin.hex();
+        std.debug.print("broadcast origin={s} epoch={x} seq={d} payload={s}\n", .{ origin_hex, id.epoch, id.seq, payload });
     }
 };
 

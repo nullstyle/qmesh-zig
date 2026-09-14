@@ -5,7 +5,7 @@
 //! ```text
 //! peer identity      peer.PeerId / PeerDesc
 //! wire framing       frame (version/protocol/type envelopes)
-//! session boundary   session (vocabulary; QUIC adapter next milestone)
+//! session boundary   session (transport lifecycle vocabulary)
 //! overlay            hyparview (active/passive views — pure state machine)
 //! node driver        node.Node(Transport) — applies effects over a transport
 //! ```
@@ -14,7 +14,7 @@
 //! protocol core is a pure state machine parameterized by explicit
 //! `now`/`rng` arguments emitting bounded effect lists
 //! (`effects.Effects`). The deterministic simulator lives in the
-//! `qmesh_sim` module (sim/); real QUIC arrives through
+//! `qmesh_sim` module (sim/); real QUIC runs through
 //! `Node(QuicTransport)` without touching the cores.
 
 const std = @import("std");
@@ -38,6 +38,7 @@ pub const Addr = peer.Addr;
 
 pub const Member = swim.Member;
 pub const MemberState = swim.MemberState;
+pub const ContactSource = swim.ContactSource;
 
 pub const Overlay = hyparview.Overlay;
 pub const OverlayConfig = hyparview.Config;

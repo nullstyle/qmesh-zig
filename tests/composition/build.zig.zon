@@ -1,0 +1,12 @@
+.{
+    .name = .qmesh_qmsg_composition,
+    .version = "0.0.0",
+    .fingerprint = 0x3f610eabfc543885,
+    .minimum_zig_version = "0.17.0-dev.1786+75044cb04",
+    .paths = .{""},
+    .dependencies = .{
+        .qmesh = .{ .path = "../.." },
+        .qmsg = .{ .path = "../../../qmsg" },
+        .quic = .{ .path = "../../../quic-zig" },
+    },
+}

@@ -15,14 +15,14 @@
 //! the DATAGRAM frame tag + length varint).
 //!
 //! Reliable transfer maps frames onto QUIC streams with a u16 length
-//! prefix (`stream.encode` / `stream.Decoder`): a stream is a sequence
-//! of whole frames, so message-granular senders keep message-granular
+//! prefix (`stream.encode` / `stream.Decoder`): a stream carries one
+//! whole frame, so message-granular senders keep message-granular
 //! receivers across the datagram/stream split.
 
 const std = @import("std");
 const peer_mod = @import("peer.zig");
 
-pub const version: u8 = 1;
+pub const version: u8 = 2;
 
 /// Hard frame budget. Protocol codecs may assert tighter bounds; nothing
 /// may exceed this.
@@ -250,13 +250,15 @@ pub const stream = struct {
         buf: [max_stream_message]u8 = undefined,
         len: usize = 0,
         expect: ?usize = null,
+        finished: bool = false,
 
         pub const Frame = struct { bytes: []const u8 };
 
         /// Push one chunk, returning a whole frame once one is complete.
         /// `Error.NoRoomLeft` means the peer violated the frame budget —
         /// the connection should be dropped, not resized.
-        pub fn push(d: *Decoder, chunk: []const u8) error{ NoRoomLeft, Truncated }!?Frame {
+        pub fn push(d: *Decoder, chunk: []const u8) error{ NoRoomLeft, Truncated, TrailingBytes }!?Frame {
+            if (d.finished and chunk.len != 0) return error.TrailingBytes;
             var in = chunk;
             while (in.len > 0) {
                 if (d.expect) |want| {
@@ -266,6 +268,8 @@ pub const stream = struct {
                     in = in[take..];
                     if (d.len == want) {
                         d.expect = null;
+                        d.finished = true;
+                        if (in.len != 0) return error.TrailingBytes;
                         return Frame{ .bytes = d.buf[prefix_len..d.len] };
                     }
                     continue;
@@ -303,8 +307,8 @@ test "header round trip" {
 }
 
 test "header rejects truncation and wrong version" {
-    try std.testing.expectError(error.Truncated, decodeHeader(&[_]u8{ 1, 1 }));
-    try std.testing.expectError(error.UnknownVersion, decodeHeader(&[_]u8{ 2, 1, 1 }));
+    try std.testing.expectError(error.Truncated, decodeHeader(&[_]u8{ version, 1 }));
+    try std.testing.expectError(error.UnknownVersion, decodeHeader(&[_]u8{ version + 1, 1, 1 }));
 }
 
 test "desc codec round trip" {
@@ -354,4 +358,12 @@ test "stream decoder rejects oversized frame" {
     std.mem.writeInt(u16, &prefix, max_frame_len + 1, .little);
     var dec: stream.Decoder = .{};
     try std.testing.expectError(error.NoRoomLeft, dec.push(&prefix));
+}
+
+test "single-frame stream decoder rejects trailing bytes" {
+    var d: stream.Decoder = .{};
+    try std.testing.expectError(error.TrailingBytes, d.push(&.{ 1, 0, 42, 43 }));
+    d = .{};
+    try std.testing.expect((try d.push(&.{ 1, 0, 42 })) != null);
+    try std.testing.expectError(error.TrailingBytes, d.push(&.{43}));
 }

@@ -47,7 +47,7 @@ const frame = qmesh.frame;
 pub const QuicTransport = transport_mod.QuicTransport;
 pub const MeshNode = qmesh.node.Node(QuicTransport);
 
-pub const alpn = "qmesh/1";
+pub const alpn = "qmesh/2";
 const alpn_protocols = [_][]const u8{alpn};
 
 pub const Options = struct {
@@ -69,6 +69,9 @@ pub const Options = struct {
     /// the fly smoke test: ~28% probe loss from full-size packets
     /// blackholing while small packets passed).
     pmtu_max: u16 = 1380,
+    /// Initial credit for one reliable receive stream. Credit is
+    /// replenished as bytes are consumed; the complete frame stays bounded.
+    reliable_receive_window: u64 = frame.stream.max_stream_message,
     /// Deployment keys. When null, `listen` mints fresh ones from the
     /// CSPRNG — fine for tests, WRONG for production: resets/tokens
     /// issued before a restart stop validating. Persist these across
@@ -92,6 +95,8 @@ pub const Options = struct {
     /// packet_lost) alongside the always-on event set — high volume,
     /// diagnosis only.
     qlog_packet_events: bool = false,
+    /// Override only with a unique per-lifetime value (deterministic tests).
+    boot_epoch: ?u128 = null,
     rng_seed: u64 = 0,
     now_us: u64 = 0,
 };
@@ -107,7 +112,12 @@ pub const Stats = struct {
     sessions_closed: u64 = 0,
     tiebreaks_lost: u64 = 0,
     identity_mismatches: u64 = 0,
+    streams_refused: u64 = 0,
+    protocol_errors: u64 = 0,
 };
+
+const use_connection_driver = @hasDecl(quic.app, "ConnectionDriver");
+const Driver = if (use_connection_driver) quic.app.ConnectionDriver(Endpoint) else void;
 
 const SessState = enum { connecting, established, closed };
 
@@ -116,6 +126,7 @@ const SessState = enum { connecting, established, closed };
 /// `quic.Client`.
 const Session = struct {
     state: SessState,
+    driver: ?Driver = null,
     conn: *quic.Connection,
     /// Resolved once the peer's HELLO arrives; null until then.
     peer: ?PeerId = null,
@@ -166,6 +177,8 @@ const StreamRx = struct {
 
 pub const Endpoint = struct {
     const Self = @This();
+    pub const ConnState = ?*Session;
+    pub const StreamState = frame.stream.Decoder;
 
     allocator: std.mem.Allocator,
     opts: Options,
@@ -187,6 +200,7 @@ pub const Endpoint = struct {
     stats: Stats = .{},
 
     pub fn init(allocator: std.mem.Allocator, opts: Options) !*Self {
+        if (opts.reliable_receive_window == 0) return error.InvalidConfig;
         const e = try allocator.create(Self);
         errdefer allocator.destroy(e);
         e.* = .{
@@ -201,7 +215,7 @@ pub const Endpoint = struct {
         };
         e.node = MeshNode.init(
             opts.self,
-            .{ .overlay = opts.overlay_cfg, .swim = opts.swim_cfg, .broadcast = opts.broadcast_cfg },
+            .{ .boot_epoch = opts.boot_epoch orelse try randomBootEpoch(), .overlay = opts.overlay_cfg, .swim = opts.swim_cfg, .broadcast = opts.broadcast_cfg },
             &e.transport,
             opts.hooks,
         );
@@ -222,11 +236,18 @@ pub const Endpoint = struct {
     }
 
     fn destroySession(e: *Self, s: *Session) void {
+        e.deinitDriver(s);
         if (s.client) |cli| {
             cli.deinit();
             e.allocator.destroy(cli);
         }
         e.allocator.destroy(s);
+    }
+
+    fn transportParams(e: *const Self) quic.Connection.TransportParams {
+        var params = meshTransportParams(e.opts.pmtu_max);
+        params.initial_max_stream_data_uni = e.opts.reliable_receive_window;
+        return params;
     }
 
     /// Start (or return) the accepting side. The will-close hook is
@@ -258,7 +279,7 @@ pub const Endpoint = struct {
             .tls_key_pem = e.opts.tls_key_pem,
             .client_ca_pem = e.opts.ca_pem,
             .alpn_protocols = &alpn_protocols,
-            .transport_params = meshTransportParams(e.opts.pmtu_max),
+            .transport_params = e.transportParams(),
             // Mesh-bounded: a qmesh node's inbound population is its
             // cluster (plus reconnect overlap) — 256 slots was an
             // unbounded-memory invitation (each slot is a Connection
@@ -286,8 +307,9 @@ pub const Endpoint = struct {
         const e: *Self = @ptrCast(@alignCast(user_data.?));
         for (e.sessions.items) |s| {
             if (s.slot_id == slot.slot_id) {
-                s.slot_reaped = true;
                 e.closeSession(s, .remote_close);
+                e.deinitDriver(s);
+                s.slot_reaped = true;
                 return;
             }
         }
@@ -316,19 +338,6 @@ pub const Endpoint = struct {
     }
 
     fn registerAcceptedSession(e: *Self, peer: PeerId, slot: *quic.Server.Slot) void {
-        // Simultaneous dials resolve by AUTHENTICATED id: the
-        // connection initiated by the lower PeerId wins.
-        if (e.by_peer.get(peer)) |existing| {
-            if (existing != e.sessionForSlot(slot.slot_id)) {
-                const mine_lower = orderIds(e.opts.self.id, peer) == .lt;
-                // The incoming slot was PEER-initiated; we keep ours
-                // (our dial) only when ours is the lower initiator.
-                if (mine_lower) {
-                    e.stats.tiebreaks_lost += 1;
-                    return; // our outbound dial stays; ignore this slot
-                }
-            }
-        }
         const s = e.allocator.create(Session) catch return;
         s.* = .{
             .state = .connecting,
@@ -336,13 +345,18 @@ pub const Endpoint = struct {
             .peer = peer,
             .slot_id = slot.slot_id,
         };
-        e.sessions.append(e.allocator, s) catch {
+        e.initDriver(s) catch {
+            slot.conn.close(true, 0, "mesh resource limit");
             e.allocator.destroy(s);
             return;
         };
-        if (e.by_peer.get(peer) == null) {
-            e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
-        }
+        e.sessions.append(e.allocator, s) catch {
+            slot.conn.close(true, 0, "mesh resource limit");
+            e.deinitDriver(s);
+            e.allocator.destroy(s);
+            return;
+        };
+        e.adoptSession(peer, s);
         e.stats.accepts += 1;
     }
 
@@ -378,16 +392,29 @@ pub const Endpoint = struct {
     pub fn sendReliable(e: *Self, to: PeerId, bytes: []const u8) !void {
         const s = e.by_peer.get(to) orelse return error.NoSession;
         if (s.state != .established) return error.NoSession;
-        if (s.outbox_len >= max_outbox) return error.OutboxFull;
+        try e.writeFrame(s, bytes);
+    }
+
+    /// One admission path for both HELLO and protocol frames. A short
+    /// write owns its remainder until the service loop can finish it.
+    fn writeFrame(e: *Self, s: *Session, bytes: []const u8) !void {
         const msg = try frame.stream.encode(bytes, &e.stream_msg_buf);
+        if (comptime use_connection_driver) {
+            const d = &s.driver.?;
+            const stream = try s.conn.openNextUni();
+            errdefer d.outbox.reset(s.conn, stream.id, 0) catch {};
+            try d.outbox.push(s.conn, stream.id, msg);
+            try d.outbox.finish(s.conn, stream.id);
+            return;
+        }
+        if (s.outbox_len >= max_outbox) return error.OutboxFull;
         const stream = try s.conn.openNextUni();
+        errdefer s.conn.streamReset(stream.id, 0) catch {};
         const n = try s.conn.streamWrite(stream.id, msg);
         if (n == msg.len) {
             try s.conn.streamFinish(stream.id);
             return;
         }
-        // Flow control short-wrote the frame: stage the remainder and
-        // let the service loop finish it (once fully written, FIN).
         const slot = &s.outbox[s.outbox_len];
         slot.* = .{ .stream_id = stream.id, .len = msg.len, .offset = n, .finished = false };
         @memcpy(slot.bytes[0..msg.len], msg);
@@ -414,7 +441,7 @@ pub const Endpoint = struct {
             .allocator = e.allocator,
             .server_name = e.opts.dial_server_name,
             .alpn_protocols = &alpn_protocols,
-            .transport_params = meshTransportParams(e.opts.pmtu_max),
+            .transport_params = e.transportParams(),
             .ca_pem = e.opts.ca_pem,
             .client_cert_pem = e.opts.tls_cert_pem,
             .client_key_pem = e.opts.tls_key_pem,
@@ -423,6 +450,7 @@ pub const Endpoint = struct {
             // gossip addresses are IPs, cert names are cluster ids.
             .identity_verification = .none,
         });
+        errdefer cli.deinit();
         applyPmtuCap(cli.conn, e.opts.pmtu_max);
         if (e.opts.qlog_callback) |cb| {
             cli.conn.setQlogCallback(cb, e.opts.qlog_user_data);
@@ -439,6 +467,8 @@ pub const Endpoint = struct {
             .client = cli,
             .dial_addr = qaddr,
         };
+        try e.initDriver(s);
+        errdefer e.deinitDriver(s);
         try e.sessions.append(e.allocator, s);
     }
 
@@ -473,8 +503,15 @@ pub const Endpoint = struct {
 
         // Server-side sessions arrive via the on_handshake_complete
         // hook (cert-bound, fires inside `feed`); nothing to scan.
-        for (e.sessions.items) |s| {
-            try e.serviceSession(s);
+        // Callbacks may append dials and reallocate sessions. Snapshot
+        // only the count, then reload each stable heap record by index.
+        const session_count = e.sessions.items.len;
+        for (0..session_count) |i| {
+            const s = e.sessions.items[i];
+            e.serviceSession(s) catch {
+                e.stats.protocol_errors += 1;
+                e.closeSession(s, .transport_error);
+            };
         }
 
         // Protocol timers.
@@ -505,7 +542,7 @@ pub const Endpoint = struct {
             }
         }
         for (dead_peers[0..dead_len]) |s| {
-            e.closeSession(s, .reset);
+            e.closeSession(s, .local_close);
         }
     }
 
@@ -514,18 +551,29 @@ pub const Endpoint = struct {
     /// further I/O.
     fn serviceSession(e: *Self, s: *Session) !void {
         if (s.state == .closed) return;
+        if (s.conn.isClosed()) {
+            e.closeSession(s, if (s.conn.closeEvent()) |event| lostReason(event) else .transport_error);
+            return;
+        }
+        if (comptime use_connection_driver) {
+            const driver = &s.driver.?;
+            const refused_before = driver.refusedStreams();
+            defer e.stats.streams_refused += driver.refusedStreams() - refused_before;
+            try driver.service();
+            return;
+        }
 
         // Close detection (event and state forms). The will-close hook
         // covers server-side reaping without a close event.
         while (s.conn.pollEvent()) |ev| switch (ev) {
-            .close => {
-                e.closeSession(s, .transport_error);
+            .close => |event| {
+                e.closeSession(s, lostReason(event));
                 return;
             },
             else => {},
         };
         if (s.conn.isClosed()) {
-            e.closeSession(s, .transport_error);
+            e.closeSession(s, if (s.conn.closeEvent()) |event| lostReason(event) else .transport_error);
             return;
         }
 
@@ -537,6 +585,7 @@ pub const Endpoint = struct {
                 return;
             };
             e.bindDialSession(.{ .bytes = digest }, s);
+            if (s.state == .closed) return;
         }
 
         // Finish flow-control-blocked reliable sends before ingress.
@@ -560,20 +609,98 @@ pub const Endpoint = struct {
     /// id: the connection initiated by the lower PeerId wins.
     fn bindDialSession(e: *Self, peer: PeerId, s: *Session) void {
         s.peer = peer;
-        if (e.by_peer.get(peer)) |existing| {
-            if (existing != s) {
-                const mine_lower = orderIds(e.opts.self.id, peer) == .lt;
-                if (mine_lower) {
-                    // Our dial wins; the redundant one is dropped.
-                    return;
-                }
-                // Their dial (already registered) wins; ours closes.
-                e.stats.tiebreaks_lost += 1;
+        if (s.target) |target| {
+            if (!target.eql(peer)) {
+                e.stats.identity_mismatches += 1;
                 e.dropSession(s);
+                return;
             }
+        }
+        e.adoptSession(peer, s);
+    }
+
+    fn adoptSession(e: *Self, peer: PeerId, s: *Session) void {
+        if (e.by_peer.get(peer)) |existing| {
+            if (existing == s) return;
+            const prefer_outgoing = orderIds(e.opts.self.id, peer) == .lt;
+            const new_preferred = (s.client != null) == prefer_outgoing;
+            const old_preferred = (existing.client != null) == prefer_outgoing;
+            e.stats.tiebreaks_lost += 1;
+            if (!new_preferred or old_preferred) {
+                e.dropSession(s);
+                return;
+            }
+            // Install first: closing the duplicate must not report loss
+            // of the surviving logical peer relationship.
+            e.by_peer.put(e.allocator, peer, s) catch {
+                e.dropSession(s);
+                return;
+            };
+            e.dropSession(existing);
             return;
         }
-        e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
+        e.by_peer.put(e.allocator, peer, s) catch {
+            e.dropSession(s);
+        };
+    }
+
+    fn initDriver(e: *Self, s: *Session) !void {
+        if (comptime use_connection_driver) {
+            s.driver = try Driver.init(.{
+                .allocator = e.allocator,
+                .app = e,
+                .conn = s.conn,
+                .max_tracked_streams = max_rx_streams,
+                .datagram_buf_bytes = 1500,
+                .stream_refusal_code = 1,
+                .outbox_limits = .{ .max_streams = max_outbox, .max_bytes = max_outbox * frame.stream.max_stream_message },
+                .hooks = .{
+                    .on_handshake = driverHandshake,
+                    .on_stream_data = driverStreamData,
+                    .on_datagram = driverDatagram,
+                    .on_close = driverClose,
+                },
+            });
+            s.driver.?.state = s;
+        }
+    }
+
+    fn deinitDriver(_: *Self, s: *Session) void {
+        if (comptime use_connection_driver) {
+            if (s.driver) |*d| d.deinit();
+            s.driver = null;
+        }
+    }
+
+    fn driverHandshake(e: *Self, d: *Driver) !void {
+        const s = d.state.?;
+        if (s.client != null and s.peer == null) {
+            const digest = s.conn.peerCertSpkiDigest() orelse return error.MissingPeerIdentity;
+            e.bindDialSession(.{ .bytes = digest }, s);
+        }
+        if (s.state == .closed) return;
+        if (!s.hello_sent) try e.sendHello(s);
+    }
+
+    fn driverStreamData(e: *Self, d: *Driver, entry: *Driver.StreamEntry, bytes: []const u8) !usize {
+        const s = d.state.?;
+        if (s.state == .closed) return bytes.len;
+        // One frame per stream; the decoder rejects overlong input.
+        if (try entry.state.push(bytes)) |fr| {
+            e.stats.stream_frames_received += 1;
+            e.ingress(s, fr.bytes);
+        }
+        return bytes.len;
+    }
+
+    fn driverDatagram(e: *Self, d: *Driver, dg: Driver.Datagram) !void {
+        if (d.state.?.state == .closed) return;
+        e.stats.datagrams_received += 1;
+        e.ingress(d.state.?, dg.bytes);
+    }
+
+    fn driverClose(e: *Self, d: *Driver, event: quic.CloseEvent) !void {
+        e.closeSession(d.state.?, lostReason(event));
     }
 
     fn flushOutbox(e: *Self, s: *Session) !void {
@@ -582,8 +709,8 @@ pub const Endpoint = struct {
         while (i < s.outbox_len) {
             const slot = &s.outbox[i];
             const n = s.conn.streamWrite(slot.stream_id, slot.bytes[slot.offset..slot.len]) catch |err| switch (err) {
-                error.StreamNotFound => {
-                    // Stream reaped underneath us; drop the send.
+                error.StreamNotFound, error.StreamClosed => {
+                    // Reaped or reset underneath us; drop this send.
                     s.outbox[i] = s.outbox[s.outbox_len - 1];
                     s.outbox_len -= 1;
                     continue;
@@ -606,19 +733,19 @@ pub const Endpoint = struct {
 
     fn sendHello(e: *Self, s: *Session) !void {
         const bytes = try hello_mod.encode(.{ .desc = e.opts.self }, &e.frame_buf);
-        const msg = try frame.stream.encode(bytes, &e.stream_msg_buf);
-        const stream = try s.conn.openNextUni();
-        const n = try s.conn.streamWrite(stream.id, msg);
-        std.debug.assert(n == msg.len);
-        try s.conn.streamFinish(stream.id);
+        try e.writeFrame(s, bytes);
         s.hello_sent = true;
         e.stats.hellos_sent += 1;
     }
 
     fn serviceStreams(e: *Self, s: *Session) !void {
+        var ids: std.ArrayListUnmanaged(u64) = .empty;
+        defer ids.deinit(e.allocator);
         var it = s.conn.streamIterator();
-        while (it.next()) |entry| {
-            const stream_id = entry.key_ptr.*;
+        while (it.next()) |entry| try ids.append(e.allocator, entry.key_ptr.*);
+        // streamRead and ingress can reap/open streams. Never retain a
+        // connection-map iterator across either operation.
+        for (ids.items) |stream_id| {
             // Only peer-initiated streams carry inbound frames. Stream
             // id bit 0 encodes the initiator (RFC 9000 §2.1: client
             // ids are even, server ids odd); `streamInitiatedByLocal`
@@ -627,7 +754,11 @@ pub const Endpoint = struct {
             const local_is_client = s.conn.role == .client;
             const initiated_by_client = (stream_id & 1) == 0;
             if (initiated_by_client == local_is_client) continue;
-            const rx = streamRxFor(s, stream_id) orelse continue;
+            const rx = streamRxFor(s, stream_id) orelse {
+                e.stats.streams_refused += 1;
+                s.conn.streamStopSending(stream_id, 1) catch {};
+                continue;
+            };
 
             while (true) {
                 const n = s.conn.streamRead(stream_id, &e.stream_buf) catch |err| switch (err) {
@@ -638,6 +769,7 @@ pub const Endpoint = struct {
                 if (try rx.push(e.stream_buf[0..n])) |fr| {
                     e.stats.stream_frames_received += 1;
                     e.ingress(s, fr.bytes);
+                    if (s.state == .closed) return;
                 }
             }
             // Reclamation: a terminal stream (FIN drained / RESET)
@@ -667,7 +799,7 @@ pub const Endpoint = struct {
         for (s.stream_rx[0..s.stream_rx_len]) |*rx| {
             if (rx.stream_id == stream_id) return &rx.dec;
         }
-        if (s.stream_rx_len >= max_rx_streams) return null; // bounded; defensive drop
+        if (s.stream_rx_len >= max_rx_streams) return null; // caller explicitly refuses excess streams
         s.stream_rx[s.stream_rx_len] = .{ .stream_id = stream_id, .dec = .{} };
         const dec = &s.stream_rx[s.stream_rx_len].dec;
         s.stream_rx_len += 1;
@@ -686,11 +818,16 @@ pub const Endpoint = struct {
             e.handleHello(s, bytes);
             return;
         }
+        if (s.state == .closed) return;
         const peer = s.peer orelse {
             // Protocol traffic before identity resolution.
             e.stats.frames_unresolved += 1;
             return;
         };
+        if (s.state != .established) {
+            e.stats.frames_unresolved += 1;
+            return;
+        }
         e.node.handleWire(peer, bytes);
     }
 
@@ -723,21 +860,24 @@ pub const Endpoint = struct {
             return;
         }
 
+        if (e.by_peer.get(peer) != s) {
+            e.dropSession(s);
+            return;
+        }
+        s.peer_desc = msg.desc;
         if (s.state == .connecting) {
-            s.peer_desc = msg.desc;
             s.state = .established;
-            if (e.by_peer.get(peer) == null) {
-                e.by_peer.put(e.allocator, peer, s) catch @panic("qmesh by_peer OOM");
-            }
             e.node.onSessionUp(peer);
+        } else if (s.state == .established) {
+            e.node.onPeerContact(msg.desc);
         }
     }
 
     /// Mark a session finished: unmap it, tell the node (once), and
     /// stop all I/O on it. The record — and any client we own — stays
-    /// allocated until `deinit`: the embedder's loop may still pump the
-    /// connection (Loopback does; a socket loop drains it), so freeing
-    /// here would pull memory out from under the pump. The underlying
+    /// allocated until transport termination and the next service pass;
+    /// the loop can drain closing packets before reclamation. Borrowed
+    /// client/connection pointers must not outlive their session. The underlying
     /// QUIC connection IS closed on the wire (idempotent): without
     /// that, the peer keeps a stale established record pointing at a
     /// connection we will never read again — it never re-dials, and
@@ -745,15 +885,17 @@ pub const Endpoint = struct {
     /// test's post-crash wedge).
     fn closeSession(e: *Self, s: *Session, reason: qmesh.session.SessionLostReason) void {
         if (s.state == .closed) return;
+        const was_established = s.state == .established;
         s.state = .closed;
         s.conn.close(true, 0, "qmesh session closed");
         if (s.peer) |peer| {
             if (e.by_peer.get(peer)) |cur| {
-                if (cur == s) _ = e.by_peer.remove(peer);
+                if (cur == s) {
+                    _ = e.by_peer.remove(peer);
+                    if (was_established) e.node.onSessionLost(peer, reason);
+                }
             }
-            e.node.onSessionDown(peer);
         }
-        _ = reason;
         e.stats.sessions_closed += 1;
     }
 
@@ -804,6 +946,8 @@ pub const Endpoint = struct {
                 .sessions_closed = e.stats.sessions_closed,
                 .tiebreaks_lost = e.stats.tiebreaks_lost,
                 .identity_mismatches = e.stats.identity_mismatches,
+                .streams_refused = e.stats.streams_refused,
+                .protocol_errors = e.stats.protocol_errors,
             },
         };
     }
@@ -830,6 +974,8 @@ pub const Endpoint = struct {
         sessions_closed: u64,
         tiebreaks_lost: u64,
         identity_mismatches: u64,
+        streams_refused: u64,
+        protocol_errors: u64,
     };
 
     pub const EndpointMetrics = struct {
@@ -848,6 +994,25 @@ pub const Endpoint = struct {
         return s.peer_desc;
     }
 };
+
+fn lostReason(event: quic.CloseEvent) qmesh.session.SessionLostReason {
+    return switch (event.source) {
+        .local => if (event.error_code == 0) .local_close else .transport_error,
+        .peer => .remote_close,
+        .idle_timeout => .idle_timeout,
+        .handshake_timeout => .dial_failed,
+        .stateless_reset => .reset,
+        .version_negotiation => .transport_error,
+    };
+}
+
+fn randomBootEpoch() !u128 {
+    var entropy = std.Io.Threaded.init(std.heap.page_allocator, .{});
+    defer entropy.deinit();
+    var bytes: [16]u8 = undefined;
+    try entropy.io().randomSecure(&bytes);
+    return std.mem.readInt(u128, &bytes, .little);
+}
 
 pub fn meshTransportParams(pmtu_max: u16) quic.Connection.TransportParams {
     var p = quic.Server.Config.defaultTransportParams();

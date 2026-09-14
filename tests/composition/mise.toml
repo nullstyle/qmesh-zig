@@ -1,0 +1,15 @@
+[tools]
+zig = "0.17.0-dev.1786+75044cb04"
+
+[env]
+COPYFILE_DISABLE = "1"
+ZIG_GLOBAL_CACHE_DIR = "{{config_root}}/.zig-global-cache"
+
+[tasks.test]
+run = "zig build test --summary all"
+
+[tasks.test-released]
+run = "zig build test -Dlocal-quic=false --summary all"
+
+[tasks.test-qmsg]
+run = "zig build test-qmsg --summary all"

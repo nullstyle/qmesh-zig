@@ -219,3 +219,135 @@ test "peer close severs the session and demotes the overlay edge" {
     try testing.expect(a.stats.sessions_closed >= 1);
     a.node.overlay.checkInvariants();
 }
+
+const NoMesh = struct {
+    pub fn service(_: *NoMesh, _: *quic.Server) !void {}
+};
+
+/// Both protocol endpoints are real; only the UDP path is in memory.
+const Pair = struct {
+    allocator: std.mem.Allocator,
+    a: *qmesh_quic.Endpoint,
+    b: *qmesh_quic.Endpoint,
+    lb: quic.testing.Loopback,
+    driver: MeshDriver,
+
+    fn init(allocator: std.mem.Allocator, target: ?qmesh.PeerId, stream_credit: ?u64) !*Pair {
+        const desc_a: qmesh.PeerDesc = .{ .id = idFromHex(digest_a_hex), .addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4433) };
+        const desc_b: qmesh.PeerDesc = .{ .id = idFromHex(digest_b_hex), .addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4434) };
+        var a_options = endpointOptions(desc_a, cert_a, key_a, 1);
+        if (stream_credit) |credit| a_options.reliable_receive_window = credit;
+        const a = try qmesh_quic.Endpoint.init(allocator, a_options);
+        errdefer a.deinit();
+        const b = try qmesh_quic.Endpoint.init(allocator, endpointOptions(desc_b, cert_b, key_b, 2));
+        errdefer b.deinit();
+        const srv = try a.listen();
+        var contact = desc_a;
+        contact.id = target orelse desc_a.id;
+        try b.connectPeer(contact);
+        const p = try allocator.create(Pair);
+        errdefer allocator.destroy(p);
+        p.* = .{
+            .allocator = allocator,
+            .a = a,
+            .b = b,
+            .lb = try quic.testing.Loopback.init(.{ .allocator = allocator, .server = srv, .client = b.sessions.items[0].client.? }),
+            .driver = undefined,
+        };
+        errdefer p.lb.deinit();
+        p.driver = .{ .a = a, .b = b, .clock = &p.lb.now_us };
+        var no_mesh: NoMesh = .{};
+        try p.lb.handshake(&no_mesh);
+        return p;
+    }
+
+    fn ready(p: *Pair) !void {
+        for (0..20_000) |_| {
+            if (p.a.establishedWith(p.b.opts.self.id) and p.b.establishedWith(p.a.opts.self.id)) return;
+            try p.lb.step(&p.driver);
+        }
+        return error.SessionNotReady;
+    }
+
+    fn deinit(p: *Pair) void {
+        p.lb.deinit();
+        p.b.deinit();
+        p.a.deinit();
+        p.allocator.destroy(p);
+    }
+};
+
+test "a CA-valid connection must match the intended mesh peer" {
+    const p = try Pair.init(testing.allocator, .{ .bytes = @splat(77) }, null);
+    defer p.deinit();
+    try p.b.service(p.lb.now_us);
+    try testing.expectEqual(@as(u64, 1), p.b.stats.identity_mismatches);
+    try testing.expect(!p.b.establishedWith(p.a.opts.self.id));
+    try testing.expectEqual(@as(u64, 0), p.b.node.stats.sessions_up);
+    try testing.expectEqual(@as(u64, 0), p.b.node.stats.sessions_down);
+}
+
+test "HELLO survives one-byte stream credit without truncation or duplication" {
+    const p = try Pair.init(testing.allocator, null, 1);
+    defer p.deinit();
+    try p.b.service(p.lb.now_us);
+    // QUIC may admit the entire write locally; the negotiated window
+    // forces its delivery to arrive incrementally at the peer.
+    try testing.expectEqual(@as(u64, 1), p.b.stats.hellos_sent);
+    try p.ready();
+    try testing.expectEqual(@as(u64, 1), p.b.stats.hellos_sent);
+}
+
+test "authenticated HELLO refreshes contact while membership stays alive" {
+    const p = try Pair.init(testing.allocator, null, null);
+    defer p.deinit();
+    try p.ready();
+    var moved = p.b.opts.self;
+    moved.addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 5000);
+    var buf: [qmesh.frame.max_frame_len]u8 = undefined;
+    const hello = try qmesh_quic.hello.encode(.{ .desc = moved }, &buf);
+    try p.b.sendReliable(p.a.opts.self.id, hello);
+    for (0..1000) |_| {
+        try p.lb.step(&p.driver);
+        if (p.a.node.member(moved.id).?.desc.addr.eql(moved.addr)) break;
+    }
+    const member = p.a.node.member(moved.id).?;
+    try testing.expect(member.desc.addr.eql(moved.addr));
+    try testing.expectEqual(qmesh.MemberState.alive, member.state);
+    try testing.expectEqual(qmesh.ContactSource.authenticated, member.contact_source);
+}
+
+test "bad stream framing closes only the offending mesh session" {
+    const p = try Pair.init(testing.allocator, null, null);
+    defer p.deinit();
+    try p.ready();
+    const conn = p.b.sessions.items[0].conn;
+    const stream = try conn.openNextUni();
+    _ = try conn.streamWrite(stream.id, &.{ 255, 255 }); // beyond frame budget
+    try conn.streamFinish(stream.id);
+    for (0..1000) |_| {
+        try p.lb.step(&p.driver);
+        if (p.a.stats.protocol_errors != 0) break;
+    }
+    try testing.expectEqual(@as(u64, 1), p.a.stats.protocol_errors);
+    try testing.expect(!p.a.establishedWith(p.b.opts.self.id));
+    // service returned successfully to the caller despite malformed input.
+}
+
+test "receive-stream capacity explicitly refuses excess streams without losing peer" {
+    const p = try Pair.init(testing.allocator, null, null);
+    defer p.deinit();
+    try p.ready();
+    const conn = p.b.sessions.items[0].conn;
+    for (0..20) |_| {
+        const stream = try conn.openNextUni();
+        _ = try conn.streamWrite(stream.id, &.{1}); // keep the length prefix incomplete
+    }
+    for (0..1000) |_| {
+        try p.lb.step(&p.driver);
+        if (p.a.stats.streams_refused > 0) break;
+    }
+    try testing.expect(p.a.stats.streams_refused > 0);
+    try testing.expectEqual(@as(u64, 0), p.a.stats.protocol_errors);
+    try testing.expect(p.a.establishedWith(p.b.opts.self.id));
+}

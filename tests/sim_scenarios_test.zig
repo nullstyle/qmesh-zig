@@ -662,3 +662,23 @@ test "identical seeds produce byte-identical overlay state" {
     try testing.expectEqual(sa.dropped_loss, sb.dropped_loss);
     try testing.expectEqual(sa.sessions_up, sb.sessions_up);
 }
+
+test "a pause beyond payload retention needs application reconciliation" {
+    var world = qsim.World.init(testing.allocator, 930, defaultCfg(), fastSwimCfg(), fastBroadcastCfg(), .{});
+    defer world.deinit();
+    for (0..3) |_| _ = try world.spawn();
+    world.bootstrapAll(0);
+    try world.runFor(20_000_000);
+    try world.pause(2, 50_000_000);
+    for (0..40) |_| {
+        try testing.expect(world.broadcast(0, "retention-window") != null);
+        try world.runFor(100_000);
+    }
+    try testing.expectEqual(@as(usize, 0), world.deliveredCount(2));
+    try world.runFor(80_000_000);
+    try testing.expectEqual(@as(usize, 1), world.componentCount());
+    const seqs = world.deliveredSeqs(2);
+    try testing.expect(seqs.len > 0); // recent data still repairs
+    try testing.expect(seqs.len < 40); // old data is no longer available anywhere
+    for (seqs) |seq| try testing.expect(seq != 1);
+}

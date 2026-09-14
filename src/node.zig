@@ -33,7 +33,8 @@
 //!     Lossy send. `bytes` is borrowed for the call only; the
 //!     transport copies. No session ⇒ error (counted, dropped).
 //! fn sendReliable(t: *T, to: PeerId, bytes: []const u8) !void
-//!     Completion-guaranteed send of one frame (see frame.stream).
+//!     Accept one frame for a reliable stream (see frame.stream).
+//!     Success is local admission; connection loss can still prevent delivery.
 //!     Same borrowing and session rules as sendDatagram.
 //! fn connect(t: *T, desc: PeerDesc) !void
 //!     Ask the session manager to establish a session (idempotent;
@@ -70,6 +71,9 @@ pub fn Node(comptime Transport: type) type {
         const Self = @This();
 
         pub const Config = struct {
+            /// Unique for this PeerId's process lifetime. Use a random
+            /// 128-bit nonce in production and a seeded value in simulation.
+            boot_epoch: u128,
             overlay: hv.Config = .{},
             swim: swim_mod.Config = .{},
             broadcast: plum_mod.Config = .{},
@@ -82,8 +86,7 @@ pub fn Node(comptime Transport: type) type {
             ctx: ?*anyopaque = null,
             onBroadcast: ?*const fn (
                 ctx: ?*anyopaque,
-                origin: PeerId,
-                seq: u64,
+                id: plum_mod.MsgId,
                 payload: []const u8,
             ) void = null,
         };
@@ -124,7 +127,7 @@ pub fn Node(comptime Transport: type) type {
                 .transport = transport,
                 .overlay = hv.Overlay.init(self_desc, cfg.overlay, now),
                 .swim = swim_mod.Swim.init(self_desc, cfg.swim, now),
-                .broadcast = plum_mod.Plumtree.init(self_desc.id, cfg.broadcast, now),
+                .broadcast = plum_mod.Plumtree.init(self_desc.id, cfg.broadcast, now, cfg.boot_epoch),
                 .hooks = hooks,
             };
         }
@@ -206,16 +209,25 @@ pub fn Node(comptime Transport: type) type {
             // authenticated handshake is direct liveness evidence that
             // outranks the stale gossip (resurrection path).
             const desc = self.transport.descOf(peer) orelse PeerDesc{ .id = peer };
-            self.swim.observe(desc, now);
-            self.swim.noteSessionAlive(peer, now);
+            self.swim.observeAuthenticated(desc, now);
             self.fx.clear();
             self.overlay.onSessionUp(peer, now, &self.fx);
             self.applyFx(hv.Msg, hv.encode, &self.fx);
         }
 
+        /// A verified peer supplied fresher contact information without
+        /// a transport transition (for example a repeated HELLO).
+        pub fn onPeerContact(self: *Self, desc: PeerDesc) void {
+            self.swim.observeAuthenticated(desc, self.transport.now());
+        }
+
         pub fn onSessionDown(self: *Self, peer: PeerId) void {
+            self.onSessionLost(peer, .transport_error);
+        }
+
+        pub fn onSessionLost(self: *Self, peer: PeerId, reason: @import("session.zig").SessionLostReason) void {
             self.stats.sessions_down += 1;
-            self.events.push(self.transport.now(), .session_down, peer, 0);
+            self.events.push(self.transport.now(), .session_down, peer, @backingInt(reason));
             // Session loss is an overlay concern; SWIM owns liveness
             // separately (a dropped session ≠ a dead member). The
             // broadcast tree loses the peer with the connection.
@@ -307,6 +319,8 @@ pub fn Node(comptime Transport: type) type {
         /// `.none` — a member observed before its address was learned
         /// is alive but NOT dialable. Callers that dial must skip
         /// those rather than assume an address is present.
+        /// Compatibility helper: alive-only and potentially partial.
+        /// Use members()/member() for lifecycle decisions.
         pub fn aliveMembers(self: *const Self, out: []PeerDesc) usize {
             var written: usize = 0;
             for (self.swim.memberSlice()) |m| {
@@ -316,6 +330,29 @@ pub fn Node(comptime Transport: type) type {
                 written += 1;
             }
             return written;
+        }
+
+        pub const MembershipSnapshot = struct {
+            written: usize,
+            total: usize,
+            complete: bool,
+        };
+
+        /// Copy the complete membership vocabulary, including suspicion,
+        /// confirmed death, and contact provenance. Partial snapshots
+        /// never provide evidence that an omitted member was removed.
+        pub fn members(self: *const Self, out: []swim_mod.Member) MembershipSnapshot {
+            const all = self.swim.memberSlice();
+            const n = @min(out.len, all.len);
+            @memcpy(out[0..n], all[0..n]);
+            return .{ .written = n, .total = all.len, .complete = n == all.len };
+        }
+
+        /// Independent lookup is safe even when a caller's snapshot
+        /// buffer is smaller than the cluster.
+        pub fn member(self: *const Self, peer: PeerId) ?swim_mod.Member {
+            const i = self.swim.find(peer) orelse return null;
+            return self.swim.memberSlice()[i];
         }
 
         pub fn nextDeadline(self: *const Self) ?u64 {
@@ -441,7 +478,7 @@ pub fn Node(comptime Transport: type) type {
                 // A staged payload must always be a bounded cache slice.
                 std.debug.assert(d.payload.len <= plum_mod.max_payload);
                 if (self.hooks.onBroadcast) |cb| {
-                    cb(self.hooks.ctx, d.id.origin, d.id.seq, d.payload);
+                    cb(self.hooks.ctx, d.id, d.payload);
                 }
             }
         }
@@ -524,7 +561,7 @@ test "node drives overlay over a fake transport" {
     const me = PeerDesc{ .id = PeerId.fromRandom(prng1.random()), .addr = peer_mod.Addr.sim(1) };
     const contact = PeerDesc{ .id = PeerId.fromRandom(prng2.random()), .addr = peer_mod.Addr.sim(2) };
 
-    var node = Node(FakeTransport).init(me, .{}, &transport, .{});
+    var node = Node(FakeTransport).init(me, .{ .boot_epoch = 0 }, &transport, .{});
     node.startJoin(contact);
 
     // JOIN (reliable) + connect emitted; the wire bytes decode back.
@@ -546,7 +583,7 @@ test "node drives overlay over a fake transport" {
 
     // A malformed frame is counted, not fatal.
     const before = node.stats.frames_received;
-    node.handleWire(contact.id, &[_]u8{0xff, 0xff});
+    node.handleWire(contact.id, &[_]u8{ 0xff, 0xff });
     try std.testing.expectEqual(before + 1, node.stats.frames_received);
     try std.testing.expectEqual(@as(u64, 1), node.stats.decode_errors);
 }
@@ -590,7 +627,7 @@ test "node multiplexes swim beside the overlay and purges on confirm" {
     const me = PeerDesc{ .id = PeerId.fromRandom(prng1.random()), .addr = peer_mod.Addr.sim(1) };
     const victim = PeerDesc{ .id = PeerId.fromRandom(prng2.random()), .addr = peer_mod.Addr.sim(2) };
 
-    var node = Node(FakeTransport).init(me, .{}, &transport, .{});
+    var node = Node(FakeTransport).init(me, .{ .boot_epoch = 0 }, &transport, .{});
 
     // Session up: SWIM observes the member.
     node.onSessionUp(victim.id);
@@ -678,7 +715,7 @@ test "recentEvents merges the recorder rings newest-first" {
     const me = PeerDesc{ .id = PeerId.fromRandom(prng.random()), .addr = peer_mod.Addr.sim(1) };
     const a = PeerDesc{ .id = PeerId.fromRandom(prng.random()), .addr = peer_mod.Addr.sim(2) };
 
-    var node = Node(FakeTransport).init(me, .{}, &transport, .{});
+    var node = Node(FakeTransport).init(me, .{ .boot_epoch = 0 }, &transport, .{});
 
     // The incident shape: session up, suspicion, confirm, session
     // loss, and (driven directly — plumtree's own test covers the
@@ -753,7 +790,7 @@ test "aliveMembers is the directory an embedder dials from" {
     const known = [_]PeerDesc{ a, b };
     var transport: FakeTransport = .{ .allocator = arena.allocator(), .known = &known };
 
-    var node = Node(FakeTransport).init(me, .{}, &transport, .{});
+    var node = Node(FakeTransport).init(me, .{ .boot_epoch = 0 }, &transport, .{});
 
     var out: [8]PeerDesc = undefined;
 
@@ -788,4 +825,29 @@ test "aliveMembers is the directory an embedder dials from" {
     node.onSessionUp(b.id);
     node.swim.observe(b, 3);
     try std.testing.expectEqual(@as(usize, 1), node.aliveMembers(&tiny));
+}
+
+test "membership lookup preserves suspicion and snapshots report exact completeness" {
+    const T = struct {
+        fn now(_: *@This()) u64 {
+            return 0;
+        }
+    };
+    var transport: T = .{};
+    var n = Node(T).init(.{ .id = .zero }, .{ .boot_epoch = 1 }, &transport, .{});
+    const a: PeerDesc = .{ .id = .{ .bytes = @splat(1) }, .addr = .none };
+    const b: PeerDesc = .{ .id = .{ .bytes = @splat(2) }, .addr = .none };
+    n.swim.observe(a, 0);
+    n.swim.observe(b, 0);
+    _ = n.swim.apply(.{ .suspect = .{ .id = a.id, .incarnation = 0 } }, 1);
+    _ = n.swim.apply(.{ .confirm = .{ .id = b.id, .incarnation = 0 } }, 1);
+    var short: [1]swim_mod.Member = undefined;
+    const partial = n.members(&short);
+    try std.testing.expectEqual(@as(usize, 2), partial.total);
+    try std.testing.expectEqual(@as(usize, 1), partial.written);
+    try std.testing.expect(!partial.complete);
+    try std.testing.expectEqual(swim_mod.MemberState.suspect, n.member(a.id).?.state);
+    try std.testing.expectEqual(swim_mod.MemberState.dead, n.member(b.id).?.state);
+    var full: [2]swim_mod.Member = undefined;
+    try std.testing.expect(n.members(&full).complete);
 }

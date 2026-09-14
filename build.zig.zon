@@ -12,8 +12,8 @@
         // module rather than compiling BoringSSL twice.
         // (`zig fetch --save` mangles these entries; edit by hand.)
         .quic = .{
-            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.21.0.tar.gz",
-            .hash = "quic-0.21.0-DnSYvexpMQDWBFgcnXGbfuDzqPNhV9jMPmp4KFjghBJO",
+            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.21.1.tar.gz",
+            .hash = "quic-0.21.1-DnSYvS2QMQAg4fI6mvmmyTMKgCqOQKBQfZw3C0TVx_rA",
         },
     },
     // Consumer-facing archive. `sim/` ships because `qmesh_sim` is a

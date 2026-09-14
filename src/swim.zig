@@ -128,6 +128,7 @@ pub const Event = union(enum) {
 };
 
 pub const Msg = union(enum) {
+    pub const effect_capacity = 32;
     ping: struct { nonce: u64, events: []const Event },
     ack: struct { nonce: u64, incarnation: u32, events: []const Event },
     ping_req: struct { target: PeerId, nonce: u64 },
@@ -289,10 +290,17 @@ fn readPeerId(r: *frame.Reader) frame.DecodeError!PeerId {
 
 pub const MemberState = enum { alive, suspect, dead };
 
+pub const ContactSource = enum { unknown, gossip, authenticated };
+
 pub const Member = struct {
     desc: PeerDesc,
     incarnation: u32,
     state: MemberState,
+    /// How the current address was learned; contact changes are
+    /// independent of the membership suspicion/incarnation lattice.
+    contact_source: ContactSource = .unknown,
+    contact_updated_us: u64 = 0,
+    contact_incarnation: u32 = 0,
     /// When the current state was entered (suspect windows, metrics).
     state_since_us: u64,
     /// Smoothed application-level round-trip time to this member,
@@ -434,7 +442,10 @@ pub const Swim = struct {
 
     pub fn init(self_desc: PeerDesc, cfg: Config, now: u64) Self {
         std.debug.assert(cfg.piggyback_max <= max_events_per_msg);
-        std.debug.assert(cfg.ping_req_fanout >= 1);
+        std.debug.assert(cfg.ping_req_fanout >= 1 and cfg.ping_req_fanout <= 16);
+        std.debug.assert(cfg.buddy_count <= max_buddies);
+        std.debug.assert(cfg.probe_period_us > 0 and cfg.probe_timeout_us > 0 and cfg.indirect_timeout_us > 0);
+        std.debug.assert(cfg.suspicion_timeout_us > 0 and cfg.max_local_health < 32);
         return .{
             .self = self_desc,
             .cfg = cfg,
@@ -490,10 +501,33 @@ pub const Swim = struct {
             .desc = desc,
             .incarnation = 0,
             .state = .alive,
+            .contact_source = if (desc.addr == .none) .unknown else .gossip,
+            .contact_updated_us = now,
             .state_since_us = now,
             .last_heard_us = now,
         };
         s.members_len += 1;
+    }
+
+    /// Fresh authenticated contact evidence from the peer itself.
+    /// A live member may move addresses without becoming suspect first.
+    /// Addressless evidence refreshes liveness but does not erase a route.
+    pub fn observeAuthenticated(s: *Self, desc: PeerDesc, now: u64) void {
+        s.observe(desc, now);
+        const i = s.find(desc.id) orelse return;
+        const m = &s.members[i];
+        if (desc.addr != .none) {
+            m.desc = desc;
+            m.contact_source = .authenticated;
+            m.contact_updated_us = now;
+            m.contact_incarnation = m.incarnation;
+        }
+        m.last_heard_us = now;
+        s.noteSessionAlive(desc.id, now);
+        if (desc.addr != .none) {
+            m.contact_source = .authenticated;
+            m.contact_incarnation = m.incarnation;
+        }
     }
 
     /// Session (re)establishment to `id`: the transport just completed
@@ -537,6 +571,9 @@ pub const Swim = struct {
                         .desc = a.desc,
                         .incarnation = a.incarnation,
                         .state = .alive,
+                        .contact_source = if (a.desc.addr == .none) .unknown else .gossip,
+                        .contact_updated_us = now,
+                        .contact_incarnation = a.incarnation,
                         .state_since_us = now,
                         .last_heard_us = now,
                     };
@@ -605,7 +642,14 @@ pub const Swim = struct {
         // introduced by a SUSPECT/CONFIRM, which carry no address)
         // must never erase a dialable address: resurrection probes
         // need `desc.addr` to re-open the connection.
-        if (new_state == .alive and desc.addr != .none) m.desc = desc;
+        if (new_state == .alive and desc.addr != .none and
+            (m.contact_source != .authenticated or inc > m.contact_incarnation))
+        {
+            m.desc = desc;
+            m.contact_source = .gossip;
+            m.contact_updated_us = now;
+            m.contact_incarnation = inc;
+        }
         s.stats.events_applied += 1;
         // Event ring: this is the single chokepoint every member-table
         // transition passes through (local detection, gossip, and the
@@ -883,6 +927,10 @@ pub const Swim = struct {
                 if (budget < @max(s.scaledSuspicionTimeout(), rtt_suspicion_factor *| m.rtt_us)) {
                     s.stats.ta_accelerations += 1;
                 }
+                // A mass failure may expire all 1024 members together.
+                // Leave excess suspects armed for the next tick rather
+                // than overflowing this call's bounded effect batch.
+                if (out.remaining() == 0) break;
                 const ev: Event = .{ .confirm = .{ .id = m.desc.id, .incarnation = m.incarnation } };
                 _ = s.apply(ev, now);
                 s.disseminate(ev);
@@ -1740,4 +1788,41 @@ test "buddies: silence majority grows local health; rotation stays bounded" {
             try testing.expect(!s.buddies[idx].eql(s.buddies[j]));
         }
     }
+}
+
+test "authenticated contact updates a live member without changing membership state" {
+    var s = Swim.init(descOf(1), .{}, 0);
+    const old = descOf(2);
+    var fresh = old;
+    fresh.addr = peer_mod.Addr.ipv4(.{ 127, 0, 0, 2 }, 9876);
+    s.observe(old, 0);
+    s.observeAuthenticated(fresh, 100);
+    const m = s.memberSlice()[0];
+    try testing.expect(m.desc.addr.eql(fresh.addr));
+    try testing.expectEqual(MemberState.alive, m.state);
+    try testing.expectEqual(@as(u32, 0), m.incarnation);
+    try testing.expectEqual(ContactSource.authenticated, m.contact_source);
+    // Same-incarnation stale gossip cannot replace fresh direct evidence.
+    _ = s.apply(.{ .alive = .{ .desc = old, .incarnation = 0 } }, 101);
+    try testing.expect(s.memberSlice()[0].desc.addr.eql(fresh.addr));
+    s.observeAuthenticated(.{ .id = fresh.id }, 102);
+    try testing.expect(s.memberSlice()[0].desc.addr.eql(fresh.addr));
+}
+
+test "mass confirmation drains through bounded effect batches" {
+    var s = Swim.init(descOf(1), .{ .buddy_count = 0 }, 0);
+    const count = 100;
+    for (0..count) |i| {
+        const desc = descOf(i + 2);
+        s.observe(desc, 0);
+        _ = s.apply(.{ .suspect = .{ .id = desc.id, .incarnation = 0 } }, 0);
+    }
+    var prng = std.Random.DefaultPrng.init(1);
+    var fx: Effects = .{};
+    for (0..10) |_| {
+        fx.clear();
+        s.tick(10_000_000, prng.random(), &fx);
+        try testing.expect(fx.len <= Effects.max);
+    }
+    for (s.memberSlice()) |m| try testing.expectEqual(MemberState.dead, m.state);
 }

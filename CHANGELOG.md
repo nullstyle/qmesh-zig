@@ -7,6 +7,26 @@ changes.
 
 ## [Unreleased]
 
+- **Wire version 2:** broadcast IDs include a boot epoch; the protocol now
+  uses frame version 2 and ALPN `qmesh/2`. Raw `Node` initialization requires
+  `boot_epoch`, while `Endpoint` generates it securely by default. Broadcast
+  callbacks receive the complete `MsgId`. See the README migration notes;
+  peers must upgrade together.
+- **Supported messaging composition:** `qmesh_messaging` replaces the old
+  directory example with a bounded demand-driven peer pool, explicit endpoint
+  resolution, authenticated qmsg readiness, retry/backoff, session reuse and
+  idle eviction. Suspect members keep existing sessions. qmsg remains optional.
+- **Membership and effects:** complete member snapshots report truncation and
+  preserve suspect/dead state. Authenticated contact updates refresh live
+  members' addresses. Effects own captured slice data, and mass failure
+  notifications drain in bounded batches.
+- **QUIC integration:** use the shared `ConnectionDriver` when available;
+  retain compatibility with released quic 0.21.1 and align its pin with qmsg.
+  Harden HELLO staging, stream refusal, framing errors and session teardown.
+  Runner supports ephemeral bind ports through `localAddress()`.
+- Document bounded dissemination and recent repair, with restart, cache
+  eviction, real-session and combined qmesh/qmsg regression coverage.
+
 ## [0.2.1] - 2026-09-06
 
 - **README: why the composition is worth it, with numbers.** qmsg

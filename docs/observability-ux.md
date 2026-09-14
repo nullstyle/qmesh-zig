@@ -70,9 +70,9 @@ heuristics.
 - Every qmesh node IS the agent: in-process metrics snapshots and
   quic qlog events (both already built).
 - Spans/logs buffer in local rings.
-- Region-local rollup sinks attach via the qmsg Directory and ranked
-  locality (the nearby collector — the `examples/qmsg_directory.zig`
-  pattern).
+- Region-local rollup sinks attach through the `qmesh_messaging` pool,
+  with the application selecting a nearby collector and resolving its
+  messaging endpoint (see `examples/qmsg_directory.zig`).
 - Fleet queries and alert-policy changes broadcast over Plumtree;
   bulk payloads ride qmsg sessions.
 

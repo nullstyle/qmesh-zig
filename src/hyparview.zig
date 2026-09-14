@@ -117,6 +117,7 @@ pub const Sample = struct {
 /// receiver's decode scratch or the sender's emit scratch, both of
 /// which outlive the handle/encode cycle that consumes them.
 pub const Msg = union(enum) {
+    pub const effect_capacity = 2 * max_active + 2 * max_proposals + 8;
     /// Bootstrap membership request. `desc` is the sender's
     /// self-description; the receiver drops it unless the descriptor
     /// id matches the authenticated sender.
@@ -1162,8 +1163,8 @@ test "neighbor handshake accept / urgent-evict / reject" {
     var accepts: usize = 0;
     for (fx.slice()) |e| switch (e) {
         .send => |s| {
-                if (s.msg == .neighbor_accept) accepts += 1;
-            },
+            if (s.msg == .neighbor_accept) accepts += 1;
+        },
         else => {},
     };
     try testing.expectEqual(@as(usize, 1), accepts);
@@ -1179,8 +1180,8 @@ test "neighbor handshake accept / urgent-evict / reject" {
     var rejects: usize = 0;
     for (fx.slice()) |e| switch (e) {
         .send => |s| {
-                if (s.msg == .neighbor_reject) rejects += 1;
-            },
+            if (s.msg == .neighbor_reject) rejects += 1;
+        },
         else => {},
     };
     try testing.expectEqual(@as(usize, 1), rejects);

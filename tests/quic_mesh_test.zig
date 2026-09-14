@@ -56,9 +56,8 @@ const N = node_certs.len;
 /// Bounded per-node delivery collector.
 const Collector = struct {
     count: usize = 0,
-    fn onBroadcast(ctx: ?*anyopaque, origin: qmesh.PeerId, seq: u64, payload: []const u8) void {
-        _ = origin;
-        _ = seq;
+    fn onBroadcast(ctx: ?*anyopaque, id: qmesh.plumtree.MsgId, payload: []const u8) void {
+        _ = id;
         _ = payload;
         const c: *Collector = @ptrCast(@alignCast(ctx.?));
         c.count += 1;
@@ -285,7 +284,10 @@ test "twelve-node mesh over real UDP: bootstrap, broadcast, mass crash, recovery
             return overlayConnected(c.f, &all);
         }
     };
-    f.runUntil(40_000, Converged{ .f = &f }, Converged.ok) catch { std.debug.print("PHASE-FAIL converge\n", .{}); return error.Converge; };
+    f.runUntil(40_000, Converged{ .f = &f }, Converged.ok) catch {
+        std.debug.print("PHASE-FAIL converge\n", .{});
+        return error.Converge;
+    };
 
     // Cert-bound identity end to end: every overlay edge keys on a
     // provisioned digest.
@@ -314,7 +316,10 @@ test "twelve-node mesh over real UDP: bootstrap, broadcast, mass crash, recovery
             return got == N - 1;
         }
     };
-    f.runUntil(20_000, Delivered{ .f = &f }, Delivered.ok) catch { std.debug.print("PHASE-FAIL broadcast1\n", .{}); return error.Broadcast1; };
+    f.runUntil(20_000, Delivered{ .f = &f }, Delivered.ok) catch {
+        std.debug.print("PHASE-FAIL broadcast1\n", .{});
+        return error.Broadcast1;
+    };
     try testing.expectEqual(@as(usize, 0), f.delivered(3)); // no self-delivery
 
     // Mass crash: 25% of the fleet (3 of 12) goes dark without goodbyes.
@@ -416,5 +421,8 @@ test "twelve-node mesh over real UDP: bootstrap, broadcast, mass crash, recovery
             return got >= 6;
         }
     };
-    f.runUntil(20_000, Delivered2{ .f = &f, .survivors = &survivors }, Delivered2.ok) catch { std.debug.print("PHASE-FAIL broadcast2\n", .{}); return error.Broadcast2; };
+    f.runUntil(20_000, Delivered2{ .f = &f, .survivors = &survivors }, Delivered2.ok) catch {
+        std.debug.print("PHASE-FAIL broadcast2\n", .{});
+        return error.Broadcast2;
+    };
 }

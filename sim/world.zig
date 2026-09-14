@@ -186,7 +186,7 @@ pub const World = struct {
 
         sn.node = qmesh.node.Node(SimTransport).init(
             desc,
-            .{ .overlay = w.overlay_cfg, .swim = w.swim_cfg, .broadcast = w.broadcast_cfg },
+            .{ .boot_epoch = (@as(u128, w.seed) << 64) | idx, .overlay = w.overlay_cfg, .swim = w.swim_cfg, .broadcast = w.broadcast_cfg },
             &sn.transport,
             .{ .ctx = log, .onBroadcast = DeliveryLog.onBroadcast },
         );
@@ -470,8 +470,8 @@ pub const World = struct {
             .session_down => |sd| {
                 w.sessions.removePair(sd.a, sd.b);
                 w.stats.sessions_down += 1;
-                if (w.alive.items[sd.a]) w.nodes.items[sd.a].node.onSessionDown(w.descs.items[sd.b].id);
-                if (w.alive.items[sd.b]) w.nodes.items[sd.b].node.onSessionDown(w.descs.items[sd.a].id);
+                if (w.alive.items[sd.a]) w.nodes.items[sd.a].node.onSessionLost(w.descs.items[sd.b].id, .simulated_fault);
+                if (w.alive.items[sd.b]) w.nodes.items[sd.b].node.onSessionLost(w.descs.items[sd.a].id, .simulated_fault);
             },
             .unpause => |r| {
                 if (w.paused_since.items[r.node]) |since| {
@@ -641,6 +641,7 @@ fn peerIdLess(_: void, a: PeerId, b: PeerId) bool {
 pub const DeliveryLog = struct {
     const Collected = struct {
         origin: PeerId,
+        epoch: u128,
         seq: u64,
         len: usize,
         head: [32]u8 = @splat(0),
@@ -650,11 +651,12 @@ pub const DeliveryLog = struct {
     items: std.ArrayListUnmanaged(Collected) = .empty,
     seq_scratch: [1024]u64 = undefined,
 
-    fn onBroadcast(ctx: ?*anyopaque, origin: PeerId, seq: u64, payload: []const u8) void {
+    fn onBroadcast(ctx: ?*anyopaque, id: qmesh.plumtree.MsgId, payload: []const u8) void {
         const log: *DeliveryLog = @ptrCast(@alignCast(ctx.?));
         var rec = Collected{
-            .origin = origin,
-            .seq = seq,
+            .origin = id.origin,
+            .epoch = id.epoch,
+            .seq = id.seq,
             .len = payload.len,
         };
         const n = @min(payload.len, rec.head.len);

@@ -22,14 +22,13 @@ three questions for the processes that run beside it:
 - **how to reach them** (a HyParView overlay of authenticated QUIC
   sessions, locality-ranked),
 - **how to tell everyone something** (Plumtree epidemic broadcast with
-  lazy repair, plus periodic anti-entropy as the eventual-repair
-  backstop).
+  lazy repair and bounded recent-message anti-entropy).
 
 The design bet, in one line each:
 
 > randomized gossip preserves connectivity and discovers change;
-> direct QUIC paths carry sustained traffic; anti-entropy guarantees
-> eventual repair.
+> direct QUIC paths carry sustained traffic; anti-entropy attempts
+> repair while messages remain in the recent cache.
 
 Three properties worth internalizing before the first command:
 
@@ -50,7 +49,7 @@ Three properties worth internalizing before the first command:
 Honest boundaries (what qmesh is NOT):
 
 - **Not consensus.** Membership converges to agreement and broadcast
-  is exactly-once per message, but there is no total order across
+  suppresses duplicates within a bounded cache, with no total order across
   concurrent publishers and no linearizable state. Use it to build
   the *communication and membership* layer, not a database.
 - **Not a message queue.** No persistence, no ordering guarantees
@@ -131,7 +130,7 @@ itself:
 metrics alive=1 suspect=0 dead=0 active=1 passive=0 ranked=1 eager=1 lazy=0
         sess=1 lh=0 rtt_min=2481us rtt_max=2481us probes=12 acks_tx=12 …
 published seq=7
-broadcast origin=c43fffee6eebfd65… seq=7 payload=qmesh-smoke/7
+broadcast origin=c43fffee6eebfd65… epoch=3a9f… seq=7 payload=qmesh-smoke/7
 ```
 
 Reading the metrics line (the gauges that matter day-to-day):
@@ -229,7 +228,7 @@ Everything below the binaries is library. The driver is
 cores on a frames-in/effects-out cycle (`src/node.zig`):
 
 ```zig
-var node = qmesh.Node(FakeTransport).init(me_desc, .{}, &transport, .{
+var node = qmesh.Node(FakeTransport).init(me_desc, .{ .boot_epoch = lifetime_nonce }, &transport, .{
     .ctx = &my_collector,
     .onBroadcast = my_collector.onBroadcast,  // deliveries surface here
 });
@@ -378,31 +377,23 @@ Healthy fleet = every card `alive=N-1 sus=0 dead=0`, full delivery
 
 ## 8. Composing with qmsg (carrying real traffic)
 
-qmesh names and watches peers; it does not carry your payloads (see
-the boundaries in part 0). The uncoupled composition runs
-[qmsg](https://github.com/nullstyle/qmsg) beside it — separate
-socket, separate event loop — sharing exactly one thing: the TLS
-identity. Both derive the same 64 hex characters from the same
-certificate, so `qmesh.PeerId.hex()` == `qmsg.Session.certPeerIdHex()`
-and no naming layer is ever invented.
+qmesh membership and qmsg sessions are joined by the optional
+`qmesh_messaging` module. An application supplies an endpoint resolver,
+asks the pool to `ensure` a member when it needs traffic, and uses only a
+ready session whose certificate matches the expected member. The pool
+owns bounded dials, retry backoff, address replacement, and idle eviction.
+See [messaging composition](MESSAGING.md) for the interface.
 
-The glue is the embedder-owned directory (`examples/qmsg_directory.zig`,
-~200 lines, the pattern to copy):
+Use `Node.member(id)` to inspect one member, or `Node.members(out)` for a
+snapshot with explicit `written`, `total`, and `complete`. Records preserve
+suspicion, confirmed death, and contact provenance. Neither suspicion nor
+omission from an incomplete snapshot proves a qmsg session is unusable.
+Authenticated contact evidence can update a live member's address without
+forcing a membership incarnation change.
 
-```text
-qmesh Node.aliveMembers()  ->  Directory.reconcile()  ->  qmsg dialQuic()
-                                    |
-                               lookup(PeerId) -> SessionId
-```
-
-Your request path is then: resolve the key's owner through the
-directory, `lookup` its qmsg session, send over qmsg's full wire
-(1 MiB messages, reliable streams) — while qmesh's failure detector
-keeps the directory honest. The number that justifies the whole
-design: a death is cluster-agreed in **~5 seconds** (corroborated
-suspicion cuts it further), while a per-connection idle timeout
-notices the same death in **~30 seconds** and cannot distinguish
-"peer gone" from "path gone" at all.
+The default composition uses independent protocol connections. Generic
+connection-driving code can be shared below both libraries; application
+payloads do not travel through qmesh's small gossip frame interface.
 
 ## 9. Chaos campaigns (how much you should trust all this)
 
@@ -460,8 +451,8 @@ rebalancing, broadcast invalidations.
 
 Caveats: qmesh's recent-window anti-entropy is bounded (~32
 payloads) — a long-down node that rejoins needs a bulk sync path
-(yours, or qmsg); and invalidation broadcast is exactly-once per
-message but unordered between concurrent publishers, so version
+(yours, or qmsg); and invalidation broadcast has bounded duplicate suppression and
+no ordering guarantee, so version
 stamps belong in the payload.
 
 ### 10.2 A mesh-native APM (the stack observing itself)
@@ -490,20 +481,20 @@ store — slotted in as just another qmsg consumer.
 
 ### 10.3 Service discovery / a live registry
 
-The simplest composition: `aliveMembers()` IS the registry, polled
-or reconciled into your load-balancer config; `PeerDesc.addr` is
-dialable; the RTT matrix ranks region-local instances; the passive
+Use complete `members()` snapshots or `member(id)` lookups for a
+registry reconciled into load-balancer config; a `PeerDesc.addr` may be
+unknown, and application endpoints come from a resolver; the RTT matrix ranks region-local instances; the passive
 view is a warm standby pool for autoscaling groups to drain into.
-Lean on: 5s death agreement, resurrection, exactly-once membership
-gossip. Caveat: discovery reads are eventually consistent — don't
+Lean on: failure detection, resurrection, and convergent membership
+gossip. Detection latency depends on cluster size, profile, and conditions. Caveat: discovery reads are eventually consistent — don't
 put an admission controller's linearizable decisions on it.
 
 ### 10.4 Cluster-wide config and feature flags
 
-`publish()` a versioned config blob on change; every node delivers
-exactly once, eager fanout in ms, and a node that rebooted mid-roll
-backfills through anti-entropy within a period. Membership gates the
-audience ("flag on for the cluster" = alive set at publish time).
+`publish()` a versioned config hint on change; reachable nodes normally
+learn it quickly. A restarted node may repair retained hints, but must
+fetch the authoritative current config when the cache no longer has
+them. Publication has no fixed audience or delivery deadline.
 Caveat: unordered between concurrent publishes — a version/lamport
 stamp in the payload is the whole fix; and blobs are bounded small
 (1000 B), so ship digests + a fetch path for big configs.
@@ -526,8 +517,8 @@ Kept honest, with what would have to change:
   guarantees): needs a consensus core; qmesh's agreement is
   eventual membership, not total order.
 - **Total-order broadcast** (event sourcing, WAL replication):
-  Plumtree delivers exactly-once per message in DAG order, not a
-  cluster-agreed sequence. A sequencer atop the mesh is buildable
+  Plumtree has bounded duplicate suppression and no ordering contract,
+  so it does not provide a cluster-agreed sequence. A sequencer atop the mesh is buildable
   but is a real distributed-systems project, not a config change.
 - **Bulk data transfer**: frames are ~1 KB by design; use qmsg
   beside it.

@@ -3,8 +3,8 @@
 //!
 //! A **PeerSession** is a stable, authenticated relationship with one
 //! other cluster node — normally exactly one QUIC connection,
-//! multiplexed by every qmesh protocol and eventually by application
-//! traffic. Protocol cores never touch sessions directly; they emit
+//! multiplexed by qmesh protocols. Application messaging uses a separate
+//! protocol connection. Protocol cores never touch sessions directly; they emit
 //! `connect` effects and consume session-up/down events, which keeps
 //! them pure and transport-agnostic.
 //!
@@ -13,8 +13,7 @@
 //! ```zig
 //! sessions.ensure(peer_desc);            // dial if needed, dedupe
 //! sessions.sendDatagram(peer, bytes);    // QUIC DATAGRAM frame
-//! sessions.sendReliable(peer, bytes);    // one frame on a QUIC stream
-//! var stream = try sessions.openStream(peer);
+//! sessions.sendReliable(peer, bytes);    // one bounded frame on a QUIC stream
 //! ```
 //!
 //! so higher layers say `ensure(peer)` rather than dialing QUIC
@@ -22,7 +21,7 @@
 //! the session layer realizes that as a connection.
 //!
 //! This module currently defines only the shared state vocabulary and
-//! the future QUIC mapping notes; the concrete implementations are:
+//! QUIC mapping notes; the concrete implementations are:
 //!
 //! * `qmesh_sim` sessions — the simulator's virtual sessions (dial
 //!   latency, kill/partition semantics), used by the scenario tests.

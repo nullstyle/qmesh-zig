@@ -177,7 +177,8 @@ pub const Runner = struct {
 
     pub const Options = struct {
         /// Endpoint options; `self.addr` is the address peers dial and
-        /// MUST equal `bind` (the runner warns nothing — get it right).
+        /// normally matches `bind`; port zero is replaced by the actual
+        /// bound port. An explicit advertised IP may differ from bind.
         endpoint: endpoint_mod.Options,
         bind: qmesh.Addr,
         /// Park between iterations in `run()`.
@@ -197,6 +198,7 @@ pub const Runner = struct {
     opts: Options,
     ep: *Endpoint,
     sock: posix.socket_t,
+    local_address: qmesh.Addr,
     /// False once stopped/crashed: `step` becomes a no-op but the
     /// socket stays bound (dark) until deinit.
     live: bool = true,
@@ -215,37 +217,49 @@ pub const Runner = struct {
         errdefer ep.deinit();
         _ = try ep.listen();
 
-        // Plumtree ids must not repeat across process restarts: a
-        // restarted node re-publishing (origin, seq) ids its
-        // survivors still hold in the bounded seen cache has those
-        // legitimately deduped as duplicates — silent delivery loss
-        // for exactly the crash-restart pattern the chaos/soak
-        // harnesses drive (the fleet soak measured late-restart
-        // victims' publishes suppressed this way). Base the per-boot
-        // seq range on the wall clock: each lifetime owns a disjoint
-        // range (a node cannot restart within its own publish
-        // window), while the simulator keeps its deterministic 1..N
-        // seqs — this is the transport seam, not the core.
-        var ts: std.c.timespec = undefined;
-        _ = std.c.clock_gettime(std.c.CLOCK.REALTIME, &ts);
-        const unix_us: u64 = @as(u64, @intCast(ts.sec)) * std.time.us_per_s +
-            @as(u64, @intCast(@divTrunc(ts.nsec, 1000)));
-        ep.node.broadcast.next_seq = unix_us | 1;
-
         var sa = toSockAddr(toQuicAddr(opts.bind) orelse return error.NoRoute) orelse return error.NoRoute;
         const sock = try sysSocket(sockFamily(opts.bind));
         errdefer _ = posix.system.close(sock);
         const rc = posix.system.bind(sock, @ptrCast(&sa.storage), sa.len);
         if (posix.errno(rc) != .SUCCESS) return error.BindFailed;
+        var actual: posix.sockaddr.storage = std.mem.zeroes(posix.sockaddr.storage);
+        var actual_len: posix.socklen_t = @sizeOf(posix.sockaddr.storage);
+        if (posix.errno(posix.system.getsockname(sock, @ptrCast(&actual), &actual_len)) != .SUCCESS)
+            return error.AddressUnavailable;
+        const bound: qmesh.Addr = switch (fromSockAddr(&actual)) {
+            .ipv4 => |v| qmesh.Addr.ipv4(v.addr, v.port),
+            .ipv6 => |v| qmesh.Addr.ipv6(v.addr, v.port),
+            .unspecified => return error.AddressUnavailable,
+        };
+        const bound_port: u16 = switch (bound) {
+            .v4 => |v| v.port,
+            .v6 => |v| v.port,
+            .none => unreachable,
+        };
+        switch (ep.opts.self.addr) {
+            .v4 => |*v| if (v.port == 0) {
+                v.port = bound_port;
+            },
+            .v6 => |*v| if (v.port == 0) {
+                v.port = bound_port;
+            },
+            .none => ep.opts.self.addr = bound,
+        }
+        ep.node.overlay.self = ep.opts.self;
+        ep.node.swim.self = ep.opts.self;
 
         const control_sock: ?posix.socket_t = if (opts.control) |c| blk: {
             const csa = toSockAddr(toQuicAddr(c) orelse return error.NoRoute) orelse return error.NoRoute;
             const csock = try sysSocket(sockFamily(c));
+            errdefer _ = posix.system.close(csock);
             const crc = posix.system.bind(csock, @ptrCast(&csa.storage), csa.len);
             if (posix.errno(crc) != .SUCCESS) return error.BindFailed;
             break :blk csock;
         } else null;
 
+        errdefer if (control_sock) |cs| {
+            _ = posix.system.close(cs);
+        };
         const r = try allocator.create(Self);
         errdefer allocator.destroy(r);
         r.* = .{
@@ -253,6 +267,7 @@ pub const Runner = struct {
             .opts = opts,
             .ep = ep,
             .sock = sock,
+            .local_address = bound,
             .last_step_us = nowUs(),
             .control_sock = control_sock,
         };
@@ -270,6 +285,10 @@ pub const Runner = struct {
     /// goodbye; the socket sits dark until `deinit`.
     pub fn stop(r: *Self) void {
         r.live = false;
+    }
+
+    pub fn localAddress(r: *const Self) qmesh.Addr {
+        return r.local_address;
     }
 
     pub fn endpoint(r: *Self) *Endpoint {

@@ -7,7 +7,7 @@ pub fn build(b: *std.Build) !void {
     // --- modules ---------------------------------------------------------
     //
     // `qmesh` (src/) is deliberately transport-generic: it does not import
-    // quic at all. Every protocol core (hyParView, later SWIM/Plumtree) is
+    // quic at all. The HyParView, SWIM and Plumtree protocol cores are
     // a pure state machine parameterized by explicit `now`/`rng` arguments
     // and emitting bounded effect lists, so the library core builds and
     // tests without linking BoringSSL or any transport.
@@ -15,10 +15,8 @@ pub fn build(b: *std.Build) !void {
     // `qmesh_sim` (sim/) is the deterministic in-process simulator — a
     // first-class consumer of qmesh, also quic-free.
     //
-    // quic enters only through `tests/quic_boundary_test.zig`, which pins
-    // the API surface the (next-milestone) QUIC session adapter will build
-    // against, so transport-layer drift fails this build instead of a
-    // future one.
+    // The real adapter enters through qmesh_quic; quic_boundary_test pins
+    // the transport interface it consumes.
 
     const qmesh_mod = b.addModule("qmesh", .{
         .root_source_file = b.path("src/root.zig"),
@@ -32,6 +30,15 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
     qmesh_sim_mod.addImport("qmesh", qmesh_mod);
+
+    // The caller supplies @import("qmsg") to QmsgDialer, preserving one
+    // messaging module instance and keeping the core transport-independent.
+    const messaging_mod = b.addModule("qmesh_messaging", .{
+        .root_source_file = b.path("src/composition/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    messaging_mod.addImport("qmesh", qmesh_mod);
 
     // --- quic dependency -------------------------------------------------
     //
@@ -65,8 +72,8 @@ pub fn build(b: *std.Build) !void {
     // Everything below is DEVELOPMENT-ONLY: the node binary, the test
     // steps, and the tools. `pkg_hash` is empty only for the top-level
     // build, so a downstream consumer that fetched qmesh stops here
-    // with the three public modules (`qmesh`, `qmesh_sim`,
-    // `qmesh_quic`) registered and nothing else configured. Without
+    // with the public core, simulator, QUIC and messaging composition
+    // modules registered and nothing else configured. Without
     // this, every consumer built our test executables. quic-zig's
     // build.zig does the same thing.
     if (b.pkg_hash.len != 0) return;
@@ -97,19 +104,21 @@ pub fn build(b: *std.Build) !void {
 
     // --- composition example ---------------------------------------------
     //
-    // Option A glue: qmesh names and watches peers, qmsg carries the
-    // traffic. The module imports only `qmesh`, so it does NOT couple
-    // this package to qmsg — see examples/qmsg_directory.zig.
+    // The example re-exports the supported composition module. Real qmsg
+    // exchanges and restarts are exercised by tests/composition.
     const qmsg_directory_mod = b.createModule(.{
         .root_source_file = b.path("examples/qmsg_directory.zig"),
         .target = target,
         .optimize = optimize,
     });
-    qmsg_directory_mod.addImport("qmesh", qmesh_mod);
+    qmsg_directory_mod.addImport("qmesh_messaging", messaging_mod);
 
     // --- test steps ------------------------------------------------------
 
     const test_step = b.step("test", "Run qmesh tests (unit + sim + quic boundary)");
+
+    const messaging_tests = b.addTest(.{ .root_module = messaging_mod });
+    test_step.dependOn(&b.addRunArtifact(messaging_tests).step);
 
     const directory_tests = b.addTest(.{ .root_module = qmsg_directory_mod });
     test_step.dependOn(&b.addRunArtifact(directory_tests).step);

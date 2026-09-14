@@ -3,14 +3,13 @@
 A QUIC-native cluster mesh substrate built on [quic-zig](../quic-zig).
 
 qmesh maintains a resilient randomized peer mesh (HyParView), detects
-membership changes (SWIM + Lifeguard, planned), disseminates events
-quickly (Plumtree, planned), repairs missed information (anti-entropy,
-planned), and exposes authenticated peer sessions to higher-level
+membership changes (SWIM + Lifeguard), disseminates small events
+(Plumtree), attempts recent-message repair (anti-entropy), and exposes authenticated peer sessions to higher-level
 distributed systems. It is **not** an actor runtime.
 
 > Design principle: use randomized gossip to preserve connectivity and
 > discover change; use direct QUIC paths for sustained traffic; use
-> anti-entropy to guarantee eventual repair.
+> recent-message anti-entropy to repair retained information.
 
 > New here? **[docs/tutorial.md](docs/tutorial.md)** walks the whole
 > ladder — run a mesh in three terminals, read its telemetry, drive
@@ -84,7 +83,7 @@ distributed systems. It is **not** an actor runtime.
       CONFIRM + eviction, and clean cadence decays them back.
 - [x] Twelve-node mesh over REAL UDP sockets (tests/quic_mesh_test.zig)
       driving the Runner directly: bootstrap convergence with
-      cert-bound identities, exactly-once cluster broadcast, a 25%
+      cert-bound identities, duplicate-suppressed cluster broadcast, a 25%
       mass crash (no goodbyes) with SWIM suspect→confirm and session
       eviction, and post-crash broadcast over the healed mesh.
 - [x] Production posture: reliable sends stage flow-control short
@@ -272,128 +271,95 @@ Documented in `src/hyparview.zig`:
   `active_min`) exists so healed partitions re-merge even when both
   sides refilled their active views while split.
 
-## Composing with qmsg (the uncoupled way)
+## Composing with qmsg
 
-qmesh is a mesh substrate, not a messaging framework. To send
-application messages between cluster members, run
-[qmsg](https://github.com/nullstyle/qmsg) beside it — qmesh names and
-watches peers, qmsg carries the traffic:
+qmesh owns membership and bounded dissemination; qmsg owns application
+messages, request/reply, subscriptions, deadlines, and authorization.
+The optional `qmesh_messaging` module supplies a peer-session pool with
+an injected endpoint resolver and qmsg adapter. See
+[`examples/qmsg_directory.zig`](examples/qmsg_directory.zig) and
+[`docs/MESSAGING.md`](docs/MESSAGING.md).
 
-```text
-  qmesh Node.aliveMembers()  ->  Directory.reconcile()  ->  qmsg dialQuic()
-                                          |
-                                     lookup(PeerId) -> SessionId
-```
+A member, a dialable application endpoint, and an authenticated ready
+qmsg session are separate facts. `Node.member(id)` returns the full
+member record, including `alive`/`suspect`/`dead` and contact provenance.
+`Node.members(out)` reports `written`, `total`, and `complete`; omission
+from an incomplete snapshot never means removal. Suspicion alone does
+not require closing a usable application session. `aliveMembers` remains
+an alive-only compatibility helper, unsuitable for lifecycle decisions.
 
-Each library keeps its own UDP port, its own event loop, and its own
-handshake. The only thing they share is an identity, and neither
-invents it — both derive it from the same TLS certificate:
+Both protocols can derive identity from the same TLS key:
+`qmesh.PeerId` and qmsg's verified peer SPKI are the same 32 bytes.
+The pool verifies the peer reached by a dial against that expected ID;
+certificate/HELLO agreement alone does not establish the intended peer.
+A resolver chooses the application endpoint explicitly; no global
+"gossip port plus one" convention is required. Connections are acquired
+on demand, bounded, retried with backoff, and evicted when idle.
 
-| | identity |
-| --- | --- |
-| qmesh | `PeerId` = `Connection.peerCertSpkiDigest()` |
-| qmsg | `Session.peer_cert_spki` = `Connection.peerCertSpkiDigest()` |
+Separate connections preserve each protocol's own framing, resources,
+and lifecycle. The implementation can share generic connection-driving
+machinery (`quic.app.ConnectionDriver`) without combining wire protocols.
+qmesh uses that driver when supplied by quic-zig; the pinned release
+fallback preserves the same mesh interface. qmesh's 1152-byte reliable
+frames remain protocol traffic, not a tunnel for qmsg's application wire.
 
-so `qmesh.PeerId.hex()` and `qmsg.Session.certPeerIdHex()` are the same
-64 characters for the same peer. `examples/qmsg_directory.zig` is the
-~200-line embedder-owned glue that follows from that.
+## Dissemination contract and capacity
 
-Requires qmsg >= 0.6.1 (earlier releases forwarded a different option
-set to quic-zig, which instantiated quic twice in one binary). Set
-`AuthConfig.cert_binding = .require_match` on the qmsg listener so a
-peer cannot announce an id its certificate does not back.
+`publish(payload)` accepts up to 1000 bytes and returns a local message
+ID. Acceptance is not a cluster delivery acknowledgement. There is no
+persistence, causal ordering, total ordering, fixed publication audience,
+or unbounded eventual-delivery guarantee. A callback borrows its payload
+only for the call; copy data you retain.
 
-### Why not just watch qmsg sessions?
+The recent repair window holds 32 payloads and exchanges at most 16 IDs
+per message (every 10 seconds by default). Duplicate suppression remembers
+256 IDs. Cache eviction can make an old message unrecoverable, and an ID
+received after deduplication eviction may be delivered again. Slow consumers,
+long partitions, and sustained publication must use an application state
+snapshot or durable log for complete reconciliation. qmsg can transport
+that reconciliation; storage and version semantics belong to the application.
 
-Because a qmsg session notices a dead peer only through the QUIC idle
-timeout, and that is slow by design. qmsg's own two-node test measures
-it: with the negotiated idle timeout at 2s, a silent peer's session is
-dropped 2169ms after last contact — the timeout plus about one probe
-interval. `max_idle_timeout_ms` defaults to **30 seconds**, and
-`heartbeat_interval_ms` does not shorten it (a heartbeat keeps a
-session alive; it does not detect death faster).
+A `MsgId` contains `origin`, a 128-bit `epoch`, and `seq`. Raw core callers
+must supply a unique lifetime `boot_epoch` in `Node.Config` (or directly to
+`Plumtree.init`). `Endpoint.init` generates it using a CSPRNG unless explicitly
+overridden for deterministic tests; the simulator derives it from its seed.
+The broadcast hook receives the complete ID. Clock adjustments and process
+restarts therefore do not reuse IDs merely because the TLS key is retained.
+This wire change uses frame version **2** and ALPN **qmesh/2**; mixed versions
+must be upgraded together. Certificate renewal with the same key retains
+PeerId; changing the key creates a different member.
 
-SWIM is built for the question instead. On qmesh's defaults —
-`probe_period 1s`, `probe_timeout 0.5s`, `indirect_timeout 0.5s`,
-`suspicion_timeout 3s` — a death is CONFIRMed in roughly **5 seconds**,
-cluster-wide, and corroborated suspicion cuts that further. Indirect
-probing also distinguishes "the peer is gone" from "our path to it is
-gone", which a per-connection timeout structurally cannot.
+Protocol effects own their slice data until `clear()`; source scratch can be
+reused immediately. Keep a populated effects list in place until consumed.
+Effect capacities are derived from each protocol's maximum fanout/batch work.
+The QUIC adapter bounds staged reliable output to eight frames and tracks
+16 simultaneous receive streams, explicitly refusing excess streams.
+Transport acceptance can still fail or a connection can end; protocol timers
+and bounded repair handle those failures. These limits keep memory bounded
+but are not an application message queue.
 
-That gap — ~5s of cluster-agreed membership against ~30s of
-per-connection silence — is what the composition buys.
+## quic-zig integration
 
-What this deliberately does NOT do: share a socket, share a quic
-Connection, or run qmsg traffic over a qmesh session. Those couple the
-two libraries and cost more than they buy — qmesh's reliable class is a
-fresh uni stream per frame with a 1152-byte frame cap and a 16-stream
-receive table, which is the wrong pipe for 1 MiB request/response
-traffic. Two connections per peer is the price of keeping both wires
-at full strength.
+The adapter uses public QUIC certificate evidence, handshake/close hooks,
+stream allocation/read/write operations, datagrams, and connection timers.
+`tests/quic_boundary_test.zig` pins that surface. The generic
+`quic.app.ConnectionDriver` path borrows accepted or dialed connections,
+with bounded pending output, explicit stream refusal, and one lifecycle
+implementation. Compatibility with the pinned release remains available
+until the shared driver is published.
 
-## quic-zig API gaps discovered
+Identity comes from `Connection.peerCertSpkiDigest()` after mutual TLS.
+An outbound dial must also match its expected PeerId; HELLO cannot substitute
+another certificate-valid peer. Duplicate dials choose the connection initiated
+by the lower PeerId and closing a loser does not report loss of the winner.
+HELLO and protocol frames use the same bounded reliable write path; partial
+writes resume through the outbox and malformed streams close only their peer
+session. Refused streams and protocol errors appear in transport metrics.
 
-Concrete gaps the QUIC adapter will need, for follow-up in quic-zig
-(generic APIs only — no qmesh concepts belong there). The paste-ready
-work order for a quic-zig session lives at
-[docs/quic-zig-session-brief.md](docs/quic-zig-session-brief.md); keep
-that file authoritative as items land:
-
-1. **Peer certificate access (blocking)** — RESOLVED on quic-zig main
-   (post-0.20.0, unreleased 0.21.0). `Connection.peerCertSpkiDigest()`
-   returns SHA-256 over the peer leaf certificate's DER-encoded
-   SubjectPublicKeyInfo once the handshake completed and the peer
-   presented a cert (null otherwise: pre-handshake, optional-client-cert
-   servers with no cert presented, past-open connections).
-   Role-agnostic, renewal-stable (same keypair ⇒ same digest across
-   re-issuance), correct on resumed sessions; preimage matches the
-   standard `openssl x509 -pubkey | openssl pkey -pubin -outform DER |
-   openssl dgst -sha256` pipeline. Backed by boringssl-zig 0.6.6
-   (`SSL_get_peer_certificate` + SPKI DER + SHA-256).
-2. **Dialing by address with private-CA peers vs SNI** — RESOLVED on
-   quic-zig main (same commit). `Client.Config.identity_verification =
-   .none` sends SNI but skips the SAN/CN name check while chain
-   validation against `ca_pem` remains mandatory; `.none` without
-   `ca_pem` is an `InvalidConfig` at connect time (never a silent
-   downgrade). The exact mesh dial posture.
-3. **No session-establishment event** — RESOLVED on quic-zig main
-   (same commit). `Server.Config.on_handshake_complete` fires exactly
-   once per slot, from inside `feed`, the moment the TLS handshake
-   completes; the connection is established and open inside the
-   callback (`peerCertSpkiDigest()` readable, `slot.user_data`
-   installable). Post-init twin: `setOnHandshakeCompleteHook`.
-4. **Datagram send bounds are per-connection queues** (64 pending /
-   64 KiB). Fine for qmesh's steady state; the adapter just needs to
-   count-and-drop on `DatagramQueueFull` like any transport failure.
-   Documented, not a gap requiring change.
-5. **`streamInitiatedByLocal` is not a `Connection` method.** The
-   helper exists in `Connection/streams.zig` but is not thunked onto
-   the embedder surface, so the adapter derives locality from
-   `conn.role` + the stream-id initiator bit. Trivial ergonomics gap;
-   noted in the session brief.
-
-Non-gaps worth noting: RTT (`pathStats(.srtt_us)`), close-cause
-classification (`CloseEvent`/`CloseSource` — maps cleanly onto
-`session.SessionLostReason`), DATAGRAM + stream ergonomics, and the
-in-memory `quic.testing.Loopback` harness are all sufficient as-is.
-Re-analyzed 2026-09-07 — two former "deferred" items are NOT quic-zig
-gaps at all, and no session briefs are warranted for them:
-
-- **0-RTT resumption**: quic-zig ships it complete — client
-  `Config.resumption_state` (versioned envelope) +
-  `new_session_callback` (persistence half), server `early_data`
-  posture with anti-replay gating. Any qmesh adoption is pure
-  adapter wiring (persist one envelope per peer, feed it back on
-  reconnect). Adoption trigger: measured reconnect paths dominated
-  by handshake RTT — today's are timer-dominated (probe rotations,
-  promotion cadence), healing inside one metrics interval on fly.
-- **Stream priorities**: quic-zig ships RFC 9218 complete
-  (`StreamPriority` urgency + incremental, `streamSetPriority`,
-  priority-ordered packetization). qmesh's reliable class is rare,
-  tiny, single-frame uni-streams and the hot path is datagrams —
-  nothing contends. Adoption trigger: reliable-frame contention
-  (large anti-entropy windows starving JOIN/IWANT — the same
-  window-growth family as the IBLT trigger).
+`Runner` is the provided socket loop; `Endpoint.service` supports other
+embedders. Port-zero binding selects an available UDP port and updates a
+zero-port advertisement; `Runner.localAddress()` returns the actual bound
+address. Persistent deployment keys remain an explicit configuration choice.
 
 ## Layout
 
@@ -427,9 +393,8 @@ mise install        # zig 0.17.0-dev.1683+5ceec001b
 zig build test      # unit + simulator + quic boundary tests
 ```
 
-`build.zig.zon` currently points at `../quic-zig` by path for local
-development; release pins move to tarball URL + hash (see quic-zig's
-zon for the `zig fetch` caveats).
+`build.zig.zon` pins a quic-zig release tarball and hash. Keep the
+version and build option set aligned with qmsg when composing both.
 
 ## Running a node (fly smoke-test posture)
 
@@ -461,20 +426,3 @@ health — sustained nonzero means the machine is starving the loop),
 binaries with `-Dtarget=x86_64-linux -Doptimize=ReleaseSafe` (fly
 shared-cpu machines are x86_64). The full two-region smoke procedure
 and its findings live in [deploy/smoke/RUNBOOK.md](deploy/smoke/RUNBOOK.md).
-
-## Next steps (milestone 2)
-
-1. **QUIC session adapter** (`src/quic/`): a `SessionManager` owning
-   one `quic.Server` per node plus outbound dials, implementing the
-   transport contract — `ephemeral` → `sendDatagram`, `reliable` →
-   `frame.stream` writes on a short-lived uni stream, session events
-   from `pollEvent`/close/iterator diffs. Two-node JOIN over
-   `quic.testing.Loopback` is the acceptance test. This is where gap
-   (1) above gets resolved or worked around explicitly.
-2. **SWIM + Lifeguard** (`src/swim.zig`): PING/ACK/PING_REQ probing
-   over the overlay's sessions, incarnation-carrying ALIVE/SUSPECT/
-   CONFIRM events, piggyback dissemination, local-health-aware
-   suspicion. Simulator grows "pause" semantics per app-level (not
-   transport) responsiveness.
-3. Then Plumtree broadcast and periodic anti-entropy, both as pure
-   state machines consuming the same session/transport seam.
