@@ -29,7 +29,35 @@ changes.
 - **`Runner.clockUs()`:** the loop's monotonic clock (the `now_us`
   `on_iteration` receives), for embedders that `step()` and tick a
   side-car on the same time base.
-- **Lazy `mdns` dependency:** mdns-zig v0.1.0 as a tarball pin marked
+- **`--mdns` address ranking and re-admission** (mdns-zig 0.1.1): a
+  `resolved` is per interface, and on a multi-homed Mac the first one
+  for a peer can carry an address this host cannot dial (a VM bridge's
+  subnet base `192.168.215.0`, a VPN tunnel); B was observed joining A
+  at `192.168.215.0:4471` while A listened on `192.168.1.75`. The
+  `SeedSet` now ranks each contact's address against the Service's own
+  interface table (`Service.interfaces()`, passed at both the start-up
+  lookup and the `on_iteration` browse: on-link on the arrival
+  interface first, then on-link anywhere, global v6, foreign-subnet v4,
+  scoped link-local; a local prefix's network base is never dialable)
+  and re-admits an `(id, epoch)` once per strictly better rank. The
+  glue treats a re-admitted contact as a correction: a dial to that id
+  still handshaking is dropped first (new `Endpoint.abandonDial(peer,
+  addr)` -> `.dropped` / `.none` / `.kept` / `.same_addr`; only a
+  client-side session that never bound its peer identity is closed,
+  with no overlay notification) so the `startJoin` that follows dials
+  the better address at once instead of after the QUIC handshake
+  timeout plus the 2 s join retry; a peer that already has a session
+  (established, or handshake done and HELLO pending) keeps it and the
+  contact is ignored (`mdns readmit ignored ...`,
+  `Stats.readmit_ignored`), as does a dial in flight to the re-admitted
+  address itself (a better rank is not always a different address: the
+  same one heard across a bridge, then on its own interface).
+  `Stats.redialed` counts the replaced dials; the join line is now
+  `mdns join|rejoin id=... addr=... rank=<AddrRank> epoch=...
+  ifindex=...`. Tests: `re-admitted contact with a better address
+  replaces a connecting dial` and the re-admission tail of `node B
+  joins node A through mdns discovery` (tests/mdns_discovery_test.zig).
+- **Lazy `mdns` dependency:** mdns-zig v0.1.1 as a tarball pin marked
   `.lazy`; resolved in build.zig only after the dependency-build early
   return, so no library module imports it and a consumer that fetched
   qmesh never downloads it. mdns-zig refuses ReleaseFast/ReleaseSmall,

@@ -1,5 +1,5 @@
 [tools]
-# mdns-zig 0.1.0 floor (its build.zig.zon minimum_zig_version); quic
+# mdns-zig 0.1.1 floor (its build.zig.zon minimum_zig_version); quic
 # 0.21.1 (the tarball pin in build.zig.zon) builds on it too.
 zig = "0.17.0-dev.1786+75044cb04"
 

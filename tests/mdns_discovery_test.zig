@@ -133,7 +133,7 @@ test "qmesh advert on loopback: lookup + SeedSet yields A's PeerId, port and a d
     var seeds: qmesh_mdns.SeedSet = .{};
     var contact: ?profile.Contact = null;
     for (found[0..n]) |*r| {
-        if (seeds.accept(r)) |c| {
+        if (seeds.accept(r, brw.interfaces())) |c| {
             if (std.mem.eql(u8, &c.id, &id_a.bytes)) contact = c;
         }
     }
@@ -144,9 +144,12 @@ test "qmesh advert on loopback: lookup + SeedSet yields A's PeerId, port and a d
     try testing.expectEqual(@as(u8, 127), c.addr.ip4.bytes[0]);
     const addr = qmesh.Addr.fromIp(c.addr) orelse return error.AddrNotDialable;
     try testing.expect(addr.eql(qmesh.Addr.ipv4(c.addr.ip4.bytes, 4451)));
+    // 127.0.0.1 is inside the loopback prefix of the interface it was
+    // heard on: the best rank there is.
+    try testing.expectEqual(mdns.AddrRank.on_link_same_if, c.rank);
     // The same (id, epoch) is not admitted twice; `seeds.stats` says why.
     for (found[0..n]) |*r| {
-        if (seeds.accept(r)) |again| try testing.expect(!std.mem.eql(u8, &again.id, &id_a.bytes));
+        if (seeds.accept(r, brw.interfaces())) |again| try testing.expect(!std.mem.eql(u8, &again.id, &id_a.bytes));
     }
     try testing.expect(seeds.stats.duplicates >= 1);
     try testing.expectEqual(@as(u64, 0), seeds.stats.rejected);
@@ -290,6 +293,75 @@ test "a link-local-only resolve does not use up the peer's (id, epoch) admission
     try testing.expectEqual(@as(u64, 1), disc.stats.joined);
 }
 
+test "re-admitted contact with a better address replaces a connecting dial" {
+    var label: [24]u8 = undefined;
+    var allow: [1]u32 = undefined;
+    const opts = try loopbackOptions(hostLabel(&label, "qmesh-a"), &allow);
+    const runner = try initRunner(idFromHex(node_a_hex), node_a_cert, node_a_key);
+    defer runner.deinit();
+    var disc = try loopbackDiscovery(runner, opts);
+    defer disc.deinit();
+    const ep = runner.endpoint();
+
+    const id_b = idFromHex(node_b_hex);
+    var ad = try profile.Advert.init(.{ .port = 4471, .id = id_b.bytes, .epoch = 0x79 });
+    // Heard first with an address on no local prefix (the multi-homed
+    // case: a bridge or VPN address of B's this host cannot reach).
+    // The dial goes out at once; nothing answers.
+    const foreign = try resolvedFrom(&ad, &.{.{ .ip4 = .{ .bytes = .{ 10, 9, 9, 9 }, .port = 0 } }}, allow[0]);
+    disc.admit(runner, &foreign);
+    try testing.expectEqual(@as(u64, 1), disc.stats.joined);
+    try testing.expectEqual(@as(u64, 1), ep.metrics().transport.dials);
+    try testing.expectEqual(@as(u64, 0), ep.metrics().transport.sessions_closed);
+    try testing.expect(ep.node.overlay.join.?.contact.addr.eql(qmesh.Addr.ipv4(.{ 10, 9, 9, 9 }, 4471)));
+    // The same (id, epoch) again with the same address: a duplicate,
+    // no second dial.
+    disc.admit(runner, &foreign);
+    try testing.expectEqual(@as(u64, 1), disc.seeds.stats.duplicates);
+    try testing.expectEqual(@as(u64, 1), ep.metrics().transport.dials);
+    // Then 127.0.0.1 heard across some other interface (ifindex 12 is
+    // not in the table): inside the loopback prefix, so on-link, a
+    // strictly better rank than the foreign subnet, and the set
+    // re-admits the pair. The in-flight dial to 10.9.9.9 would block
+    // `connectPeer` until its handshake timed out; the glue drops it
+    // first, and the join now points at the better address.
+    const on_link = try resolvedFrom(&ad, &.{.{ .ip4 = .{ .bytes = .{ 127, 0, 0, 1 }, .port = 0 } }}, 12);
+    disc.admit(runner, &on_link);
+    try testing.expectEqual(@as(u64, 1), disc.seeds.stats.readmitted);
+    try testing.expectEqual(@as(u64, 1), disc.stats.redialed);
+    try testing.expectEqual(@as(u64, 0), disc.stats.readmit_ignored);
+    try testing.expectEqual(@as(u64, 2), disc.stats.joined);
+    try testing.expectEqual(@as(u64, 2), ep.metrics().transport.dials);
+    try testing.expectEqual(@as(u64, 1), ep.metrics().transport.sessions_closed);
+    try testing.expect(ep.node.overlay.join.?.contact.addr.eql(qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4471)));
+    // The same 127.0.0.1 heard on the loopback interface itself ranks
+    // better still (on-link on the arrival interface), so the set
+    // re-admits once more, but the address is the one already being
+    // dialed: that handshake is kept, no third dial, no close.
+    const on_link_same_if = try resolvedFrom(&ad, &.{.{ .ip4 = .{ .bytes = .{ 127, 0, 0, 1 }, .port = 0 } }}, allow[0]);
+    disc.admit(runner, &on_link_same_if);
+    try testing.expectEqual(@as(u64, 2), disc.seeds.stats.readmitted);
+    try testing.expectEqual(@as(u64, 1), disc.stats.redialed);
+    try testing.expectEqual(@as(u64, 1), disc.stats.readmit_ignored);
+    try testing.expectEqual(@as(u64, 2), disc.stats.joined);
+    try testing.expectEqual(@as(u64, 2), ep.metrics().transport.dials);
+    try testing.expectEqual(@as(u64, 1), ep.metrics().transport.sessions_closed);
+    // A worse or equal rank after that is a duplicate again: no third
+    // dial, and the abandoned record is not touched.
+    disc.admit(runner, &foreign);
+    disc.admit(runner, &on_link);
+    disc.admit(runner, &on_link_same_if);
+    try testing.expectEqual(@as(u64, 4), disc.seeds.stats.duplicates);
+    try testing.expectEqual(@as(u64, 2), ep.metrics().transport.dials);
+    try testing.expectEqual(@as(u64, 1), ep.metrics().transport.sessions_closed);
+    // An id with no dial in flight has nothing to abandon; a dial in
+    // flight to the very address asked for is left alone.
+    const dialed = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4471);
+    try testing.expectEqual(qmesh_quic.Endpoint.AbandonResult.none, ep.abandonDial(idFromHex(node_a_hex), dialed));
+    try testing.expectEqual(qmesh_quic.Endpoint.AbandonResult.same_addr, ep.abandonDial(id_b, dialed));
+    try testing.expectEqual(@as(u64, 1), ep.metrics().transport.sessions_closed);
+}
+
 test "a boot_epoch change re-announces the advert with the new epoch" {
     var label: [24]u8 = undefined;
     var allow: [1]u32 = undefined;
@@ -400,4 +472,32 @@ test "node B joins node A through mdns discovery instead of --join" {
     // never joined: neither node ever dialed itself.
     try testing.expect(!runner_a.endpoint().establishedWith(id_a));
     try testing.expect(!runner_b.endpoint().establishedWith(id_b));
+
+    // A re-admission against the established session: whichever side
+    // dialed, B's set may or may not hold A's real epoch, so A is
+    // admitted under a fresh one first, at a foreign address (a plain
+    // admission: `connectPeer` is a no-op for an id with a session,
+    // and the JOIN it re-sends is idempotent to an active neighbour).
+    // Then the same epoch at a strictly better-ranked address is a
+    // re-admission, and the session in use wins: ignored, no dial, no
+    // close, still established.
+    const ep_b = runner_b.endpoint();
+    const dials_before = ep_b.metrics().transport.dials;
+    const closed_before = ep_b.metrics().transport.sessions_closed;
+    const joined_before = disc_b.stats.joined;
+    var ad_a = try profile.Advert.init(.{ .port = disc_a.ad.port, .id = id_a.bytes, .epoch = disc_a.epoch +% 1 });
+    const foreign = try resolvedFrom(&ad_a, &.{.{ .ip4 = .{ .bytes = .{ 10, 9, 9, 9 }, .port = 0 } }}, allow_b[0]);
+    disc_b.admit(runner_b, &foreign);
+    try testing.expectEqual(joined_before + 1, disc_b.stats.joined);
+    try testing.expectEqual(@as(u64, 0), disc_b.seeds.stats.readmitted);
+    const on_link = try resolvedFrom(&ad_a, &.{.{ .ip4 = .{ .bytes = .{ 127, 0, 0, 1 }, .port = 0 } }}, allow_b[0]);
+    disc_b.admit(runner_b, &on_link);
+    try testing.expectEqual(@as(u64, 1), disc_b.seeds.stats.readmitted);
+    try testing.expectEqual(@as(u64, 1), disc_b.stats.readmit_ignored);
+    try testing.expectEqual(@as(u64, 0), disc_b.stats.redialed);
+    try testing.expectEqual(joined_before + 1, disc_b.stats.joined);
+    try testing.expectEqual(dials_before, ep_b.metrics().transport.dials);
+    try testing.expectEqual(closed_before, ep_b.metrics().transport.sessions_closed);
+    try testing.expect(ep_b.establishedWith(id_a));
+    try testing.expectEqual(qmesh_quic.Endpoint.AbandonResult.kept, ep_b.abandonDial(id_a, qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, disc_a.ad.port)));
 }

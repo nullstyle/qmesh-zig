@@ -22,8 +22,8 @@
         // return. Same tarball form as quic, same "edit by hand" rule.
         // Option map is {target, optimize}; mdns-zig is std-only.
         .mdns = .{
-            .url = "https://github.com/nullstyle/mdns-zig/archive/refs/tags/v0.1.0.tar.gz",
-            .hash = "mdns-0.1.0-WRx6Pmn2DgA45G_lq-3XBONp8MURpe79QGP4fMUmP30L",
+            .url = "https://github.com/nullstyle/mdns-zig/archive/refs/tags/v0.1.1.tar.gz",
+            .hash = "mdns-0.1.1-WRx6Po1rDwB0O0QRIhRkeWteVWKD-w7xTdKBJdFh2CJY",
             .lazy = true,
         },
     },

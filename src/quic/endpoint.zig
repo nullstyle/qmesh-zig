@@ -993,6 +993,54 @@ pub const Endpoint = struct {
         const s = e.by_peer.get(peer) orelse return null;
         return s.peer_desc;
     }
+
+    pub const AbandonResult = enum {
+        /// An in-flight client dial to the peer was closed; the next
+        /// `connectPeer` for that id dials afresh.
+        dropped,
+        /// No dial to the peer was in flight.
+        none,
+        /// The peer already has a session (established, or handshake
+        /// done and HELLO pending): the address in use works, nothing
+        /// was touched.
+        kept,
+        /// The in-flight dial already targets `addr`: left alone, its
+        /// handshake is as good as a fresh one to the same place.
+        same_addr,
+    };
+
+    /// Give up an in-flight client dial to `peer` unless it already
+    /// targets `addr`, so the next connect for that id (the
+    /// `startJoin` the caller issues right after) dials a different
+    /// address at once. The discovery glue (src/quic/discovery.zig)
+    /// calls this when a better-ranked address for a peer arrives
+    /// while the dial of a worse one is still handshaking:
+    /// `connectPeer` returns early while any dial to the id is
+    /// `.connecting`, so without this the better address waits for the
+    /// QUIC handshake timeout plus the next join retry. A better rank
+    /// is not always a different address (the same address heard first
+    /// across a bridge, then on its own interface), and a healthy
+    /// handshake to `addr` itself is kept (`.same_addr`). Only a
+    /// client-side session that never bound its peer identity is
+    /// dropped (`dropSession`: transport closed, no overlay
+    /// notification — the overlay never saw it); a session in
+    /// `by_peer` is left alone whatever its state.
+    pub fn abandonDial(e: *Self, peer: PeerId, addr: Addr) AbandonResult {
+        if (e.by_peer.get(peer)) |_| return .kept;
+        const want = toQuicAddr(addr);
+        var result: AbandonResult = .none;
+        for (e.sessions.items) |s| {
+            const t = s.target orelse continue;
+            if (!t.eql(peer) or s.state != .connecting or s.client == null) continue;
+            if (want != null and quicAddrEql(s.dial_addr, want.?)) {
+                result = .same_addr;
+                continue;
+            }
+            e.dropSession(s);
+            result = .dropped;
+        }
+        return result;
+    }
 };
 
 fn lostReason(event: quic.CloseEvent) qmesh.session.SessionLostReason {
@@ -1037,6 +1085,21 @@ fn toQuicAddr(a: Addr) ?quic.Address {
         .none => null,
         .v4 => |v4| .{ .ipv4 = .{ .addr = v4.octets, .port = v4.port } },
         .v6 => |v6| .{ .ipv6 = .{ .addr = v6.octets, .port = v6.port } },
+    };
+}
+
+/// Same family, address bytes and port; `.unspecified` equals nothing.
+pub fn quicAddrEql(a: quic.Address, b: quic.Address) bool {
+    return switch (a) {
+        .ipv4 => |v4| switch (b) {
+            .ipv4 => |w| v4.port == w.port and std.mem.eql(u8, &v4.addr, &w.addr),
+            else => false,
+        },
+        .ipv6 => |v6| switch (b) {
+            .ipv6 => |w| v6.port == w.port and std.mem.eql(u8, &v6.addr, &w.addr),
+            else => false,
+        },
+        .unspecified => false,
     };
 }
 

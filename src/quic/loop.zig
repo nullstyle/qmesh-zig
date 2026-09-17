@@ -141,19 +141,7 @@ fn sockFamily(a: qmesh.Addr) posix.sa_family_t {
 }
 
 /// Address equality (family, bytes, port) for the ingress filter.
-fn quicAddrEql(a: quic.Address, b: quic.Address) bool {
-    return switch (a) {
-        .ipv4 => |v4| switch (b) {
-            .ipv4 => |w| v4.port == w.port and std.mem.eql(u8, &v4.addr, &w.addr),
-            else => false,
-        },
-        .ipv6 => |v6| switch (b) {
-            .ipv6 => |w| v6.port == w.port and std.mem.eql(u8, &v6.addr, &w.addr),
-            else => false,
-        },
-        .unspecified => false,
-    };
-}
+const quicAddrEql = endpoint_mod.quicAddrEql;
 
 fn fromSockAddr(st: *const posix.sockaddr.storage) quic.Address {
     const sa: *const posix.sockaddr = @ptrCast(st);

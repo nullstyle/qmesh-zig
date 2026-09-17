@@ -437,7 +437,7 @@ joined. It then advertises itself — instance `--name <label>` (env
 TXT `id=<PeerId hex>` and `epoch=<boot epoch>` — and keeps browsing from
 the runner loop, joining each new `(id, epoch)` it hears (a peer that
 restarts re-announces a new epoch and is joined again). Every join is
-an `mdns join id=... addr=...` line on stderr. Because the advertised
+an `mdns join id=... addr=... rank=...` line on stderr. Because the advertised
 `id` reaches every node on the LAN, `qmesh-node` checks `--id` against
 the SPKI digest of `--cert` at start-up (`PeerId.fromCertPem`) and
 refuses a mismatch — with or without `--mdns`, a wrong id fails every
@@ -458,6 +458,21 @@ a `--join` contact typed by an operator. A forged advert costs one
 failed dial. Link-local IPv6 contacts are skipped (`Addr` has no scope
 field, and the socket loop sends scope id 0); a peer with an IPv4 or a
 global/ULA IPv6 address is joined.
+
+Address ranking (mdns-zig 0.1.1): a peer is resolved once per
+interface it is heard on, and on a multi-homed host (a Mac with a VM
+bridge or a VPN) the first resolve can carry an address this host
+cannot dial, such as the bridge subnet's base `192.168.215.0`. The
+node ranks every candidate against its own interface table and dials
+the best one: on-link on the interface the answer arrived on, then
+on-link on any local interface, then a global IPv6, then an IPv4 on a
+foreign subnet (`rank=` in the join line names the tier). When a later
+resolve for the same peer ranks strictly better, the node re-joins at
+that address (`mdns rejoin ...`): a dial to the worse address that is
+still handshaking is dropped so the better one goes out at once,
+while a peer that already has a session up keeps it (`mdns readmit
+ignored ...`). Two equally on-link addresses keep first-arrival
+order; bind the address you want peers to dial.
 
 Multicast does not exist on fly 6pn, so `--mdns` is a LAN and
 development convenience, never the production bootstrap — `--join` /

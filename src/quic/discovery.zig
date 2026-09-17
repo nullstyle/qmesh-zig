@@ -23,6 +23,18 @@
 //!    not joined again a second later, and a peer that re-announces
 //!    with a new `epoch` (it restarted) is joined again.
 //!
+//! Addresses (mdns-zig 0.1.1): a `resolved` is per interface, and on a
+//! multi-homed host the first to arrive can carry an address this
+//! host cannot dial (a VM bridge's subnet base, a VPN tunnel). The
+//! `SeedSet` ranks each contact's address against the Service's own
+//! interface table (`Service.interfaces()`: on-link on the arrival
+//! interface first) and re-admits an `(id, epoch)` once per strictly
+//! better rank. `admit` takes a re-admitted contact as a correction:
+//! a dial to that id still handshaking is dropped
+//! (`Endpoint.abandonDial`) so the `startJoin` that follows dials the
+//! better address at once instead of after the handshake timeout plus
+//! the join retry; a peer that already has a session keeps it.
+//!
 //! The TXT `id` is an unauthenticated selector only: it says which
 //! PeerId to expect at that address, and the pinned-CA mTLS handshake
 //! plus HELLO (src/quic/hello.zig) is the proof, exactly as for a
@@ -76,6 +88,13 @@ pub const Stats = struct {
     skipped_addr: u64 = 0,
     /// `Service.updateTxt` calls after a `boot_epoch` change.
     epoch_updates: u64 = 0,
+    /// Re-admitted contacts (a better-ranked address for a known
+    /// `(id, epoch)`) that replaced an in-flight dial to that id.
+    redialed: u64 = 0,
+    /// Re-admitted contacts ignored because the id already had a
+    /// session, or a dial in flight to that very address (a better
+    /// rank is not always a different address).
+    readmit_ignored: u64 = 0,
 };
 
 pub const Discovery = struct {
@@ -199,20 +218,45 @@ pub const Discovery = struct {
             },
         };
         d.stats.seeds_found = n;
-        for (found[0..n]) |*r| d.admit(runner, r);
+        // Before `boot.deinit()`: its interface table ranks the addresses.
+        for (found[0..n]) |*r| d.admitWith(runner, r, boot.interfaces());
     }
 
-    /// One `resolved` through the `SeedSet`: at most one join per
-    /// `(id, epoch)`, never ourselves, never an address `Addr` cannot
-    /// carry. A `resolved` is per interface, so a peer heard first on
-    /// an interface that only gives it a link-local v6 must not use up
-    /// its `(id, epoch)` admission: the set forgets it again, and the
-    /// next interface's `resolved` (v4, a global v6) is admitted.
+    /// `admitWith` against the long-lived Service's interface table
+    /// (`Service.interfaces()` aliases the table until the next tick;
+    /// read at the point of use, never kept).
     ///
     /// Public so tests/mdns_discovery_test.zig can feed hand-built
     /// `Resolved` values without a second Service.
     pub fn admit(d: *Self, runner: *qmesh_quic.Runner, r: *const mdns.Resolved) void {
-        const c = d.seeds.accept(r) orelse return;
+        d.admitWith(runner, r, d.svc.interfaces());
+    }
+
+    /// One `resolved` through the `SeedSet`: one join per `(id,
+    /// epoch)`, plus one per strictly better-ranked address for it
+    /// (`local` is the browser's own interface table, which ranks
+    /// on-link addresses first); never ourselves, never an address
+    /// `Addr` cannot carry. A `resolved` is per interface, so a peer
+    /// heard first on an interface that only gives it a link-local v6
+    /// must not use up its `(id, epoch)` admission: the set forgets it
+    /// again, and the next interface's `resolved` (v4, a global v6) is
+    /// admitted.
+    ///
+    /// A re-admitted contact corrects an earlier join of a worse
+    /// address for the same id. If that id already has a session the
+    /// address in use evidently works and the contact is ignored
+    /// (`Stats.readmit_ignored`), as it is when the dial in flight
+    /// already targets the re-admitted address (the rank rose because
+    /// the same address was heard on its own interface after a bridge
+    /// or an unknown one); otherwise a dial to it still handshaking is
+    /// dropped first (`Endpoint.abandonDial`, `Stats.redialed`) so the
+    /// `startJoin` below dials the better address now. `startJoin`
+    /// itself is safe to repeat: it replaces the pending join's
+    /// contact and re-emits the connect.
+    pub fn admitWith(d: *Self, runner: *qmesh_quic.Runner, r: *const mdns.Resolved, local: []const mdns.Interface) void {
+        const readmitted_before = d.seeds.stats.readmitted;
+        const c = d.seeds.accept(r, local) orelse return;
+        const readmit = d.seeds.stats.readmitted != readmitted_before;
         const id: qmesh.PeerId = .{ .bytes = c.id };
         if (id.eql(d.self_id)) {
             d.stats.skipped_self += 1;
@@ -227,11 +271,28 @@ pub const Discovery = struct {
             }
             return;
         };
-        runner.endpoint().startJoin(.{ .id = id, .addr = addr });
+        const ep = runner.endpoint();
+        if (readmit) switch (ep.abandonDial(id, addr)) {
+            .kept, .same_addr => |why| {
+                d.stats.readmit_ignored += 1;
+                if (d.opts.log) {
+                    const hex = id.hex();
+                    std.debug.print("mdns readmit ignored id={s} addr={f} rank={t} ({s})\n", .{
+                        hex[0..16], c.addr, c.rank, if (why == .kept) "session up" else "dial in flight to it",
+                    });
+                }
+                return;
+            },
+            .dropped => d.stats.redialed += 1,
+            .none => {},
+        };
+        ep.startJoin(.{ .id = id, .addr = addr });
         d.stats.joined += 1;
         if (d.opts.log) {
             const hex = id.hex();
-            std.debug.print("mdns join id={s} addr={f} epoch={x} ifindex={d}\n", .{ hex[0..16], c.addr, c.epoch, c.ifindex });
+            std.debug.print("mdns {s} id={s} addr={f} rank={t} epoch={x} ifindex={d}\n", .{
+                if (readmit) "rejoin" else "join", hex[0..16], c.addr, c.rank, c.epoch, c.ifindex,
+            });
         }
     }
 };
