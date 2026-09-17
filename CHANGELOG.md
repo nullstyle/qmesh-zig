@@ -7,6 +7,49 @@ changes.
 
 ## [Unreleased]
 
+- **Toolchain pin bump:** zig `0.17.0-dev.1786+75044cb04` (was
+  dev.1683), the same build qmsg, shared-studio and mdns-zig pin, in
+  `mise.toml` and `minimum_zig_version`. No source change was needed:
+  every std API qmesh uses is unchanged between the two builds, and the
+  full suite passes on the new pin as is.
+- **`qmesh-node --mdns` LAN discovery** (`src/quic/discovery.zig`, the
+  dev-only `qmesh_mdns` module): one bounded `_qmesh._udp` lookup at
+  start-up joins every advertising node like a `--join` contact, then
+  the node advertises itself (instance `--name` / `QMESH_NAME` or the
+  first 16 hex of its id, TXT `id` + boot `epoch`) and keeps browsing
+  from `Runner.Options.on_iteration`, joining each new `(id, epoch)`
+  through the same `SeedSet`. The TXT id only selects; the mTLS
+  handshake proves the peer. LAN/dev convenience only: multicast does
+  not exist on fly 6pn. Env: `QMESH_MDNS`, `QMESH_NAME`.
+- **`Addr.fromIp(std.Io.net.IpAddress) ?Addr`:** v4 and global/ULA v6
+  project unchanged; link-local v6 (`fe80::/10`) is null whether or not
+  its scope is set — `Addr` has no scope field and the socket loop
+  sends scope id 0, so no link-local destination is routable through
+  it.
+- **`Runner.clockUs()`:** the loop's monotonic clock (the `now_us`
+  `on_iteration` receives), for embedders that `step()` and tick a
+  side-car on the same time base.
+- **Lazy `mdns` dependency:** mdns-zig v0.1.0 as a tarball pin marked
+  `.lazy`; resolved in build.zig only after the dependency-build early
+  return, so no library module imports it and a consumer that fetched
+  qmesh never downloads it. mdns-zig refuses ReleaseFast/ReleaseSmall,
+  so build.zig resolves it only for Debug/ReleaseSafe (the fly
+  posture) or `-Dmdns=true`; a ReleaseFast `qmesh-node` still builds
+  and refuses `--mdns` at start-up (`build_options.mdns`).
+- **`PeerId.fromCertPem(gpa, pem)`:** the SPKI digest of the first
+  certificate in a PEM, bounds-checked DER walk, std only. `qmesh-node`
+  refuses an `--id` that is not the digest of `--cert`
+  (`error.IdCertMismatch`) so a mistyped id is never gossiped or
+  announced over mDNS.
+- **Discovery admission:** a `resolved` that only carries a link-local
+  v6 address no longer uses up the peer's `(id, epoch)` admission; the
+  next interface's `resolved` with a dialable address is joined.
+- **Tests:** `tests/mdns_discovery_test.zig` — two mdns Services on
+  loopback with the qmesh profile (advertise as A, lookup from B,
+  `SeedSet` yields A's PeerId, port and a dialable `Addr`), and two
+  runners over real UDP where B and A find each other by mDNS with no
+  `--join` and establish a real mTLS session. Skips without a `*:5353`
+  bind, a loopback interface, or under `MDNS_HERMETIC=1`.
 - **Wire version 2:** broadcast IDs include a boot epoch; the protocol now
   uses frame version 2 and ALPN `qmesh/2`. Raw `Node` initialization requires
   `boot_epoch`, while `Endpoint` generates it securely by default. Broadcast

@@ -47,6 +47,39 @@ fn idFromHex(hex: []const u8) qmesh.PeerId {
     return id;
 }
 
+test "PeerId.fromCertPem is the provisioned SPKI digest of the node certificate" {
+    const from_a = try qmesh.PeerId.fromCertPem(testing.allocator, cert_a);
+    try testing.expect(from_a.eql(idFromHex(digest_a_hex)));
+    const from_b = try qmesh.PeerId.fromCertPem(testing.allocator, cert_b);
+    try testing.expect(from_b.eql(idFromHex(digest_b_hex)));
+    try testing.expect(!from_a.eql(from_b));
+    // The CA certificate is a different key; a chain file yields its
+    // first (leaf) block.
+    try testing.expect(!(try qmesh.PeerId.fromCertPem(testing.allocator, ca_pem)).eql(from_a));
+    const chain = cert_a ++ ca_pem;
+    try testing.expect((try qmesh.PeerId.fromCertPem(testing.allocator, chain)).eql(from_a));
+    // Not a PEM block, not base64, and a truncated DER body are refused,
+    // never read past their end.
+    try testing.expectError(error.InvalidPem, qmesh.PeerId.fromCertPem(testing.allocator, "not a certificate"));
+    try testing.expectError(error.InvalidPem, qmesh.PeerId.fromCertPem(testing.allocator, "-----BEGIN CERTIFICATE-----\n@@@@\n-----END CERTIFICATE-----\n"));
+    const truncated = comptime blk: {
+        // The first 96 base64 characters of the body (a whole DER prefix,
+        // padding-correct) and nothing after them.
+        const marker = "-----BEGIN CERTIFICATE-----";
+        const body = cert_a[std.mem.indexOf(u8, cert_a, marker).? + marker.len ..];
+        var head: [96]u8 = undefined;
+        var n = 0;
+        for (body) |c| {
+            if (n == head.len) break;
+            if (std.ascii.isWhitespace(c)) continue;
+            head[n] = c;
+            n += 1;
+        }
+        break :blk marker ++ "\n" ++ head ++ "\n-----END CERTIFICATE-----\n";
+    };
+    try testing.expectError(error.InvalidCertificate, qmesh.PeerId.fromCertPem(testing.allocator, truncated));
+}
+
 /// Services both endpoints inside Loopback's driver hook; reads the
 /// clock straight off the Loopback after wiring.
 const MeshDriver = struct {

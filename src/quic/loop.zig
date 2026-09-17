@@ -291,6 +291,14 @@ pub const Runner = struct {
         return r.local_address;
     }
 
+    /// The loop's monotonic clock (microseconds since the first
+    /// runner in this process was created) — the `now_us` that
+    /// `on_iteration` receives. For embedders that `step()` and tick a
+    /// side-car (mDNS discovery) on the same time base.
+    pub fn clockUs() u64 {
+        return nowUs();
+    }
+
     pub fn endpoint(r: *Self) *Endpoint {
         return r.ep;
     }

@@ -2,7 +2,7 @@
     .name = .qmesh,
     .version = "0.2.1",
     .fingerprint = 0xc2bbdb284c1e27c5,
-    .minimum_zig_version = "0.17.0-dev.1683+5ceec001b",
+    .minimum_zig_version = "0.17.0-dev.1786+75044cb04",
     .dependencies = .{
         // Tarball pin, not a path: a `.path` dependency resolves against
         // the package directory, so a FETCHED qmesh (no sibling checkout)
@@ -14,6 +14,17 @@
         .quic = .{
             .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.21.1.tar.gz",
             .hash = "quic-0.21.1-DnSYvS2QMQAg4fI6mvmmyTMKgCqOQKBQfZw3C0TVx_rA",
+        },
+        // LAN peer discovery for the qmesh-node binary only (`--mdns`).
+        // Lazy: the library modules never import it, so a consumer that
+        // fetched qmesh for `qmesh` / `qmesh_quic` never downloads it —
+        // build.zig only resolves it after the dependency-build early
+        // return. Same tarball form as quic, same "edit by hand" rule.
+        // Option map is {target, optimize}; mdns-zig is std-only.
+        .mdns = .{
+            .url = "https://github.com/nullstyle/mdns-zig/archive/refs/tags/v0.1.0.tar.gz",
+            .hash = "mdns-0.1.0-WRx6Pmn2DgA45G_lq-3XBONp8MURpe79QGP4fMUmP30L",
+            .lazy = true,
         },
     },
     // Consumer-facing archive. `sim/` ships because `qmesh_sim` is a

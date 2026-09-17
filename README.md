@@ -373,6 +373,8 @@ src/
   session.zig     session-state vocabulary + QUIC mapping notes
   hyparview.zig   active/passive overlay (pure state machine)
   node.zig        Node(Transport) driver + transport contract
+  quic/
+    discovery.zig qmesh-node's `--mdns` LAN discovery glue (dev-only module)
 sim/
   network.zig     deterministic event heap + policy types
   sessions.zig    virtual session manager (dial/establish/sever)
@@ -382,19 +384,29 @@ sim/
 tests/
   sim_scenarios_test.zig   fault-injection scenarios
   quic_boundary_test.zig   pins the quic-zig API surface
+  mdns_discovery_test.zig  `--mdns` glue over loopback mDNS (real sockets)
 ```
 
 ## Development
 
-Toolchain is pinned via mise (same build as quic-zig):
+Toolchain is pinned via mise (the same build as qmsg and mdns-zig):
 
 ```sh
-mise install        # zig 0.17.0-dev.1683+5ceec001b
-zig build test      # unit + simulator + quic boundary tests
+mise install        # zig 0.17.0-dev.1786+75044cb04
+zig build test      # unit + simulator + quic boundary + mesh + mdns tests
 ```
 
 `build.zig.zon` pins a quic-zig release tarball and hash. Keep the
 version and build option set aligned with qmsg when composing both.
+It also pins [mdns-zig](https://github.com/nullstyle/mdns-zig) as a
+**lazy** tarball dependency: only the `qmesh-node` binary and the
+discovery test use it, no library module imports it, and a consumer
+that fetched qmesh never downloads it. mdns-zig refuses ReleaseFast /
+ReleaseSmall because it parses untrusted UDP, so build.zig resolves it
+only for Debug and ReleaseSafe (the fly posture already) unless
+`-Dmdns=true|false` says otherwise; a ReleaseFast `zig build` still
+produces every binary and test, with a `qmesh-node` that refuses
+`--mdns` at start-up.
 
 ## Running a node (fly smoke-test posture)
 
@@ -413,6 +425,45 @@ openssl x509 -in node.pem -pubkey -noout \
   --cert node.pem --key node.key --ca ca.pem \
   --join <peer-64-hex>:'[fdxx::2]:4451' --metrics-secs 10
 ```
+
+### LAN discovery: `--mdns` (dev and LAN only)
+
+`--mdns` (env `QMESH_MDNS=1`) finds peers over mDNS/DNS-SD instead of,
+or in addition to, `--join`. At start-up the node runs one bounded
+`_qmesh._udp` lookup (3 s, or 500 ms after the last answer) and joins
+every node already advertising, exactly the way a `--join` contact is
+joined. It then advertises itself — instance `--name <label>` (env
+`QMESH_NAME`) or the first 16 hex of its id, SRV port = the bound port,
+TXT `id=<PeerId hex>` and `epoch=<boot epoch>` — and keeps browsing from
+the runner loop, joining each new `(id, epoch)` it hears (a peer that
+restarts re-announces a new epoch and is joined again). Every join is
+an `mdns join id=... addr=...` line on stderr. Because the advertised
+`id` reaches every node on the LAN, `qmesh-node` checks `--id` against
+the SPKI digest of `--cert` at start-up (`PeerId.fromCertPem`) and
+refuses a mismatch — with or without `--mdns`, a wrong id fails every
+peer's identity check anyway.
+
+```sh
+# Two nodes on one LAN, no --join anywhere. Bind the LAN address (it
+# is also the contact the node gossips about itself); the port need
+# not match between nodes.
+./zig-out/bin/qmesh-node --id <a-hex> --bind 192.168.1.10:4451 --cert a.pem --key a.key --ca ca.pem --mdns
+./zig-out/bin/qmesh-node --id <b-hex> --bind 192.168.1.11:4451 --cert b.pem --key b.key --ca ca.pem --mdns
+```
+
+The TXT `id` is an unauthenticated selector: any host on the link can
+publish any digest, so it only says which PeerId to expect at that
+address, and the pinned-CA mTLS handshake plus HELLO proves it, as for
+a `--join` contact typed by an operator. A forged advert costs one
+failed dial. Link-local IPv6 contacts are skipped (`Addr` has no scope
+field, and the socket loop sends scope id 0); a peer with an IPv4 or a
+global/ULA IPv6 address is joined.
+
+Multicast does not exist on fly 6pn, so `--mdns` is a LAN and
+development convenience, never the production bootstrap — `--join` /
+`QMESH_JOIN` remains that. On macOS a Terminal-launched binary inherits
+Terminal's Local Network grant; `mdns warning no_packets_10s` on stderr
+is the signature of a denied one.
 
 Deploy one process per fly machine over the 6pn network (bind the
 machine's private v6; the 6pn interface is MTU 1420, so fly

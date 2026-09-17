@@ -78,6 +78,43 @@ pub fn build(b: *std.Build) !void {
     // build.zig does the same thing.
     if (b.pkg_hash.len != 0) return;
 
+    // --- mdns dependency (development-only, lazy) ------------------------
+    //
+    // `mdns` backs the node binary's `--mdns` LAN discovery and the
+    // discovery test below; no library module imports it, so it is
+    // resolved only here, after the dependency-build early return, and
+    // marked `.lazy` in build.zig.zon: a consumer that fetched qmesh
+    // never downloads it. `lazyDependency` returns null on the first
+    // cold-cache run (the build runner then fetches it and re-runs
+    // this script), so the steps that need it are configured only
+    // when it is present. mdns-zig forwards {target, optimize} and
+    // refuses ReleaseFast/ReleaseSmall (it parses untrusted UDP), so
+    // it is resolved only for Debug/ReleaseSafe (the fly posture
+    // already, deploy/smoke/RUNBOOK.md) unless `-Dmdns` says
+    // otherwise; a ReleaseFast qmesh-node still builds, without
+    // `--mdns` (main.zig reads `build_options.mdns`).
+    const want_mdns = b.option(bool, "mdns", "Build qmesh-node --mdns and the discovery test (default: Debug/ReleaseSafe only)") orelse
+        (optimize == .debug or optimize == .safe);
+    const mdns_dep: ?*std.Build.Dependency = if (want_mdns) b.lazyDependency("mdns", .{
+        .target = target,
+        .optimize = optimize,
+    }) else null;
+    // `qmesh_mdns` (src/quic/discovery.zig) is the glue: seed lookup,
+    // advertise + browse from `on_iteration`, `SeedSet` -> `startJoin`.
+    // A private module (createModule, not addModule) shared by the
+    // node binary and the discovery test.
+    const qmesh_mdns_mod: ?*std.Build.Module = if (mdns_dep) |d| blk: {
+        const m = b.createModule(.{
+            .root_source_file = b.path("src/quic/discovery.zig"),
+            .target = target,
+            .optimize = optimize,
+        });
+        m.addImport("qmesh", qmesh_mod);
+        m.addImport("qmesh_quic", qmesh_quic_mod);
+        m.addImport("mdns", d.module("mdns"));
+        break :blk m;
+    } else null;
+
     // Deployment entry point: one mesh node over the supported socket
     // loop (fly smoke tests drive this binary).
     const node_exe_mod = b.createModule(.{
@@ -88,6 +125,10 @@ pub fn build(b: *std.Build) !void {
     node_exe_mod.addImport("qmesh", qmesh_mod);
     node_exe_mod.addImport("quic", quic_mod);
     node_exe_mod.addImport("qmesh_quic", qmesh_quic_mod);
+    if (qmesh_mdns_mod) |m| node_exe_mod.addImport("qmesh_mdns", m);
+    const node_options = b.addOptions();
+    node_options.addOption(bool, "mdns", qmesh_mdns_mod != null);
+    node_exe_mod.addOptions("build_options", node_options);
     const node_exe = b.addExecutable(.{ .name = "qmesh-node", .root_module = node_exe_mod });
     b.installArtifact(node_exe);
 
@@ -174,4 +215,24 @@ pub fn build(b: *std.Build) !void {
     const session_tests = b.addTest(.{ .root_module = session_tests_mod });
     const run_session_tests = b.addRunArtifact(session_tests);
     test_step.dependOn(&run_session_tests.step);
+
+    // LAN discovery glue: two mdns Services on loopback with the qmesh
+    // profile, the `Addr.fromIp` seam, and a two-node mesh where B
+    // finds A by mDNS instead of `--join`. Dev-only (tests/ does not
+    // ship), and configured only once the lazy dependency is present.
+    if (qmesh_mdns_mod) |m| {
+        const mdns_tests_mod = b.createModule(.{
+            .root_source_file = b.path("tests/mdns_discovery_test.zig"),
+            .target = target,
+            .optimize = optimize,
+        });
+        mdns_tests_mod.addImport("qmesh", qmesh_mod);
+        mdns_tests_mod.addImport("quic", quic_mod);
+        mdns_tests_mod.addImport("qmesh_quic", qmesh_quic_mod);
+        mdns_tests_mod.addImport("mdns", mdns_dep.?.module("mdns"));
+        mdns_tests_mod.addImport("qmesh_mdns", m);
+        const mdns_tests = b.addTest(.{ .root_module = mdns_tests_mod });
+        const run_mdns_tests = b.addRunArtifact(mdns_tests);
+        test_step.dependOn(&run_mdns_tests.step);
+    }
 }

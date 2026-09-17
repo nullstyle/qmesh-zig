@@ -13,12 +13,22 @@
 //! Usage (every flag has an env fallback of the same meaning —
 //! QMESH_ID, QMESH_BIND, QMESH_JOIN (comma-separated), QMESH_CERT /
 //! QMESH_KEY / QMESH_CA (file path or inline PEM), QMESH_METRICS_SECS,
-//! QMESH_PUBLISH_EVERY):
+//! QMESH_PUBLISH_EVERY, QMESH_MDNS, QMESH_NAME):
 //!
 //!   qmesh-node --id <64-hex> --bind '[fdxx::1]:4451' \
 //!              --cert node.pem --key node.key --ca ca.pem \
 //!              [--join <64-hex>:<addr> ...] [--metrics-secs 10] \
-//!              [--publish-every <secs>] [--pmtu-max 1372]
+//!              [--publish-every <secs>] [--pmtu-max 1372] \
+//!              [--mdns [--name <label>]]
+//!
+//! `--mdns` (LAN and dev only — multicast does not exist on fly 6pn)
+//! finds peers over mDNS/DNS-SD instead of, or in addition to,
+//! `--join`: a bounded `_qmesh._udp` lookup at start-up joins every
+//! node already advertising, then the node advertises itself (instance
+//! `--name` or the first 16 hex of its id, TXT id + boot epoch) and
+//! keeps browsing from the loop, joining each new (id, epoch) it
+//! hears. The TXT id only selects; the mTLS handshake proves the peer
+//! (src/quic/discovery.zig).
 //!
 //! fly note: the 6pn WireGuard interface is MTU 1420, so fly
 //! deployments pass --pmtu-max 1372 (1420 - 48 v6+UDP headers) —
@@ -42,6 +52,13 @@ const std = @import("std");
 const qmesh = @import("qmesh");
 const qmesh_quic = @import("qmesh_quic");
 const quic = @import("quic");
+/// `mdns` is false when build.zig left mdns-zig out (ReleaseFast /
+/// ReleaseSmall, or `-Dmdns=false`): `--mdns` is then refused at
+/// start-up and no discovery code is compiled in.
+const build_options = @import("build_options");
+const qmesh_mdns = if (build_options.mdns) @import("qmesh_mdns") else struct {
+    pub const Discovery = void;
+};
 
 const posix = std.posix;
 
@@ -194,10 +211,10 @@ fn printUsage() void {
         \\usage: qmesh-node --id <64-hex-spki-digest> --bind <[v6]:port|v4:port>
         \\                  --cert <pem> --key <pem> --ca <pem>
         \\                  [--join <64-hex>:<addr>] [--metrics-secs <n>]
-        \\                  [--publish-every <secs>]
+        \\                  [--publish-every <secs>] [--mdns [--name <label>]]
         \\  (env fallbacks: QMESH_ID, QMESH_BIND, QMESH_JOIN (comma list),
         \\   QMESH_CERT/QMESH_KEY/QMESH_CA (path or inline PEM),
-        \\   QMESH_METRICS_SECS, QMESH_PUBLISH_EVERY)
+        \\   QMESH_METRICS_SECS, QMESH_PUBLISH_EVERY, QMESH_MDNS, QMESH_NAME)
         \\
     , .{});
 }
@@ -219,10 +236,22 @@ const Runtime = struct {
     /// at most `cap` lines can be lost, and only under a burst bigger
     /// than the ring between two metrics intervals).
     last_evt_pushes: [3]u64 = @splat(0),
+    /// `--mdns` browse + advert, ticked with the runner's clock. Null
+    /// when off, and again after a fatal mdns tick error: discovery
+    /// is a convenience, so it is logged and dropped rather than
+    /// stopping the mesh node.
+    discovery: ?*qmesh_mdns.Discovery = null,
 
     fn onIteration(ctx: ?*anyopaque, r: *qmesh_quic.Runner, now_us: u64) anyerror!void {
-        _ = r;
         const rt: *Runtime = @ptrCast(@alignCast(ctx.?));
+        if (comptime build_options.mdns) {
+            if (rt.discovery) |d| {
+                d.tick(r, now_us) catch |err| {
+                    std.debug.print("mdns stopped: {t}\n", .{err});
+                    rt.discovery = null;
+                };
+            }
+        }
         if (now_us >= rt.next_metrics_us) {
             rt.next_metrics_us = now_us + rt.metrics_interval_us;
             rt.logEvents();
@@ -326,6 +355,8 @@ pub fn main(init: std.process.Init) !void {
     var pmtu_max: u16 = 1380;
     var control_str: ?[]const u8 = null;
     var qlog_count = false;
+    var use_mdns = false;
+    var name: ?[]const u8 = null;
     var joins_buf: [8]qmesh.PeerDesc = undefined;
     var joins_len: usize = 0;
 
@@ -359,6 +390,10 @@ pub fn main(init: std.process.Init) !void {
             pmtu_max = std.fmt.parseInt(u16, v, 10) catch return error.BadPmtuMax;
         } else if (std.mem.eql(u8, arg, "--control")) {
             control_str = args.next() orelse return badFlag("--control needs <[v6]:port|v4:port>");
+        } else if (std.mem.eql(u8, arg, "--mdns")) {
+            use_mdns = true;
+        } else if (std.mem.eql(u8, arg, "--name")) {
+            name = args.next() orelse return badFlag("--name needs a label");
         } else if (std.mem.eql(u8, arg, "--qlog-count")) {
             qlog_count = true;
         } else if (std.mem.eql(u8, arg, "--qlog-dump")) {
@@ -387,6 +422,13 @@ pub fn main(init: std.process.Init) !void {
     if (init.environ_map.get("QMESH_QLOG_COUNT")) |v| {
         qlog_count = std.mem.eql(u8, v, "1") or std.mem.eql(u8, v, "true");
     }
+    if (init.environ_map.get("QMESH_MDNS")) |v| {
+        if (!use_mdns) use_mdns = std.mem.eql(u8, v, "1") or std.mem.eql(u8, v, "true");
+    }
+    if (init.environ_map.get("QMESH_NAME")) |v| {
+        if (name == null) name = v;
+    }
+    if (use_mdns and !build_options.mdns) return badFlag("--mdns: this qmesh-node was built without mdns (ReleaseFast/ReleaseSmall, or -Dmdns=false)");
     if (joins_len == 0) {
         if (init.environ_map.get("QMESH_JOIN")) |joined| {
             var it = std.mem.splitScalar(u8, joined, ',');
@@ -414,6 +456,17 @@ pub fn main(init: std.process.Init) !void {
     defer alloc.free(key);
     const ca = try resolvePem(init, alloc, ca_path, "QMESH_CA", error.MissingCa);
     defer alloc.free(ca);
+    // The id is the cert's SPKI digest by definition (every peer resolves
+    // us to it at the handshake); a mistyped one would be announced over
+    // `--mdns` and dialed by every node on the LAN only to fail identity.
+    const cert_id = qmesh.PeerId.fromCertPem(alloc, cert) catch |err| {
+        std.debug.print("--cert: {t}\n", .{err});
+        return error.BadCert;
+    };
+    if (!cert_id.eql(id)) {
+        std.debug.print("--id {s} is not the SPKI digest of --cert ({s})\n", .{ &id.hex(), &cert_id.hex() });
+        return error.IdCertMismatch;
+    }
 
     installSignalHandlers();
     wire.enabled = qlog_count;
@@ -454,6 +507,23 @@ pub fn main(init: std.process.Init) !void {
     std.debug.print("qmesh-node id={s} joins={d} metrics every {d}s\n", .{ id_hex_str[0..], joins_len, metrics_secs });
     for (joins_buf[0..joins_len]) |contact| {
         runner.endpoint().startJoin(contact);
+    }
+
+    // mDNS after the runner is bound (the advertised port is the bound
+    // one) and before it runs: the seed lookup blocks for up to 3 s,
+    // and its joins queue on the endpoint exactly like the ones above.
+    var discovery: ?qmesh_mdns.Discovery = null;
+    defer if (comptime build_options.mdns) {
+        if (discovery) |*d| d.deinit();
+    };
+    if (comptime build_options.mdns) {
+        if (use_mdns) {
+            discovery = try qmesh_mdns.Discovery.init(alloc, init.io, runner, .{
+                .host_label = id_hex_str[0..16],
+                .instance = name,
+            });
+            rt_storage.discovery = &discovery.?;
+        }
     }
 
     try runner.run();
