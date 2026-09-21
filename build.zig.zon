@@ -12,8 +12,8 @@
         // module rather than compiling BoringSSL twice.
         // (`zig fetch --save` mangles these entries; edit by hand.)
         .quic = .{
-            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.21.2.tar.gz",
-            .hash = "quic-0.21.2-DnSYvQaTMQAfMzLBGZyb9_O4d82qZH6tdMpYYvEKvTwa",
+            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.22.0.tar.gz",
+            .hash = "quic-0.22.0-DnSYvTAhMgCUk_t_RVWcFX-PgAUsi0NB2M-NtNSH_i4N",
         },
         // LAN peer discovery for the qmesh-node binary only (`--mdns`).
         // Lazy: the library modules never import it, so a consumer that
