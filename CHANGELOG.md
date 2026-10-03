@@ -33,6 +33,23 @@ changes.
   when it refused a stream it sent STOP_SENDING only. On v0.24.0 such a
   stream holds a place in the peer's stream window for the life of the
   connection. `tests/quic_boundary_test.zig` now pins the driver.
+- **The driver's receive table is the stream window:** qmesh advertises
+  `initial_max_streams_uni = 64` and `initial_max_streams_bidi = 0`
+  (was quic's default: 64 and 1000), and the driver tracks 64 receive
+  streams (was 16). The driver handles every stream that opened in a
+  service pass before it reads one, and it refused (STOP_SENDING) each
+  stream past its table. So of a burst of complete one-frame streams
+  that arrived in one pass, only 16 were delivered; the rest were lost
+  with no error at the sender. The fallback path (quic v0.21.x, which
+  nest ran before this pin move) frees a slot as soon as its stream
+  ends, so it delivered them all. Measured with the new session test
+  (B fills its places in A's window in one burst, 63 streams): 16
+  delivered before, 63 after, 0 refused. A sender past the window now
+  gets a temporary `StreamLimitExceeded` from `sendReliable`, which the
+  node counts in `sends_failed`. A peer cannot open a bidi stream: its
+  quic refuses to open one, and ours closes a connection whose peer
+  sends one anyway (STREAM_LIMIT_ERROR). Memory: the driver table is
+  76,800 bytes per session (64 x 1,200; was 19,200).
 - **Toolchain pin bump:** zig `0.17.0-dev.1786+75044cb04` (was
   dev.1683), the same build qmsg, shared-studio and mdns-zig pin, in
   `mise.toml` and `minimum_zig_version`. No source change was needed:

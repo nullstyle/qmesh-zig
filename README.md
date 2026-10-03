@@ -333,10 +333,12 @@ PeerId; changing the key creates a different member.
 Protocol effects own their slice data until `clear()`; source scratch can be
 reused immediately. Keep a populated effects list in place until consumed.
 Effect capacities are derived from each protocol's maximum fanout/batch work.
-The QUIC adapter bounds staged reliable output to eight frames and tracks
-16 simultaneous receive streams, explicitly refusing excess streams and
-every bidirectional stream a peer opens (qmesh frames travel only on
-unidirectional streams).
+The QUIC adapter bounds staged reliable output to eight frames. It lets a
+peer have 64 unidirectional streams open at once and no bidirectional
+stream (qmesh frames travel only on unidirectional streams), and it tracks
+one receive stream for each of those 64 places. A sender past the window
+gets a temporary `StreamLimitExceeded`; the receiver does not refuse the
+stream and lose its frame.
 Transport acceptance can still fail or a connection can end; protocol timers
 and bounded repair handle those failures. These limits keep memory bounded
 but are not an application message queue.
@@ -353,7 +355,9 @@ implementation. The pinned release (v0.24.0) has the driver, and
 releases without it (v0.21.x). A refused stream ends in both halves:
 STOP_SENDING, and RESET_STREAM on a bidirectional stream. With
 STOP_SENDING alone our half stays open, and since quic-zig v0.24.0 the
-stream would keep its place in the peer's stream window.
+stream would keep its place in the peer's stream window. With no
+bidirectional window advertised, quic itself closes a connection whose
+peer opens a bidirectional stream; the refusal is the second line.
 
 Identity comes from `Connection.peerCertSpkiDigest()` after mutual TLS.
 An outbound dial must also match its expected PeerId; HELLO cannot substitute

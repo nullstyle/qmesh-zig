@@ -367,53 +367,119 @@ test "bad stream framing closes only the offending mesh session" {
     // service returned successfully to the caller despite malformed input.
 }
 
-test "receive-stream capacity explicitly refuses excess streams without losing peer" {
+test "incomplete streams fill the stream window with no refusal and no lost peer" {
     const p = try Pair.init(testing.allocator, null, null);
     defer p.deinit();
     try p.ready();
+    const window = qmesh_quic.endpoint.meshTransportParams(p.a.opts.pmtu_max).initial_max_streams_uni;
     const conn = p.b.sessions.items[0].conn;
-    for (0..20) |_| {
-        const stream = try conn.openNextUni();
+    // Each stream holds a place in A's window until it ends. B opens
+    // one for every place. When its quic says that the window is full
+    // (temporary), B waits for A to give the ids of closed streams back.
+    var opened: u64 = 0;
+    var waits: usize = 0;
+    while (opened < window) {
+        const stream = conn.openNextUni() catch |err| {
+            try testing.expectEqual(error.StreamLimitExceeded, err);
+            waits += 1;
+            if (waits > 1000) return error.TestUnexpectedResult;
+            try p.lb.step(&p.driver);
+            continue;
+        };
         _ = try conn.streamWrite(stream.id, &.{1}); // keep the length prefix incomplete
+        opened += 1;
     }
+    // A's receive table has a slot for each place: it tracks them all.
+    const a_driver = &p.a.sessions.items[0].driver.?;
     for (0..1000) |_| {
+        if (a_driver.table.count() == window) break;
         try p.lb.step(&p.driver);
-        if (p.a.stats.streams_refused > 0) break;
     }
-    try testing.expect(p.a.stats.streams_refused > 0);
+    try testing.expectEqual(window, a_driver.table.count());
+    try testing.expectEqual(@as(u64, 0), p.a.stats.streams_refused);
+    try testing.expectEqual(@as(u64, 0), p.a.stats.protocol_errors);
+    try testing.expect(p.a.establishedWith(p.b.opts.self.id));
+    // While those streams stay open, B's own frames wait for a place.
+    for (0..200) |_| try p.lb.step(&p.driver);
+    var buf: [qmesh.frame.max_frame_len]u8 = undefined;
+    const hello = try qmesh_quic.hello.encode(.{ .desc = p.b.opts.self }, &buf);
+    try testing.expectError(error.StreamLimitExceeded, p.b.sendReliable(p.a.opts.self.id, hello));
+    try testing.expectEqual(@as(u64, 0), p.a.stats.streams_refused);
+}
+
+test "a burst of reliable frames as large as the stream window is delivered in full" {
+    const p = try Pair.init(testing.allocator, null, null);
+    defer p.deinit();
+    try p.ready();
+    const window = qmesh_quic.endpoint.meshTransportParams(p.a.opts.pmtu_max).initial_max_streams_uni;
+    const b_conn = p.b.sessions.items[0].conn;
+    const hellos_before = p.a.stats.hellos_received;
+    var buf: [qmesh.frame.max_frame_len]u8 = undefined;
+    const hello = try qmesh_quic.hello.encode(.{ .desc = p.b.opts.self }, &buf);
+    // Fill every place B has in A's window before A services once, so A
+    // sees all these streams open in one pass. The send after the last
+    // place waits: the sender sees StreamLimitExceeded at once (it is
+    // temporary), and A never refuses a stream and loses its frame.
+    var sent: u64 = 0;
+    const err = while (sent <= window) : (sent += 1) {
+        p.b.sendReliable(p.a.opts.self.id, hello) catch |e| break e;
+    } else return error.TestUnexpectedResult;
+    try testing.expectEqual(error.StreamLimitExceeded, err);
+    // A gives ids back in batches of half a window, so at least half of
+    // it was free.
+    try testing.expect(sent >= window / 2);
+    for (0..2000) |_| {
+        if (p.a.stats.hellos_received - hellos_before == sent) break;
+        try p.lb.step(&p.driver);
+    }
+    try testing.expectEqual(sent, p.a.stats.hellos_received - hellos_before);
+    try testing.expectEqual(@as(u64, 0), p.a.stats.streams_refused);
+    // The places come back as the streams close.
+    for (0..2000) |_| {
+        if (b_conn.local_uni_ids.limit > b_conn.local_uni_ids.opened) break;
+        try p.lb.step(&p.driver);
+    }
+    try p.b.sendReliable(p.a.opts.self.id, hello);
+    for (0..2000) |_| {
+        if (p.a.stats.hellos_received - hellos_before == sent + 1) break;
+        try p.lb.step(&p.driver);
+    }
+    try testing.expectEqual(sent + 1, p.a.stats.hellos_received - hellos_before);
+    try testing.expectEqual(@as(u64, 0), p.a.stats.streams_refused);
     try testing.expectEqual(@as(u64, 0), p.a.stats.protocol_errors);
     try testing.expect(p.a.establishedWith(p.b.opts.self.id));
 }
 
-test "a peer bidirectional stream is refused in both halves and gives its window place back" {
+test "a peer cannot open a bidirectional stream: the mesh advertises no bidi window" {
     const p = try Pair.init(testing.allocator, null, null);
     defer p.deinit();
     try p.ready();
     const b_conn = p.b.sessions.items[0].conn;
     const a_conn = p.a.sessions.items[0].conn;
-    const hellos_before = p.a.stats.hellos_received;
-    // A whole, valid frame with no FIN. qmesh frames travel only on
-    // unidirectional streams, so A must not deliver it. The stream
-    // closes only when A stops B's half (B then resets it) and resets
-    // its own half: STOP_SENDING alone leaves it open at both ends.
-    var frame_buf: [qmesh.frame.max_frame_len]u8 = undefined;
-    const hello = try qmesh_quic.hello.encode(.{ .desc = p.b.opts.self }, &frame_buf);
-    var msg_buf: [qmesh.frame.stream.max_stream_message]u8 = undefined;
-    const msg = try qmesh.frame.stream.encode(hello, &msg_buf);
-    const stream = try b_conn.openNextBidi();
-    try testing.expectEqual(msg.len, try b_conn.streamWrite(stream.id, msg));
-    for (0..1000) |_| {
-        try p.lb.step(&p.driver);
-        if (b_conn.stream(stream.id) == null and a_conn.peer_bidi_ids.closed == 1) break;
-    }
-    try testing.expectEqual(@as(u64, 1), p.a.stats.streams_refused);
-    try testing.expectEqual(hellos_before, p.a.stats.hellos_received);
-    // Closed in both directions at both ends: B reaped the stream, and A
-    // counted the peer's id closed, so its place in the window is free.
-    try testing.expect(b_conn.stream(stream.id) == null);
-    try testing.expectEqual(@as(u64, 1), b_conn.local_bidi_ids.closed);
-    try testing.expectEqual(@as(u64, 1), a_conn.peer_bidi_ids.closed);
+    // qmesh frames travel only on unidirectional streams. With no bidi
+    // window, a bidi stream cannot take a slot in A's receive table:
+    // B's quic refuses to open one, and A's quic closes a connection
+    // whose peer opens one anyway (STREAM_LIMIT_ERROR).
+    try testing.expectEqual(@as(u64, 0), a_conn.peer_bidi_ids.limit);
+    try testing.expectEqual(@as(u64, 0), b_conn.local_bidi_ids.limit);
+    try testing.expectError(error.StreamLimitExceeded, b_conn.openNextBidi());
+    for (0..100) |_| try p.lb.step(&p.driver);
+    try testing.expectEqual(@as(u64, 0), p.a.stats.streams_refused);
     try testing.expectEqual(@as(u64, 0), p.a.stats.protocol_errors);
     try testing.expect(p.a.establishedWith(p.b.opts.self.id));
     try testing.expect(p.b.establishedWith(p.a.opts.self.id));
+    // A peer that opens one anyway (here B's quic is told that A gave
+    // it a place) loses the connection before A's driver sees it.
+    b_conn.local_bidi_ids.limit = 1;
+    const stream = try b_conn.openNextBidi();
+    _ = try b_conn.streamWrite(stream.id, &.{ 0, 1, 2 });
+    for (0..1000) |_| {
+        if (!p.a.establishedWith(p.b.opts.self.id)) break;
+        try p.lb.step(&p.driver);
+    }
+    try testing.expect(!p.a.establishedWith(p.b.opts.self.id));
+    const close = a_conn.closeEvent().?;
+    try testing.expectEqual(quic.CloseSource.local, close.source);
+    try testing.expectEqual(quic.Connection.transport_error_stream_limit, close.error_code);
+    try testing.expectEqual(@as(u64, 0), p.a.stats.streams_refused);
 }

@@ -148,7 +148,8 @@ const Session = struct {
     /// record is then reaped by the next service pass — `conn` must
     /// not be touched anymore.
     slot_reaped: bool = false,
-    /// Per-stream length-prefix decoders. Streams may interleave, so
+    /// Per-stream length-prefix decoders (fallback path only; the
+    /// driver keeps its own table). Streams may interleave, so
     /// decoder state is per stream id, never per session.
     stream_rx: [max_rx_streams]StreamRx = undefined,
     stream_rx_len: usize = 0,
@@ -168,7 +169,21 @@ const OutSlot = struct {
     bytes: [frame.stream.max_stream_message]u8 = undefined,
 };
 
+/// The fallback path's receive table (quic v0.21.x, no driver). It
+/// frees a slot as soon as its stream ends, each pass.
 const max_rx_streams: usize = 16;
+
+/// How many unidirectional streams a peer may have open toward us at
+/// once: the `initial_max_streams_uni` qmesh advertises. Since quic
+/// v0.24.0 this is a window: a peer stream holds its place until it is
+/// closed in both directions, and past it the sender's `openNextUni`
+/// fails with `StreamLimitExceeded` (temporary). qmesh advertises no
+/// bidirectional window (it never uses bidi streams), and the driver's
+/// receive table has one slot for each place in the window. The driver
+/// tracks every stream that opened in a service pass before it reads
+/// one: a smaller table refused (STOP_SENDING) each stream past it, and
+/// that frame was lost with no error at the sender.
+const peer_uni_window: u64 = 64;
 
 /// The application error code of every stream qmesh refuses.
 const stream_refusal_code: u64 = 1;
@@ -671,7 +686,7 @@ pub const Endpoint = struct {
                 .allocator = e.allocator,
                 .app = e,
                 .conn = s.conn,
-                .max_tracked_streams = max_rx_streams,
+                .max_tracked_streams = peer_uni_window,
                 .datagram_buf_bytes = 1500,
                 .stream_refusal_code = stream_refusal_code,
                 .outbox_limits = .{ .max_streams = max_outbox, .max_bytes = max_outbox * frame.stream.max_stream_message },
@@ -709,6 +724,9 @@ pub const Endpoint = struct {
     /// qmesh frames travel only on unidirectional streams: refuse a
     /// peer bidi stream in both halves. Its entry stays tracked until
     /// the stream ends, and driverStreamData drops what it delivers.
+    /// With no bidi window advertised (meshTransportParams), quic
+    /// closes a connection whose peer opens one; this is the second
+    /// line.
     fn driverStreamOpen(e: *Self, d: *Driver, entry: *Driver.StreamEntry, bidi: bool) !void {
         if (!bidi) return;
         e.stats.streams_refused += 1;
@@ -1107,6 +1125,10 @@ pub fn meshTransportParams(pmtu_max: u16) quic.Connection.TransportParams {
     // Never advertise above 1350 (the generic safe ceiling) or below
     // the QUIC minimum packet size.
     p.max_datagram_frame_size = @min(@as(u16, 1350), @max(@as(u16, 1200), pmtu_max -| 100));
+    // Stream windows: the driver's receive table is sized to the uni
+    // window, and qmesh never opens a bidi stream (see peer_uni_window).
+    p.initial_max_streams_uni = peer_uni_window;
+    p.initial_max_streams_bidi = 0;
     return p;
 }
 
