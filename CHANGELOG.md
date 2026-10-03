@@ -16,6 +16,14 @@ changes.
   open at once, and an id comes back only when its stream is closed in
   both directions. qmesh opens only unidirectional streams and finishes
   each one. The suite passes unchanged (122/122 tests, mdns included).
+- **quic and BoringSSL follow the build mode:** the quic option map is
+  `{target, release = optimize != .debug, sanitize-c = "trap"}`, the
+  same as qmsg's and nest's. quic-zig has no `optimize` option, only
+  the `release` bool, so before this a `-Doptimize=ReleaseSafe` build
+  compiled quic and BoringSSL in Debug. Zig 0.17.0 makes a map that
+  differs between parents a compile error ("file exists in modules
+  'quic' and 'quic0'"). The composition workspace's local quic takes
+  the same `release`.
 - **Toolchain pin bump:** zig `0.17.0-dev.1786+75044cb04` (was
   dev.1683), the same build qmsg, shared-studio and mdns-zig pin, in
   `mise.toml` and `minimum_zig_version`. No source change was needed:

@@ -43,18 +43,23 @@ pub fn build(b: *std.Build) !void {
     // --- quic dependency -------------------------------------------------
     //
     // `dependencyLazy` (not plain `dependency`) with this option set.
-    // The option map must match qmsg's EXACTLY (`target`,
-    // `sanitize-c`): Zig keys the dependency cache on
+    // The option map must match qmsg's and nest's EXACTLY (`target`,
+    // `release`, `sanitize-c`): Zig keys the dependency cache on
     // {pkg_hash, option-set}, so a binary linking both qmesh and qmsg
-    // shares one quic module only while the two maps agree — otherwise
-    // BoringSSL compiles twice and two incompatible `quic.Connection`
-    // types exist in one program. `.sanitize-c = "trap"` is qmsg's
-    // recipe for static-archive BoringSSL objects under ReleaseSafe.
-    // `optimize` is deliberately NOT forwarded: quic-zig registers no
-    // such option (it exposes `-Drelease` instead), and passing it
-    // fails a cold-cache build outright.
+    // shares one quic module only while the maps agree. Zig 0.17.0
+    // makes a mismatch a compile error ("file exists in modules 'quic'
+    // and 'quic0'"); an absent `release` and `.release = false` are
+    // different maps. A parent must forward its `optimize` to qmesh, so
+    // that both compute the same `release`. `.sanitize-c = "trap"` is
+    // qmsg's recipe for static-archive BoringSSL objects under
+    // ReleaseSafe. `optimize` is deliberately NOT forwarded: quic-zig
+    // registers no such option (it exposes `-Drelease` instead), and
+    // passing it fails a cold-cache build outright. `release` carries
+    // the mode (Debug or ReleaseSafe); without it a
+    // `-Doptimize=Release*` build compiles quic and BoringSSL in Debug.
     const quic_dep = try b.dependencyLazy("quic", .{
         .target = target,
+        .release = optimize != .debug,
         .@"sanitize-c" = @as([]const u8, "trap"),
     });
     const quic_mod = quic_dep.module("quic");

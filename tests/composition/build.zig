@@ -11,7 +11,7 @@ pub fn build(b: *std.Build) void {
     // -Dlocal-quic=false to exercise their shared released dependency.
     const local_quic = b.option(bool, "local-quic", "Use the sibling quic-zig checkout") orelse true;
     if (local_quic) {
-        const quic = b.dependency("quic", .{ .target = target, .@"sanitize-c" = @as([]const u8, "trap") });
+        const quic = b.dependency("quic", .{ .target = target, .release = optimize != .debug, .@"sanitize-c" = @as([]const u8, "trap") });
         qmesh.module("qmesh_quic").addImport("quic", quic.module("quic"));
         qmsg.module("qmsg").addImport("quic", quic.module("quic"));
     }
