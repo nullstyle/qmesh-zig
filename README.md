@@ -389,10 +389,11 @@ tests/
 
 ## Development
 
-Toolchain is pinned via mise (the same build as qmsg and mdns-zig):
+Toolchain is pinned via mise (the tagged Zig 0.17.0, the floor of the
+quic-zig v0.24.0 pin, whose build.zig refuses every 0.17.0-dev build):
 
 ```sh
-mise install        # zig 0.17.0-dev.1786+75044cb04
+mise install        # zig 0.17.0
 zig build test      # unit + simulator + quic boundary + mesh + mdns tests
 ```
 

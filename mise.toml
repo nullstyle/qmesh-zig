@@ -1,7 +1,8 @@
 [tools]
-# mdns-zig 0.1.1 floor (its build.zig.zon minimum_zig_version); quic
-# 0.21.1 (the tarball pin in build.zig.zon) builds on it too.
-zig = "0.17.0-dev.1786+75044cb04"
+# The tagged Zig 0.17.0 release: the floor of the quic-zig tarball
+# pin (v0.24.0), whose build.zig refuses every 0.17.0-dev build.
+# mdns-zig 0.1.1 (floor dev.1786) builds on it too.
+zig = "0.17.0"
 
 [env]
 ZIG_GLOBAL_CACHE_DIR = "{{config_root}}/.zig-global-cache"
