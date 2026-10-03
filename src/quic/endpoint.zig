@@ -170,6 +170,27 @@ const OutSlot = struct {
 
 const max_rx_streams: usize = 16;
 
+/// The application error code of every stream qmesh refuses.
+const stream_refusal_code: u64 = 1;
+
+/// RFC 9000 §2.1: bit 1 of a stream id is clear on a bidirectional
+/// stream.
+fn streamIsBidi(stream_id: u64) bool {
+    return stream_id & 2 == 0;
+}
+
+/// Refuse a stream the peer opened, in both halves. STOP_SENDING ends
+/// the half the peer sends on. On a bidirectional stream RESET_STREAM
+/// ends ours: with STOP_SENDING alone our half stays open, and (quic
+/// v0.24.0) the stream keeps its place in the peer's stream window for
+/// the life of the connection. qmesh never writes on a peer stream, so
+/// the reset loses nothing. Errors are ignored, as in quic.app's driver:
+/// the stream is gone or already ended, or memory ran out.
+fn refusePeerStream(conn: *quic.Connection, stream_id: u64) void {
+    conn.streamStopSending(stream_id, stream_refusal_code) catch {};
+    if (streamIsBidi(stream_id)) conn.streamReset(stream_id, stream_refusal_code) catch {};
+}
+
 const StreamRx = struct {
     stream_id: u64,
     dec: frame.stream.Decoder,
@@ -652,10 +673,11 @@ pub const Endpoint = struct {
                 .conn = s.conn,
                 .max_tracked_streams = max_rx_streams,
                 .datagram_buf_bytes = 1500,
-                .stream_refusal_code = 1,
+                .stream_refusal_code = stream_refusal_code,
                 .outbox_limits = .{ .max_streams = max_outbox, .max_bytes = max_outbox * frame.stream.max_stream_message },
                 .hooks = .{
                     .on_handshake = driverHandshake,
+                    .on_stream_open = driverStreamOpen,
                     .on_stream_data = driverStreamData,
                     .on_datagram = driverDatagram,
                     .on_close = driverClose,
@@ -682,8 +704,20 @@ pub const Endpoint = struct {
         if (!s.hello_sent) try e.sendHello(s);
     }
 
+    /// The driver tracks every peer stream its table has room for, a
+    /// bidirectional one too (it refuses only when the table is full).
+    /// qmesh frames travel only on unidirectional streams: refuse a
+    /// peer bidi stream in both halves. Its entry stays tracked until
+    /// the stream ends, and driverStreamData drops what it delivers.
+    fn driverStreamOpen(e: *Self, d: *Driver, entry: *Driver.StreamEntry, bidi: bool) !void {
+        if (!bidi) return;
+        e.stats.streams_refused += 1;
+        refusePeerStream(d.conn, entry.id);
+    }
+
     fn driverStreamData(e: *Self, d: *Driver, entry: *Driver.StreamEntry, bytes: []const u8) !usize {
         const s = d.state.?;
+        if (entry.bidi) return bytes.len; // refused in driverStreamOpen
         if (s.state == .closed) return bytes.len;
         // One frame per stream; the decoder rejects overlong input.
         if (try entry.state.push(bytes)) |fr| {
@@ -754,9 +788,12 @@ pub const Endpoint = struct {
             const local_is_client = s.conn.role == .client;
             const initiated_by_client = (stream_id & 1) == 0;
             if (initiated_by_client == local_is_client) continue;
-            const rx = streamRxFor(s, stream_id) orelse {
+            // qmesh frames travel only on unidirectional streams. A peer
+            // bidi stream is refused, like a uni stream the receive table
+            // has no room for.
+            const rx = (if (streamIsBidi(stream_id)) null else streamRxFor(s, stream_id)) orelse {
                 e.stats.streams_refused += 1;
-                s.conn.streamStopSending(stream_id, 1) catch {};
+                refusePeerStream(s.conn, stream_id);
                 continue;
             };
 

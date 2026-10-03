@@ -299,9 +299,10 @@ on demand, bounded, retried with backoff, and evicted when idle.
 Separate connections preserve each protocol's own framing, resources,
 and lifecycle. The implementation can share generic connection-driving
 machinery (`quic.app.ConnectionDriver`) without combining wire protocols.
-qmesh uses that driver when supplied by quic-zig; the pinned release
-fallback preserves the same mesh interface. qmesh's 1152-byte reliable
-frames remain protocol traffic, not a tunnel for qmsg's application wire.
+qmesh uses that driver when quic-zig supplies it (v0.22.0 and later, so
+the pinned v0.24.0 too); a fallback path with the same mesh interface
+serves older releases. qmesh's 1152-byte reliable frames remain
+protocol traffic, not a tunnel for qmsg's application wire.
 
 ## Dissemination contract and capacity
 
@@ -333,7 +334,9 @@ Protocol effects own their slice data until `clear()`; source scratch can be
 reused immediately. Keep a populated effects list in place until consumed.
 Effect capacities are derived from each protocol's maximum fanout/batch work.
 The QUIC adapter bounds staged reliable output to eight frames and tracks
-16 simultaneous receive streams, explicitly refusing excess streams.
+16 simultaneous receive streams, explicitly refusing excess streams and
+every bidirectional stream a peer opens (qmesh frames travel only on
+unidirectional streams).
 Transport acceptance can still fail or a connection can end; protocol timers
 and bounded repair handle those failures. These limits keep memory bounded
 but are not an application message queue.
@@ -345,8 +348,12 @@ stream allocation/read/write operations, datagrams, and connection timers.
 `tests/quic_boundary_test.zig` pins that surface. The generic
 `quic.app.ConnectionDriver` path borrows accepted or dialed connections,
 with bounded pending output, explicit stream refusal, and one lifecycle
-implementation. Compatibility with the pinned release remains available
-until the shared driver is published.
+implementation. The pinned release (v0.24.0) has the driver, and
+`tests/quic_boundary_test.zig` pins it; the fallback path serves quic-zig
+releases without it (v0.21.x). A refused stream ends in both halves:
+STOP_SENDING, and RESET_STREAM on a bidirectional stream. With
+STOP_SENDING alone our half stays open, and since quic-zig v0.24.0 the
+stream would keep its place in the peer's stream window.
 
 Identity comes from `Connection.peerCertSpkiDigest()` after mutual TLS.
 An outbound dial must also match its expected PeerId; HELLO cannot substitute

@@ -111,6 +111,34 @@ test "adapter surface exercised by the session layer" {
     try std.testing.expect(@hasDecl(quic.testing.Loopback, "step"));
 }
 
+test "session driver: quic.app.ConnectionDriver services every session" {
+    // src/quic/endpoint.zig picks its session path at comptime with
+    // @hasDecl(quic.app, "ConnectionDriver"). Without the driver it
+    // falls back to its own stream loop (the quic v0.21.x path), and a
+    // rename would switch paths silently. Pin the driver and the
+    // options and hooks the endpoint registers.
+    try std.testing.expect(@hasDecl(quic.app, "ConnectionDriver"));
+    const App = struct {
+        pub const ConnState = void;
+        pub const StreamState = void;
+    };
+    const D = quic.app.ConnectionDriver(App);
+    try std.testing.expect(@hasField(D.Options, "max_tracked_streams"));
+    try std.testing.expect(@hasField(D.Options, "stream_refusal_code"));
+    try std.testing.expect(@hasField(D.Options, "outbox_limits"));
+    try std.testing.expect(@hasField(D.Hooks, "on_handshake"));
+    // Peer bidi streams are refused from this hook: the driver tracks
+    // every peer stream its table has room for.
+    try std.testing.expect(@hasField(D.Hooks, "on_stream_open"));
+    try std.testing.expect(@hasField(D.Hooks, "on_stream_data"));
+    try std.testing.expect(@hasField(D.Hooks, "on_datagram"));
+    try std.testing.expect(@hasField(D.Hooks, "on_close"));
+    try std.testing.expect(@hasField(D.StreamEntry, "bidi"));
+    // A refused bidi stream needs both halves ended.
+    try std.testing.expect(@hasDecl(quic.Connection, "streamStopSending"));
+    try std.testing.expect(@hasDecl(quic.Connection, "streamReset"));
+}
+
 test "transport params: datagram + stream budgets exist" {
     const Params = quic.Connection.TransportParams;
     try std.testing.expect(@hasField(Params, "max_datagram_frame_size"));

@@ -24,6 +24,15 @@ changes.
   differs between parents a compile error ("file exists in modules
   'quic' and 'quic0'"). The composition workspace's local quic takes
   the same `release`.
+- **A peer bidirectional stream is refused in both halves:**
+  STOP_SENDING and RESET_STREAM. qmesh frames travel only on
+  unidirectional streams. On the `quic.app.ConnectionDriver` path (quic
+  v0.22.0 and later, so the pinned v0.24.0) the driver tracked a peer
+  bidi stream while its table had room: it delivered the frame and never
+  ended our half. The fallback path (quic v0.21.x) did the same, and
+  when it refused a stream it sent STOP_SENDING only. On v0.24.0 such a
+  stream holds a place in the peer's stream window for the life of the
+  connection. `tests/quic_boundary_test.zig` now pins the driver.
 - **Toolchain pin bump:** zig `0.17.0-dev.1786+75044cb04` (was
   dev.1683), the same build qmsg, shared-studio and mdns-zig pin, in
   `mise.toml` and `minimum_zig_version`. No source change was needed:

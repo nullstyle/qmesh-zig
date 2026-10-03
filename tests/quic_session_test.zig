@@ -384,3 +384,36 @@ test "receive-stream capacity explicitly refuses excess streams without losing p
     try testing.expectEqual(@as(u64, 0), p.a.stats.protocol_errors);
     try testing.expect(p.a.establishedWith(p.b.opts.self.id));
 }
+
+test "a peer bidirectional stream is refused in both halves and gives its window place back" {
+    const p = try Pair.init(testing.allocator, null, null);
+    defer p.deinit();
+    try p.ready();
+    const b_conn = p.b.sessions.items[0].conn;
+    const a_conn = p.a.sessions.items[0].conn;
+    const hellos_before = p.a.stats.hellos_received;
+    // A whole, valid frame with no FIN. qmesh frames travel only on
+    // unidirectional streams, so A must not deliver it. The stream
+    // closes only when A stops B's half (B then resets it) and resets
+    // its own half: STOP_SENDING alone leaves it open at both ends.
+    var frame_buf: [qmesh.frame.max_frame_len]u8 = undefined;
+    const hello = try qmesh_quic.hello.encode(.{ .desc = p.b.opts.self }, &frame_buf);
+    var msg_buf: [qmesh.frame.stream.max_stream_message]u8 = undefined;
+    const msg = try qmesh.frame.stream.encode(hello, &msg_buf);
+    const stream = try b_conn.openNextBidi();
+    try testing.expectEqual(msg.len, try b_conn.streamWrite(stream.id, msg));
+    for (0..1000) |_| {
+        try p.lb.step(&p.driver);
+        if (b_conn.stream(stream.id) == null and a_conn.peer_bidi_ids.closed == 1) break;
+    }
+    try testing.expectEqual(@as(u64, 1), p.a.stats.streams_refused);
+    try testing.expectEqual(hellos_before, p.a.stats.hellos_received);
+    // Closed in both directions at both ends: B reaped the stream, and A
+    // counted the peer's id closed, so its place in the window is free.
+    try testing.expect(b_conn.stream(stream.id) == null);
+    try testing.expectEqual(@as(u64, 1), b_conn.local_bidi_ids.closed);
+    try testing.expectEqual(@as(u64, 1), a_conn.peer_bidi_ids.closed);
+    try testing.expectEqual(@as(u64, 0), p.a.stats.protocol_errors);
+    try testing.expect(p.a.establishedWith(p.b.opts.self.id));
+    try testing.expect(p.b.establishedWith(p.a.opts.self.id));
+}
