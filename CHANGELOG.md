@@ -16,7 +16,9 @@ changes.
   the 4096-stream lifetime cap: the stream limit is a window of streams
   open at once, and an id comes back only when its stream is closed in
   both directions. qmesh opens only unidirectional streams and finishes
-  each one. The suite passes unchanged (122/122 tests, mdns included).
+  each one. The suite passed unchanged at the move (122/122 tests on
+  v0.24.0, mdns included). With the tests that the bidi-stream and
+  receive-table entries below add, it passes 125/125 on v0.24.1.
 - **quic and BoringSSL follow the build mode:** the quic option map is
   `{target, release = optimize != .debug, sanitize-c = "trap"}`, the
   same as qmsg's and nest's. Through v0.24.0 quic-zig had no
