@@ -115,8 +115,9 @@ The second invocation validates their released QUIC dependency instead; the
 third runs qmsg's module tests with the selected QUIC implementation. Public
 package manifests retain URL/hash pins; workspace path dependencies exist only
 in this development test package, which is excluded from release archives.
-The local mise configuration selects the newer compiler required by qmsg;
-the rest of qmesh continues to build with its own pinned compiler.
+The workspace's `mise.toml` pins the same Zig as qmesh's (the tagged
+0.17.0). The sibling qmsg must build on it too; a qmsg with the quic
+v0.24.0 pin does, since that pin needs the same Zig.
 
 The integration test establishes real mesh membership with mutual TLS, sends
 qmsg requests through the peer pool, loses a qmsg session, restarts the

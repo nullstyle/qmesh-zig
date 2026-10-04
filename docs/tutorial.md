@@ -66,12 +66,13 @@ Honest boundaries (what qmesh is NOT):
 
 ```sh
 git clone …/qmesh-zig && cd qmesh-zig
-# quic-zig lives beside it (path dependency in build.zig.zon):
-#   git clone …/quic-zig ../quic-zig
-mise install                    # zig 0.17.0-dev.1683+5ceec001b
-ZIG_GLOBAL_CACHE_DIR=$HOME/prj/zig/quic-zig/.zig-global-cache \
-  zig build test                # expect every step green
+mise install                    # zig 0.17.0
+zig build test                  # expect every step green
 ```
+
+quic-zig is a URL+hash tarball pin in `build.zig.zon` (v0.24.0); the
+first build fetches it. Its build refuses every 0.17.0-dev Zig, so use
+the tagged 0.17.0 that `mise.toml` pins.
 
 The test suite includes a 12-node mesh over real UDP sockets on
 loopback — on a loaded laptop it can take a minute; a one-off timing
