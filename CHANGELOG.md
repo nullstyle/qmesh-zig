@@ -8,26 +8,28 @@ changes.
 ## [Unreleased]
 
 - **Toolchain and quic pin (branch `nest-pin`):** the tagged Zig
-  `0.17.0` (was dev.1786) and quic-zig `v0.24.0` (was v0.22.0), in
+  `0.17.0` (was dev.1786) and quic-zig `v0.24.1` (was v0.22.0), in
   `mise.toml`, `minimum_zig_version` and the composition workspace.
-  quic v0.24.0's build.zig refuses every 0.17.0-dev build, so the two
-  move together. The same quic pin as qmsg and nest. v0.24.0 removes
+  quic v0.24.1's build.zig refuses every 0.17.0-dev build, so the two
+  move together. The same quic pin as qmsg and nest. v0.24.1 has the
+  `src/` of v0.24.0 and also accepts `optimize`. v0.24.0 removes
   the 4096-stream lifetime cap: the stream limit is a window of streams
   open at once, and an id comes back only when its stream is closed in
   both directions. qmesh opens only unidirectional streams and finishes
   each one. The suite passes unchanged (122/122 tests, mdns included).
 - **quic and BoringSSL follow the build mode:** the quic option map is
   `{target, release = optimize != .debug, sanitize-c = "trap"}`, the
-  same as qmsg's and nest's. quic-zig has no `optimize` option, only
-  the `release` bool, so before this a `-Doptimize=ReleaseSafe` build
-  compiled quic and BoringSSL in Debug. Zig 0.17.0 makes a map that
-  differs between parents a compile error ("file exists in modules
-  'quic' and 'quic0'"). The composition workspace's local quic takes
-  the same `release`.
+  same as qmsg's and nest's. Through v0.24.0 quic-zig had no
+  `optimize` option, only the `release` bool, so before this a
+  `-Doptimize=ReleaseSafe` build compiled quic and BoringSSL in Debug
+  (v0.24.1 accepts `optimize` too; the map keeps `release`). Zig
+  0.17.0 makes a map that differs between parents a compile error
+  ("file exists in modules 'quic' and 'quic0'"). The composition
+  workspace's local quic takes the same `release`.
 - **A peer bidirectional stream is refused in both halves:**
   STOP_SENDING and RESET_STREAM. qmesh frames travel only on
   unidirectional streams. On the `quic.app.ConnectionDriver` path (quic
-  v0.22.0 and later, so the pinned v0.24.0) the driver tracked a peer
+  v0.22.0 and later, so the pinned v0.24.1) the driver tracked a peer
   bidi stream while its table had room: it delivered the frame and never
   ended our half. The fallback path (quic v0.21.x) did the same, and
   when it refused a stream it sent STOP_SENDING only. On v0.24.0 such a

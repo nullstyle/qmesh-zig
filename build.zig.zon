@@ -10,15 +10,17 @@
         // qmesh consumable as a package. Same pin and same option map as
         // qmsg and nest, so one binary linking both packages shares ONE
         // quic module rather than compiling BoringSSL twice.
-        // v0.24.0 (tag at 1d34b32): no lifetime stream cap; the stream
-        // limit is a window of streams open at once, and an id comes
-        // back only when its stream is closed in both directions. qmesh
-        // opens only unidirectional streams and finishes each one. Its
-        // floor is the tagged Zig 0.17.0.
+        // v0.24.1 (tag at 4564995; its src/ is v0.24.0's, and the
+        // package also accepts `optimize`, which the shared map does not
+        // pass): no lifetime stream cap; the stream limit is a window of
+        // streams open at once, and an id comes back only when its
+        // stream is closed in both directions. qmesh opens only
+        // unidirectional streams and finishes each one. Its floor is the
+        // tagged Zig 0.17.0.
         // (`zig fetch --save` mangles these entries; edit by hand.)
         .quic = .{
-            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.24.0.tar.gz",
-            .hash = "quic-0.24.0-DnSYvUNHNABoGpnSvxo5VEF7RVsZTxddSW3UGp1vCrPw",
+            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.24.1.tar.gz",
+            .hash = "quic-0.24.1-DnSYvRqMNADDwuJG9qlOxfaaUIGacBiERjfZ5DINt3RH",
         },
         // LAN peer discovery for the qmesh-node binary only (`--mdns`).
         // Lazy: the library modules never import it, so a consumer that

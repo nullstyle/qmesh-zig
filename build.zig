@@ -52,10 +52,12 @@ pub fn build(b: *std.Build) !void {
     // different maps. A parent must forward its `optimize` to qmesh, so
     // that both compute the same `release`. `.sanitize-c = "trap"` is
     // qmsg's recipe for static-archive BoringSSL objects under
-    // ReleaseSafe. `optimize` is deliberately NOT forwarded: quic-zig
-    // registers no such option (it exposes `-Drelease` instead), and
-    // passing it fails a cold-cache build outright. `release` carries
-    // the mode (Debug or ReleaseSafe); without it a
+    // ReleaseSafe. `optimize` is deliberately NOT forwarded: through
+    // v0.24.0 quic-zig registered no such option (it exposes `-Drelease`
+    // instead), and passing it failed a cold-cache build outright.
+    // v0.24.1 accepts it too, but the map keeps `release`, which works
+    // on every release and is the key qmsg and nest pass. `release`
+    // carries the mode (Debug or ReleaseSafe); without it a
     // `-Doptimize=Release*` build compiles quic and BoringSSL in Debug.
     const quic_dep = try b.dependencyLazy("quic", .{
         .target = target,
