@@ -7,6 +7,21 @@ changes.
 
 ## [Unreleased]
 
+- **quic-zig v0.25.0, a security fix:** in every older quic-zig
+  release one short datagram from anyone who saw a packet of a
+  connection (or a datagram a small receive buffer cut short) made
+  `Connection.handle` return an error, and `Server.feed` closed the
+  connection. So one such datagram ended a session a peer had dialed
+  to us. Our dials were not closed (the runner ignores an error from
+  `handle` on a dial connection). v0.25.0 drops such a packet. No API
+  changed and the quic option map is the same. qmesh needs no code
+  change for the other behavior changes: it never maps
+  `error.TooManyInFlight` (`poll` now returns null instead), no test
+  counts Initial packets, and the runner ticks every connection on each
+  pass instead of parking on `nextTimerDeadline`, so a handshake probe
+  deadline needs nothing. Handshakes under loss send more datagrams,
+  earlier. The suite passes unchanged on v0.25.0: 125/125 tests, 25/25
+  steps, mdns included.
 - **Toolchain and quic pin (branch `nest-pin`):** the tagged Zig
   `0.17.0` (was dev.1786) and quic-zig `v0.24.1` (was v0.22.0), in
   `mise.toml`, `minimum_zig_version` and the composition workspace.
