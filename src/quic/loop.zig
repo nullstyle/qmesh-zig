@@ -7,7 +7,8 @@
 //! both acceptor and dialer):
 //!
 //! ```text
-//! ingest (recv → Server.feed, dial connections on feed-drop)
+//! ingest (recv → the dial that owns the DCID, else Server.feed,
+//!         then dial connections on feed-drop)
 //!   → stateless-response drain
 //!   → advance fresh dials (first ClientHello flight)
 //!   → endpoint.service (protocol cores, ingress, timers)
@@ -517,10 +518,22 @@ pub const Runner = struct {
             if (n == 0) break;
             const from_addr = fromSockAddr(&from);
             if (r.dropIn(from_addr)) continue; // chaos: inbound loss
-            // Server-routed first (slots + stateless); datagrams the
-            // server drops may belong to our outbound DIALS — offer
-            // them to each dial connection (wrong-CID packets are
-            // ignored by the connection).
+            // A datagram that carries one of our DIALS' connection IDs,
+            // from the address that dial aims at, is that dial's: give
+            // it to the dial and not to the server. quic-zig v0.26.0
+            // pads a server's first flight to 1200 bytes (RFC 9000
+            // section 14.1), so a peer's ServerHello passes our server's
+            // Initial size gate and would open a half-open slot there
+            // (`.accepted`, never `.dropped`); the dial never saw it.
+            if (r.owningDial(r.buf[0..n], from_addr)) |cli| {
+                cli.conn.handle(r.buf[0..n], from_addr, now) catch {};
+                continue;
+            }
+            // Everything else is server-routed first (slots +
+            // stateless); datagrams the server drops may still belong
+            // to our outbound DIALS — offer them to each dial
+            // connection (wrong-CID packets are ignored by the
+            // connection).
             const outcome = srv.feed(r.buf[0..n], from_addr, now) catch continue;
             if (outcome == .dropped) {
                 // Copy before the fallback: `feed` takes the buffer
@@ -551,6 +564,22 @@ pub const Runner = struct {
             var sa = toSockAddr(resp.dst) orelse continue;
             sysSendto(r.sock, resp.slice(), &sa);
         }
+    }
+
+    /// The live dial that owns `bytes`: it aims at `from`, and the
+    /// datagram's Destination Connection ID is one the dial issued. A
+    /// long header carries the ID's length; a short header uses the
+    /// dial's own ID length.
+    fn owningDial(r: *Self, bytes: []const u8, from: quic.Address) ?*quic.Client {
+        if (bytes.len == 0) return null;
+        for (r.ep.sessions.items) |s| {
+            const cli = s.client orelse continue;
+            if (s.conn.isClosed()) continue;
+            if (!quicAddrEql(s.dial_addr, from)) continue;
+            const dcid = destinationCid(bytes, cli.conn.localDcidLen()) orelse continue;
+            if (cli.conn.ownsLocalCid(dcid)) return cli;
+        }
+        return null;
     }
 
     fn service(r: *Self, now: u64) !void {
@@ -597,6 +626,21 @@ pub const Runner = struct {
         }
     }
 };
+
+/// The Destination Connection ID of the first packet in `bytes`
+/// (RFC 9000 section 17.2: a long header gives its length at byte 5;
+/// section 17.3: a short header's is `short_len`, known to the receiver).
+fn destinationCid(bytes: []const u8, short_len: usize) ?[]const u8 {
+    if (bytes.len == 0) return null;
+    if ((bytes[0] & 0x80) != 0) {
+        if (bytes.len < 6) return null;
+        const len: usize = bytes[5];
+        if (len == 0 or bytes.len < 6 + len) return null;
+        return bytes[6..][0..len];
+    }
+    if (short_len == 0 or bytes.len < 1 + short_len) return null;
+    return bytes[1..][0..short_len];
+}
 
 // --- raw syscall helpers (this toolchain's std.posix has no wrapped
 // socket layer; quic-zig's own socket_opts goes through posix.system

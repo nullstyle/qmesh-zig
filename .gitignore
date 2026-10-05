@@ -2,3 +2,4 @@
 .zig-global-cache/
 zig-out/
 zig-pkg/
+.zig-cache-*/

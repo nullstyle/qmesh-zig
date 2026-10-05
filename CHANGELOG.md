@@ -7,6 +7,32 @@ changes.
 
 ## [Unreleased]
 
+- **quic-zig v0.27.0** (from v0.25.0; v0.26.0 skipped). No security
+  fix, and nothing qmesh calls was removed or renamed; the option map
+  is the same. What the two releases change and qmesh: tokens are 114
+  bytes (were 96), and qmesh's `retry_token_key` / `new_token_key` are
+  32-byte keys, not tokens; qmesh never asks for a key update
+  (`KeyUpdateBlocked` until the handshake is confirmed); its transport
+  parameters go through `Server` and `Client`, which send the
+  connection IDs a peer must now send; it never calls
+  `setRememberedPeerTransportParams` and sets no session-ticket field.
+  No test counts or measures handshake datagrams. One change did break
+  qmesh, the next entry.
+- **A dial's handshake completes on quic-zig v0.26.0 and later.** A
+  node accepts and dials on one socket, and the runner gave every
+  datagram to its server first and to the dials only when the server
+  dropped it. Since v0.26.0 a server pads its first flight to 1200
+  bytes (RFC 9000 section 14.1; it was shorter, and the gate dropped
+  it). So a peer's ServerHello passed our server's Initial size gate and
+  opened a half-open slot there (`feed` said `.accepted`), and the dial
+  never got it. On v0.27.0 the twelve-node mesh test did not converge
+  and the mDNS join test failed. Now `Runner.ingest` gives a datagram
+  first to the live dial that aims at its source address and owns its
+  Destination Connection ID (`Connection.ownsLocalCid`); the rest goes
+  to the server first, as before. New test in
+  `tests/quic_mesh_test.zig`: two nodes over real UDP, B dials A, both
+  sessions establish and no server slot is half open. It failed on
+  v0.27.0 before the fix. 126/126 tests, 25/25 steps, mdns included.
 - **quic-zig v0.25.0, a security fix:** in every older quic-zig
   release one short datagram from anyone who saw a packet of a
   connection (or a datagram a small receive buffer cut short) made

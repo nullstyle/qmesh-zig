@@ -301,9 +301,11 @@ pub const Endpoint = struct {
         // handshakes).
         // The reset key arms ONLY when explicitly provided (like the
         // other deployment keys). A mesh node accepts and dials on ONE
-        // socket, so every inbound packet passes the server first —
-        // a minted reset key makes the server answer our own dials'
-        // connection packets with stateless resets, seeding a
+        // socket, and every inbound packet used to pass the server
+        // first (the runner now gives a dial the packets that carry its
+        // connection IDs first) — a minted reset key made the server
+        // answer our own dials' connection packets with stateless
+        // resets, seeding a
         // reset ping-pong between peers whose auth-failure noise
         // drives key updates and kills real traffic in the update
         // windows (found in the fly smoke + loopback diagnosis:

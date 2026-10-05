@@ -426,3 +426,59 @@ test "twelve-node mesh over real UDP: bootstrap, broadcast, mass crash, recovery
         return error.Broadcast2;
     };
 }
+
+/// Every slot in the runner's server finished its handshake: none is a
+/// half-open connection that a stray datagram opened.
+fn serverSlotsHandshaked(r: *qmesh_quic.Runner) bool {
+    const srv = r.endpoint().server orelse return true;
+    for (srv.iterator()) |slot| {
+        if (!slot.conn.handshakeDone()) return false;
+    }
+    return true;
+}
+
+// A node accepts and dials on ONE socket. A datagram for one of its dials
+// used to go to its server first, and to the dial only when the server
+// dropped it. quic-zig v0.26.0 pads a server's first flight to 1200 bytes
+// (RFC 9000 section 14.1), so the ServerHello passed the dialer's server
+// size gate and opened a half-open slot there, and the dial never got it.
+// On v0.27.0 without the routing fix, this test timed out. Now a datagram
+// goes first to the dial whose connection ID it carries.
+test "two nodes over real UDP: a dial's handshake completes" {
+    const allocator = testing.allocator;
+    var runners: [2]*qmesh_quic.Runner = undefined;
+    var ids: [2]qmesh.PeerId = undefined;
+    var up: usize = 0;
+    defer for (runners[0..up]) |r| r.deinit();
+    for (0..2) |i| {
+        ids[i] = idFromHex(node_certs[i].digest_hex);
+        const addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 0);
+        runners[i] = try qmesh_quic.Runner.init(allocator, .{
+            .endpoint = .{
+                .self = .{ .id = ids[i], .addr = addr },
+                .tls_cert_pem = node_certs[i].cert,
+                .tls_key_pem = node_certs[i].key,
+                .ca_pem = ca_pem,
+                .dial_server_name = "qmesh-test",
+                .overlay_cfg = .{ .join_timeout_us = 500_000, .neighbor_timeout_us = 400_000 },
+                .rng_seed = 0x51 + i,
+                .now_us = 0,
+            },
+            .bind = addr,
+        });
+        up += 1;
+    }
+
+    // B dials A.
+    runners[1].endpoint().startJoin(runners[0].endpoint().node.selfDesc());
+    var slept: u64 = 0;
+    while (slept < 5_000) : (slept += 2) {
+        if (runners[0].endpoint().establishedWith(ids[1]) and
+            runners[1].endpoint().establishedWith(ids[0])) break;
+        for (runners) |r| try r.step();
+        sleepMs(2);
+    }
+    try testing.expect(runners[0].endpoint().establishedWith(ids[1]));
+    try testing.expect(runners[1].endpoint().establishedWith(ids[0]));
+    for (runners) |r| try testing.expect(serverSlotsHandshaked(r));
+}
