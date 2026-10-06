@@ -7,6 +7,35 @@ changes.
 
 ## [Unreleased]
 
+- **quic-zig v0.29.0** (from v0.27.0; v0.28.0 and v0.28.1 skipped). No
+  security fix and no wire change; nothing qmesh calls was removed or
+  renamed, and the option map is the same. qmesh needs no code change.
+  v0.28.0 keeps the end of a stream that a `tick` reclaimed: `quic.app`
+  reports `.fin` or `.reset` for it (it reported `.reaped`), and a
+  stream the application stopped now ends as `.reaped` (it was `.fin`).
+  qmesh sets no `on_stream_end` hook, and the runner services every
+  session before it ticks. qmesh stops a stream only to refuse a peer
+  bidi stream, and drops what such a stream delivers. Its one
+  `Outbox.finish` follows a push on a stream it just opened. The
+  fallback path (quic v0.21.x) reads `streamRecvState`, which did not
+  change. v0.28.1 fixes a 32-bit build. v0.29.0: `Server.feed` makes
+  no connection for a datagram of which no packet opens, and says
+  `.dropped` (through v0.28.1 a peer server's first flight made a
+  half-open slot and `.accepted`; qmesh found it, the entry below). The
+  runner keeps giving a dial its own datagrams first: the server builds
+  no connection for them, and they do not count against its
+  per-source Initial cap or meet a full slot table (the fallback to the
+  dials runs on `.dropped` only). New test in
+  `tests/quic_session_test.zig`: every datagram of A's side goes to B's
+  own server first and to B's dial only on `.dropped`; B's server makes
+  no slot, and the dial's handshake completes. It fails on v0.27.0
+  (`.accepted`) and passes on v0.29.0. Also in v0.29.0: a late packet
+  is not a lost packet, a connection costs about 91 KB of heap (was
+  1.09 MB), a client connects through handshake loss, a lost
+  CONNECTION_CLOSE is sent again, and a Debug build asserts that
+  `feed` and `tick` run on one thread (the runner calls both from its
+  own loop). qmesh sets none of the new config fields. 127/127 tests,
+  25/25 steps, mdns included.
 - **quic-zig v0.27.0** (from v0.25.0; v0.26.0 skipped). No security
   fix, and nothing qmesh calls was removed or renamed; the option map
   is the same. What the two releases change and qmesh: tokens are 114

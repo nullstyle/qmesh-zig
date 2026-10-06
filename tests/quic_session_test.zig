@@ -483,3 +483,66 @@ test "a peer cannot open a bidirectional stream: the mesh advertises no bidi win
     try testing.expectEqual(quic.Connection.transport_error_stream_limit, close.error_code);
     try testing.expectEqual(@as(u64, 0), p.a.stats.streams_refused);
 }
+
+// A node accepts and dials on ONE socket. Since quic-zig v0.26.0 a
+// server's first flight is 1200 bytes, and through v0.28.1 a Server made
+// a half-open connection from it (`feed` said `.accepted`), so a node
+// that gave every datagram to its server first never let its dial see
+// the answer. `Runner.ingest` gives a dial its own datagrams first since
+// then. Since v0.29.0 `feed` makes no connection for a datagram of which
+// no packet opens, and says `.dropped`, so the runner's second route (a
+// dropped datagram goes to the dial aimed at its source) reaches the dial
+// too. This test takes only that second route: every datagram of A's
+// side goes to B's own server first and to B's dial only on `.dropped`.
+test "a peer server's datagrams make no slot in the dialer's server, and the dial completes" {
+    const allocator = testing.allocator;
+    const desc_a = qmesh.PeerDesc{
+        .id = idFromHex(digest_a_hex),
+        .addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4437),
+    };
+    const desc_b = qmesh.PeerDesc{
+        .id = idFromHex(digest_b_hex),
+        .addr = qmesh.Addr.ipv4(.{ 127, 0, 0, 1 }, 4438),
+    };
+    const addr_a: quic.Address = .{ .ipv4 = .{ .addr = .{ 127, 0, 0, 1 }, .port = 4437 } };
+    const addr_b: quic.Address = .{ .ipv4 = .{ .addr = .{ 127, 0, 0, 1 }, .port = 4438 } };
+
+    const a = try qmesh_quic.Endpoint.init(allocator, endpointOptions(desc_a, cert_a, key_a, 5));
+    defer a.deinit();
+    const b = try qmesh_quic.Endpoint.init(allocator, endpointOptions(desc_b, cert_b, key_b, 6));
+    defer b.deinit();
+    const srv_a = try a.listen();
+    const srv_b = try b.listen();
+
+    b.startJoin(desc_a);
+    const cli = b.sessions.items[0].client.?;
+    try cli.conn.advance();
+
+    const now: u64 = 1_000;
+    var buf: [4096]u8 = undefined;
+    var copy: [4096]u8 = undefined;
+    var to_dial: usize = 0;
+    var largest: usize = 0;
+    var steps: usize = 0;
+    while (!cli.conn.handshakeDone()) : (steps += 1) {
+        if (steps == 64) return error.HandshakeStalled;
+        while (try cli.conn.poll(&buf, now)) |len| _ = try srv_a.feed(buf[0..len], addr_b, now);
+        for (srv_a.iterator()) |slot| {
+            while (try slot.conn.poll(&buf, now)) |len| {
+                // `feed` takes the bytes mutable: the dial gets a copy.
+                @memcpy(copy[0..len], buf[0..len]);
+                try testing.expectEqual(quic.Server.FeedOutcome.dropped, try srv_b.feed(buf[0..len], addr_a, now));
+                try testing.expectEqual(@as(usize, 0), srv_b.iterator().len);
+                try cli.conn.handle(copy[0..len], addr_a, now);
+                to_dial += 1;
+                largest = @max(largest, len);
+            }
+        }
+    }
+    // The server's first flight was among them: a datagram of 1200 bytes,
+    // which passes a server's Initial size gate.
+    try testing.expect(to_dial >= 1);
+    try testing.expect(largest >= 1200);
+    try testing.expectEqual(@as(usize, 0), srv_b.iterator().len);
+    try testing.expectEqual(@as(usize, 1), srv_a.iterator().len);
+}

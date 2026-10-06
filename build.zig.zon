@@ -10,7 +10,7 @@
         // qmesh consumable as a package. Same pin and same option map as
         // qmsg and nest, so one binary linking both packages shares ONE
         // quic module rather than compiling BoringSSL twice.
-        // v0.27.0 (tag at 9d2ab6e). It holds v0.25.0's security fix (one
+        // v0.29.0 (tag at b9a15e6). It holds v0.25.0's security fix (one
         // short datagram from anyone who saw a packet of the connection,
         // or one a small receive buffer cut short, made
         // `Connection.handle` fail, and `Server.feed` closed the
@@ -19,7 +19,18 @@
         // parameters is refused, no handshake datagram is longer than 1200
         // bytes, a close during the handshake reaches the peer. v0.27.0
         // adds session tickets that live through a server restart; qmesh
-        // sets none of the new fields. The package accepts `optimize` too
+        // sets none of the new fields. v0.28.0 keeps the end of a stream
+        // that a `tick` reclaimed (`quic.app` reports `.fin` or `.reset`
+        // for it, and a stream the app stopped ends as `.reaped`); qmesh
+        // sets no `on_stream_end` hook. v0.28.1 is a 32-bit build fix.
+        // v0.29.0: `Server.feed` makes no connection for a datagram of
+        // which no packet opens and says `.dropped` (through v0.28.1 a
+        // peer server's first flight made a half-open slot; the runner
+        // gives a dial its own datagrams first all the same); a late
+        // packet is not a lost packet; a connection costs about 91 KB of
+        // heap (was 1.09 MB); a client connects through handshake loss;
+        // a lost CONNECTION_CLOSE is sent again. No wire change. The
+        // package accepts `optimize` too
         // (since v0.24.1), which the shared map does not pass. Since v0.24.0 there is no lifetime stream cap; the stream
         // limit is a window of streams open at once, and an id comes back
         // only when its stream is closed in both directions. qmesh opens
@@ -27,8 +38,8 @@
         // the tagged Zig 0.17.0.
         // (`zig fetch --save` mangles these entries; edit by hand.)
         .quic = .{
-            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.27.0.tar.gz",
-            .hash = "quic-0.27.0-DnSYvdkEOQDHm_pJQOp6Vo47gQ1Cm7-0c2sgVV0M6Xht",
+            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.29.0.tar.gz",
+            .hash = "quic-0.29.0-DnSYvahYOwAdaHX-Ct3_iZGZycF387GmpAbI9G9wjFGg",
         },
         // LAN peer discovery for the qmesh-node binary only (`--mdns`).
         // Lazy: the library modules never import it, so a consumer that

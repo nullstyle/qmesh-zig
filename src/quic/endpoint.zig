@@ -321,7 +321,9 @@ pub const Endpoint = struct {
             // Mesh-bounded: a qmesh node's inbound population is its
             // cluster (plus reconnect overlap) — 256 slots was an
             // unbounded-memory invitation (each slot is a Connection
-            // + TLS contexts ≈ MB-class): a restart-wake drain admits
+            // + TLS contexts, MB-class through quic v0.28.1; v0.29.0
+            // cut a Connection to about 91 KB of Zig heap, plus what
+            // BoringSSL allocates): a restart-wake drain admits
             // a storm of stale peer Initials and chaos measured a
             // 267MB balloon with calm session counters (the slots are
             // pre-handshake, invisible to them). 32 covers the

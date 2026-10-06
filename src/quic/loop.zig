@@ -523,8 +523,17 @@ pub const Runner = struct {
             // it to the dial and not to the server. quic-zig v0.26.0
             // pads a server's first flight to 1200 bytes (RFC 9000
             // section 14.1), so a peer's ServerHello passes our server's
-            // Initial size gate and would open a half-open slot there
-            // (`.accepted`, never `.dropped`); the dial never saw it.
+            // Initial size gate. Through v0.28.1 it opened a half-open
+            // slot there (`.accepted`, never `.dropped`), and the dial
+            // never saw it. Since v0.29.0 `feed` makes no connection for
+            // a datagram of which no packet opens and says `.dropped`,
+            // so the fallback below would reach the dial too. This route
+            // stays first: our server need not build and tear down a
+            // connection for each such datagram, and a peer server's
+            // Initials do not count against our server's per-source
+            // Initial cap or meet a full slot table (the fallback runs
+            // on `.dropped` only, so `.rate_limited` and `.table_full`
+            // never reach a dial).
             if (r.owningDial(r.buf[0..n], from_addr)) |cli| {
                 cli.conn.handle(r.buf[0..n], from_addr, now) catch {};
                 continue;
