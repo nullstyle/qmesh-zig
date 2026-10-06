@@ -1,6 +1,6 @@
 [tools]
 # The tagged Zig 0.17.0 release: the floor of the quic-zig tarball
-# pin (v0.29.0), whose build.zig refuses every 0.17.0-dev build.
+# pin (v0.30.1), whose build.zig refuses every 0.17.0-dev build.
 # mdns-zig 0.1.1 (floor dev.1786) builds on it too.
 zig = "0.17.0"
 

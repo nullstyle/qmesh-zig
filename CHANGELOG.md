@@ -7,6 +7,22 @@ changes.
 
 ## [Unreleased]
 
+- **quic-zig v0.30.1** (from v0.29.0; v0.30.0 skipped: it did not
+  compile on Windows). Behavior only: no wire change, no API change,
+  and the option map is the same; nothing qmesh calls was removed or
+  renamed. A probe timeout is not a loss (RFC 9002 section 6.2.4): the
+  Application space's probe timeout no longer declares the oldest
+  packet lost nor cuts the congestion window; the probe carries its
+  frames again, and the thresholds decide when its ACK comes. The
+  handshake's probe timeout is bounded at about a second and runs from
+  the last send, so a dial waiting for a lost server flight probes
+  every second, not at 1, 2, 4, 8 s. `Server.feed`'s doc now says what
+  the runner's second route (the entry below) already relies on: the
+  bytes change in place whatever the outcome. `quic.unixWallClockUs`
+  compiles on Zig 0.17.0, and `Server.adoptLoopThread()` is new; qmesh
+  calls neither. The quic packages (http3-zig, capnp-zig, qmsg, nest,
+  mruby-quic) moved to v0.30.1 with it on 2026-10-06. 127/127 tests,
+  25/25 steps, mdns included: the same counts as on v0.29.0.
 - **quic-zig v0.29.0** (from v0.27.0; v0.28.0 and v0.28.1 skipped). No
   security fix and no wire change; nothing qmesh calls was removed or
   renamed, and the option map is the same. One change broke a route in
