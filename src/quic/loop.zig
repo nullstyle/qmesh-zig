@@ -527,47 +527,22 @@ pub const Runner = struct {
             // slot there (`.accepted`, never `.dropped`), and the dial
             // never saw it. Since v0.29.0 `feed` makes no connection for
             // a datagram of which no packet opens and says `.dropped`,
-            // so the fallback below would reach the dial too. This route
+            // so the second route (`feedServerThenDials`) reaches the
+            // dial too, with the bytes as they arrived. This route
             // stays first: our server need not build and tear down a
             // connection for each such datagram, and a peer server's
             // Initials do not count against our server's per-source
-            // Initial cap or meet a full slot table (the fallback runs
-            // on `.dropped` only, so `.rate_limited` and `.table_full`
-            // never reach a dial).
+            // Initial cap or meet a full slot table (the second route
+            // reaches a dial on `.dropped` only, so `.rate_limited`
+            // and `.table_full` never do).
             if (r.owningDial(r.buf[0..n], from_addr)) |cli| {
                 cli.conn.handle(r.buf[0..n], from_addr, now) catch {};
                 continue;
             }
             // Everything else is server-routed first (slots +
-            // stateless); datagrams the server drops may still belong
-            // to our outbound DIALS — offer them to each dial
-            // connection (wrong-CID packets are ignored by the
-            // connection).
-            const outcome = srv.feed(r.buf[0..n], from_addr, now) catch continue;
-            if (outcome == .dropped) {
-                // Copy before the fallback: `feed` takes the buffer
-                // mutable and does not document a read-only contract
-                // for dropped routing outcomes, so the dial
-                // connections get pristine bytes regardless of what
-                // server-side processing touched.
-                var pkt: [2048]u8 = undefined;
-                const len = @min(n, pkt.len);
-                @memcpy(pkt[0..len], r.buf[0..len]);
-                for (r.ep.sessions.items) |s| {
-                    const cli = s.client orelse continue;
-                    if (s.conn.isClosed()) continue;
-                    // Source-address filter: a packet can only belong
-                    // to the dial connection aimed at its source.
-                    // Spraying it at every dial was the churn
-                    // amplifier — each wrong connection logs an auth
-                    // failure (~7/s on the six-node fleet), and the
-                    // auth-failure noise drives key updates whose
-                    // windows drop real traffic (probe ACKs),
-                    // sustaining suspicion->confirm->re-dial loops.
-                    if (!quicAddrEql(s.dial_addr, from_addr)) continue;
-                    cli.conn.handle(pkt[0..len], from_addr, now) catch {};
-                }
-            }
+            // stateless); a datagram the server drops may still
+            // belong to one of our outbound DIALS.
+            _ = feedServerThenDials(r.ep, srv, r.buf[0..n], from_addr, now) catch continue;
         }
         while (srv.drainStatelessResponse()) |resp| {
             var sa = toSockAddr(resp.dst) orelse continue;
@@ -635,6 +610,60 @@ pub const Runner = struct {
         }
     }
 };
+
+/// The runner's second route for a received datagram, the one for a
+/// datagram that no dial owns (see `Runner.ingest`): `bytes` go to our
+/// server, and when `feed` says `.dropped`, to each live dial aimed at
+/// `from`. Public so a test can drive this route without a socket and
+/// without the dial route that `ingest` tries first. `bytes` are
+/// scratch after the call.
+///
+/// `feed` takes `bytes` mutable and can change them even when it drops
+/// them: quic-zig v0.29.0 strips an Initial's header protection in
+/// place, and only then finds that no packet opens (another server's
+/// first flight) and says `.dropped`. `Connection.handle` changes the
+/// bytes it reads the same way. So the datagram is copied before
+/// `feed`, and each dial gets that copy as it arrived. Only a source
+/// that a live dial aims at costs the copy.
+pub fn feedServerThenDials(
+    ep: *Endpoint,
+    srv: *quic.Server,
+    bytes: []u8,
+    from: quic.Address,
+    now: u64,
+) !quic.Server.FeedOutcome {
+    var arrived: [2048]u8 = undefined;
+    const len = @min(bytes.len, arrived.len);
+    const dialed = liveDialAimedAt(ep, from);
+    if (dialed) @memcpy(arrived[0..len], bytes[0..len]);
+    const outcome = try srv.feed(bytes, from, now);
+    if (outcome != .dropped or !dialed) return outcome;
+    for (ep.sessions.items) |s| {
+        const cli = s.client orelse continue;
+        if (s.conn.isClosed()) continue;
+        // Source-address filter: a packet can only belong to the dial
+        // connection aimed at its source. Spraying it at every dial
+        // was the churn amplifier — each wrong connection logs an auth
+        // failure (~7/s on the six-node fleet), and the auth-failure
+        // noise drives key updates whose windows drop real traffic
+        // (probe ACKs), sustaining suspicion->confirm->re-dial loops.
+        if (!quicAddrEql(s.dial_addr, from)) continue;
+        @memcpy(bytes[0..len], arrived[0..len]);
+        cli.conn.handle(bytes[0..len], from, now) catch {};
+    }
+    return outcome;
+}
+
+/// Whether a live dial aims at `from`: only then can a datagram from
+/// `from` that our server drops be a dial's.
+fn liveDialAimedAt(ep: *const Endpoint, from: quic.Address) bool {
+    for (ep.sessions.items) |s| {
+        if (s.client == null) continue;
+        if (s.conn.isClosed()) continue;
+        if (quicAddrEql(s.dial_addr, from)) return true;
+    }
+    return false;
+}
 
 /// The Destination Connection ID of the first packet in `bytes`
 /// (RFC 9000 section 17.2: a long header gives its length at byte 5;

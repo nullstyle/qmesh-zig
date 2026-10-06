@@ -490,10 +490,14 @@ test "a peer cannot open a bidirectional stream: the mesh advertises no bidi win
 // that gave every datagram to its server first never let its dial see
 // the answer. `Runner.ingest` gives a dial its own datagrams first since
 // then. Since v0.29.0 `feed` makes no connection for a datagram of which
-// no packet opens, and says `.dropped`, so the runner's second route (a
-// dropped datagram goes to the dial aimed at its source) reaches the dial
-// too. This test takes only that second route: every datagram of A's
-// side goes to B's own server first and to B's dial only on `.dropped`.
+// no packet opens, and says `.dropped`, so the runner's second route,
+// `loop.feedServerThenDials` (our server first, and on `.dropped` the
+// dial aimed at the source), reaches the dial too. `feed` strips such a
+// datagram's header protection in place before it drops it, so that
+// route must give the dial a copy taken before `feed`. When the runner
+// copied after `feed`, the dial got changed bytes and this handshake
+// stalled. This test takes only the second route, through the runner's
+// own function, for every datagram of A's side.
 test "a peer server's datagrams make no slot in the dialer's server, and the dial completes" {
     const allocator = testing.allocator;
     const desc_a = qmesh.PeerDesc{
@@ -520,7 +524,6 @@ test "a peer server's datagrams make no slot in the dialer's server, and the dia
 
     const now: u64 = 1_000;
     var buf: [4096]u8 = undefined;
-    var copy: [4096]u8 = undefined;
     var to_dial: usize = 0;
     var largest: usize = 0;
     var steps: usize = 0;
@@ -529,11 +532,11 @@ test "a peer server's datagrams make no slot in the dialer's server, and the dia
         while (try cli.conn.poll(&buf, now)) |len| _ = try srv_a.feed(buf[0..len], addr_b, now);
         for (srv_a.iterator()) |slot| {
             while (try slot.conn.poll(&buf, now)) |len| {
-                // `feed` takes the bytes mutable: the dial gets a copy.
-                @memcpy(copy[0..len], buf[0..len]);
-                try testing.expectEqual(quic.Server.FeedOutcome.dropped, try srv_b.feed(buf[0..len], addr_a, now));
+                try testing.expectEqual(
+                    quic.Server.FeedOutcome.dropped,
+                    try qmesh_quic.loop.feedServerThenDials(b, srv_b, buf[0..len], addr_a, now),
+                );
                 try testing.expectEqual(@as(usize, 0), srv_b.iterator().len);
-                try cli.conn.handle(copy[0..len], addr_a, now);
                 to_dial += 1;
                 largest = @max(largest, len);
             }

@@ -444,8 +444,9 @@ fn serverSlotsHandshaked(r: *qmesh_quic.Runner) bool {
 // size gate and opened a half-open slot there, and the dial never got it.
 // On v0.27.0 without the routing fix, this test timed out. Now a datagram
 // goes first to the dial whose connection ID it carries. (Since v0.29.0
-// the server makes no slot for it and says `.dropped`; the second route
-// is pinned in tests/quic_session_test.zig.)
+// the server makes no slot for it and says `.dropped`, and the runner's
+// second route, `loop.feedServerThenDials`, gives the dial the bytes as
+// they arrived. tests/quic_session_test.zig drives that route.)
 test "two nodes over real UDP: a dial's handshake completes" {
     const allocator = testing.allocator;
     var runners: [2]*qmesh_quic.Runner = undefined;
