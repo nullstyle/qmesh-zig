@@ -55,7 +55,7 @@ pub fn build(b: *std.Build) !void {
     // ReleaseSafe. `optimize` is deliberately NOT forwarded: through
     // v0.24.0 quic-zig registered no such option (it exposes `-Drelease`
     // instead), and passing it failed a cold-cache build outright.
-    // From v0.24.1 it accepts `optimize` too (the pin is v0.30.1), but
+    // From v0.24.1 it accepts `optimize` too (the pin is v0.32.0), but
     // the map keeps `release`, which works on every release and is the
     // key qmsg and nest pass. `release` carries the mode (Debug or
     // ReleaseSafe); without it a `-Doptimize=Release*` build compiles

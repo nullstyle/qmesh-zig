@@ -117,7 +117,7 @@ package manifests retain URL/hash pins; workspace path dependencies exist only
 in this development test package, which is excluded from release archives.
 The workspace's `mise.toml` pins the same Zig as qmesh's (the tagged
 0.17.0). The sibling qmsg must build on it too; a qmsg with the quic
-v0.30.1 pin does, since that pin needs the same Zig.
+v0.32.0 pin does, since that pin needs the same Zig.
 
 The integration test establishes real mesh membership with mutual TLS, sends
 qmsg requests through the peer pool, loses a qmsg session, restarts the

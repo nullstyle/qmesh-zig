@@ -70,7 +70,7 @@ mise install                    # zig 0.17.0
 zig build test                  # expect every step green
 ```
 
-quic-zig is a URL+hash tarball pin in `build.zig.zon` (v0.30.1); the
+quic-zig is a URL+hash tarball pin in `build.zig.zon` (v0.32.0); the
 first build fetches it. Its build refuses every 0.17.0-dev Zig, so use
 the tagged 0.17.0 that `mise.toml` pins.
 

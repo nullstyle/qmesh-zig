@@ -10,6 +10,29 @@
         // qmesh consumable as a package. Same pin and same option map as
         // qmsg and nest, so one binary linking both packages shares ONE
         // quic module rather than compiling BoringSSL twice.
+        // v0.32.0 (tag at ffdb251): three releases in one move, the set
+        // (http3-zig, capnp-zig, qmsg, nest, mruby-quic) with it on
+        // 2026-10-07 (v0.31.1 skipped as a step, not as content). No wire
+        // change, no API change, the same option map. v0.31.0: a client
+        // confirms the handshake on an ACK of its own 1-RTT packet, and
+        // `Server.feed` leaves a `.dropped` datagram as it came (the
+        // runner's second route copies before `feed` anyway). v0.31.1:
+        // the idle timer follows RFC 9000 section 10.1, so a dead peer's
+        // connection ends one idle timeout after the first probe, not
+        // three. v0.32.0: the receive window an endpoint keeps open is the
+        // one it announced (before, a fixed 1 MiB per stream and 16 MiB
+        // per connection after the initial window): qmesh announces the
+        // defaults for bidi streams and the connection, no change there;
+        // its reliable unidirectional streams announce
+        // `reliable_receive_window` (one `max_stream_message` by default),
+        // which is now their window for life, not 1 MiB after the first
+        // message: a long reliable stream moves one message size per
+        // round trip unless the option is raised. Also
+        // `max_buffered_send` on Connection, Client.Config and
+        // Server.Config (the sender's window per stream, default 1 MiB,
+        // qmesh sets none), 64 ACK ranges in a frame (was 16), and the
+        // loss thresholds that widen for reordering shrink back after 16
+        // clean round trips. Before it:
         // v0.30.1 (tag at ccf6ae2). Behavior only: no wire change, no API
         // change, the same option map. A probe timeout is not a loss (RFC
         // 9002 section 6.2.4: the Application space's probe timeout no
@@ -53,8 +76,8 @@
         // the tagged Zig 0.17.0.
         // (`zig fetch --save` mangles these entries; edit by hand.)
         .quic = .{
-            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.30.1.tar.gz",
-            .hash = "quic-0.30.1-DnSYvVnOOwBfpDxHQWI41E6YxM1RqqkCuven5bK46jXR",
+            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.32.0.tar.gz",
+            .hash = "quic-0.32.0-DnSYvcGOPADCEZMispvPbD9RznRtyIGq77zHIgmS8iVl",
         },
         // LAN peer discovery for the qmesh-node binary only (`--mdns`).
         // Lazy: the library modules never import it, so a consumer that

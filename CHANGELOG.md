@@ -7,6 +7,29 @@ changes.
 
 ## [Unreleased]
 
+- **quic-zig v0.32.0** (from v0.30.1; v0.31.1 skipped as a step, not
+  as content). No wire change, no API change, the same option map;
+  nothing qmesh calls was removed or renamed. v0.31.0: a client
+  confirms the handshake on an ACK of its own 1-RTT packet, and
+  `Server.feed` leaves a `.dropped` datagram as it came (the runner's
+  second route copies before `feed` anyway). v0.31.1: the idle timer
+  follows RFC 9000 section 10.1, so a dead peer's connection ends one
+  idle timeout after the first probe, not three. v0.32.0: the receive
+  window an endpoint keeps open is the one it announced; through
+  v0.31.1 the credit given after the initial window was a fixed 1 MiB
+  per stream and 16 MiB per connection. qmesh announces the defaults
+  for bidirectional streams and the connection, so nothing changes
+  there; its reliable unidirectional streams announce
+  `reliable_receive_window` (one `max_stream_message` by default),
+  which is now their window for life, not 1 MiB after the first
+  message: a long reliable stream moves one message size per round
+  trip unless the option is raised. New knobs qmesh does not set:
+  `max_buffered_send` on Connection, Client.Config and Server.Config
+  (the sender's window per stream, 1 MiB by default). The ACK frame
+  carries 64 ranges below the largest (was 16), and the loss
+  thresholds that widen for reordering shrink back after 16 clean
+  round trips. The quic packages (http3-zig, capnp-zig, qmsg, nest,
+  mruby-quic) moved to v0.32.0 with it on 2026-10-07. 127/127 tests, 25/25 steps on a fresh cache, build 14/14, mdns included: the same counts as on v0.30.1.
 - **quic-zig v0.30.1** (from v0.29.0; v0.30.0 skipped: it did not
   compile on Windows). Behavior only: no wire change, no API change,
   and the option map is the same; nothing qmesh calls was removed or
