@@ -76,9 +76,10 @@
         // the tagged Zig 0.17.0.
         // (`zig fetch --save` mangles these entries; edit by hand.)
         // v0.33.0 (2026-10-07): cluster A move; the quic release note has what changed.
+        // v0.37.1 (2026-10-08): cluster A move; the quic release note has what changed.
         .quic = .{
-            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.33.0.tar.gz",
-            .hash = "quic-0.33.0-DnSYvfk6PQAwBH4pHnhv97zhZeAoJ_0JZRjDIPu_jG8u",
+            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.1.tar.gz",
+            .hash = "quic-0.37.1-DnSYvTlfPwChWkn-M8TGtX81DkFobQDQQat0GMff1YRe",
         },
         // LAN peer discovery for the qmesh-node binary only (`--mdns`).
         // Lazy: the library modules never import it, so a consumer that
