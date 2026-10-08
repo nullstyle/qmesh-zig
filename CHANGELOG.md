@@ -9,7 +9,7 @@ changes.
 
 - **quic-zig v0.37.1** (2026-10-08; cluster A moves together: nest, qmsg,
   qmesh-zig, mruby-quic; the quic release note has what changed). The
-  pin and nothing else. Gates: 
+  pin and nothing else. Gates: qmesh-test: 25/25 steps succeeded; 28/28 tests passed; qmesh-build: 14/14 steps succeeded; 
 
 - **quic-zig v0.33.0** (2026-10-07; cluster A moves together: nest, qmsg,
   qmesh-zig, mruby-quic; the quic release note has what changed). The
