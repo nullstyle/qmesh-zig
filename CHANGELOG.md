@@ -7,6 +7,10 @@ changes.
 
 ## [Unreleased]
 
+- **quic-zig v0.33.0** (2026-10-07; cluster A moves together: nest, qmsg,
+  qmesh-zig, mruby-quic; the quic release note has what changed). The
+  pin and nothing else. Gates: qmesh-test: 25/25 steps succeeded; qmesh-build: 14/14 steps succeeded; 
+
 - **quic-zig v0.32.0** (from v0.30.1; v0.31.1 skipped as a step, not
   as content). No wire change, no API change, the same option map;
   nothing qmesh calls was removed or renamed. v0.31.0: a client
