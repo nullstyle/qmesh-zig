@@ -1,0 +1,6 @@
+./build.zig.zon:8:29: error: expected path relative to build root; found absolute path
+        .qmesh = .{ .path = "/Users/nullstyle/prj/zig/qmesh-zig" },
+                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./build.zig.zon:14:21: error: hash mismatch: manifest declares qmsg-0.8.5-g3pJMT1MFQBr6yT5WNY9vEFF-JC3k_FSapLit3BAgi_5 but the fetched package has N-V-__8AAD1MFQDqSYuwAVUF44yvk2ib989tr3ToxkPYiAtu
+            .hash = "qmsg-0.8.5-g3pJMT1MFQBr6yT5WNY9vEFF-JC3k_FSapLit3BAgi_5",
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

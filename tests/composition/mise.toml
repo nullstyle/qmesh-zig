@@ -13,3 +13,7 @@ run = "zig build test -Dlocal-quic=false --summary all"
 
 [tasks.test-qmsg]
 run = "zig build test-qmsg --summary all"
+
+[tasks.check]
+description = "Record both composition modes; accepts explicit --qmsg-path and --quic-path"
+run = "python3 ../../tools/check-composition.py"

@@ -68,6 +68,14 @@ independent qmsg session failure triggers bounded exponential retry without
 requiring a mesh membership transition. Dial attempts have a timeout. The
 configured peer limit bounds all outstanding demand and retry state.
 
+A closing/draining qmsg session becomes unavailable for new pool requests,
+but routine refresh does not close it: qmsg owns the bounded GOAWAY grace and
+QUIC close deadline, allowing accepted requests to finish. Once qmsg removes
+the session, normal pool retry resumes. Explicit `forget`, endpoint replacement,
+confirmed membership loss and idle eviction still follow the pool's ownership
+policy. Combine qmsg deadlines with `Pool.nextDeadline`; a drain is not a dial
+timeout.
+
 An existing authenticated ready session can be adopted without dialing. Adopted
 sessions remain owned by the messaging Node: forgetting or evicting their pool
 entry does not close them. The pool closes sessions it dialed on replacement,
@@ -108,16 +116,56 @@ mise run test-released
 mise run test-qmsg
 ```
 
-That workspace-only consumer imports qmesh, qmsg and QUIC from sibling repos.
-The default overrides both upper modules with the same local QUIC module so
-coordinated changes can be tested without publishing an intermediate release.
-The second invocation validates their released QUIC dependency instead; the
-third runs qmsg's module tests with the selected QUIC implementation. Public
-package manifests retain URL/hash pins; workspace path dependencies exist only
-in this development test package, which is excluded from release archives.
-The workspace's `mise.toml` pins the same Zig as qmesh's (the tagged
-0.17.0). The sibling qmsg must build on it too; a qmsg with the quic
-v0.32.0 pin does, since that pin needs the same Zig.
+This consumer uses the local qmesh checkout and exact URL/hash pins for qmsg
+and QUIC. It needs no sibling checkouts. `test` injects one selected QUIC
+module into both upper modules. By default that source is the newer v0.42.2
+transport; the libraries' public manifests remain on v0.37.2. `test-released` leaves each library's own released
+QUIC dependency in place; the type-identity test must still prove there is
+one `quic.Connection` type. `test-qmsg` runs qmsg's module tests with the
+selected QUIC source, including the separate QUIC runtime and independent Node
+UDP suites. `test-qmsg-runtime` and `test-qmsg-pairs` run those roots individually.
+Both upper libraries pass the identical
+`{ target, release = optimize != Debug, sanitize-c = "trap" }` option map.
+The QUIC pin fixes the BoringSSL source too. Public package manifests retain
+their URL/hash pins; the development test package is excluded from archives.
+
+From the qmesh root, run the complete matrix with bounded compiler parallelism:
+
+```sh
+mise run check-sprint1
+```
+
+The wrapper stages an isolated consumer, runs both modes plus qmsg's module
+suite, and records commands, exit codes, build/test counts, compiler binary
+hash, manifest/package hashes, transport/crypto pins, and working-tree source
+digests under `.zig-cache/composition/<UTC time>/`. It also runs qmesh's
+full suite and binary build when given `--core`. An override changes only the
+staged manifest, so no intermediate release or sibling mutation is needed:
+
+```sh
+mise exec -- python3 tools/check-composition.py --core --optimize Debug \
+  --qmsg-path ../qmsg --quic-path ../quic-zig
+mise exec -- python3 tools/check-composition.py --optimize ReleaseSafe \
+  --qmsg-path ../qmsg --quic-archive /absolute/path/quic-candidate.tar.gz \
+  --quic-hash '<Zig package hash printed by zig fetch>'
+```
+
+`--mode released|selected` narrows a run; by default both run. A selected
+QUIC override is used only in selected mode. A qmsg override participates in
+both modes so its native released dependency and the selected transport are
+both exercised. Dirty checkouts are identified by their actual file-content
+digest in addition to HEAD and status. The wrapper verifies an archive's Zig
+package hash before extracting its source and records the archive SHA-256.
+Alternatively pass `--quic-sha256 '<64 hexadecimal digits>'` instead of
+`--quic-hash` to verify exact archive bytes without running Zig's package
+rehash. The chosen integrity check and extracted source digest are recorded.
+It never changes the checked-in manifests. The pinned toolchain is tagged Zig
+0.17.0 for the core and composition workspace.
+
+`.github/workflows/composition.yml` runs the pinned-source matrix on Linux and
+macOS in Debug and ReleaseSafe and retains the evidence. A local run does not
+establish that hosted CI passed. Current local results are recorded in
+[`sprint-1-evidence.md`](sprint-1-evidence.md).
 
 The integration test establishes real mesh membership with mutual TLS, sends
 qmsg requests through the peer pool, loses a qmsg session, restarts the

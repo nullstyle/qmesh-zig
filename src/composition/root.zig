@@ -65,6 +65,7 @@ pub fn Pool(comptime Dialer: type) type {
             session: ?SessionId = null,
             owned: bool = false,
             ready: bool = false,
+            draining: bool = false,
             retry_at_us: u64 = 0,
             dial_started_us: u64 = 0,
             last_used_us: u64,
@@ -161,7 +162,7 @@ pub fn Pool(comptime Dialer: type) type {
             var best: ?u64 = null;
             for (self.entries[0..self.len]) |entry| {
                 if (entry.session == null) earliest(&best, entry.retry_at_us);
-                if (entry.session != null and !entry.ready) earliest(&best, entry.dial_started_us +| self.options.dial_timeout_us);
+                if (entry.session != null and !entry.ready and !entry.draining) earliest(&best, entry.dial_started_us +| self.options.dial_timeout_us);
                 if (self.options.idle_timeout_us != 0) earliest(&best, entry.last_used_us +| self.options.idle_timeout_us);
             }
             return best;
@@ -194,11 +195,20 @@ pub fn Pool(comptime Dialer: type) type {
                         if (status.peer_cert_spki) |digest| {
                             if (std.mem.eql(u8, &entry.peer.bytes, &digest)) {
                                 entry.ready = true;
+                                entry.draining = false;
                                 entry.backoff_us = 0;
                                 return;
                             }
                         }
                         self.stats.identity_mismatches += 1;
+                    } else if (status.state == .closing) {
+                        // GOAWAY stops new work while accepted operations
+                        // can still answer. The messaging Node owns the
+                        // bounded grace/transport-close deadline; treating
+                        // this as a failed dial would abort those replies.
+                        entry.ready = false;
+                        entry.draining = true;
+                        return;
                     } else if (status.state == .connecting and self.now_us - entry.dial_started_us < self.options.dial_timeout_us) {
                         return;
                     }
@@ -237,6 +247,7 @@ pub fn Pool(comptime Dialer: type) type {
             entry.session = id;
             entry.owned = true;
             entry.ready = false;
+            entry.draining = false;
             entry.dial_started_us = self.now_us;
             self.stats.dials += 1;
         }
@@ -260,6 +271,7 @@ pub fn Pool(comptime Dialer: type) type {
             entry.session = null;
             entry.owned = false;
             entry.ready = false;
+            entry.draining = false;
         }
 
         fn remove(self: *Self, dialer: *Dialer, i: usize) void {

@@ -1,0 +1,145 @@
+{
+  "started_utc": "20261026T175633.559267Z",
+  "host": "Darwin 27.0.0 arm64",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+    "version": "0.17.0",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523"
+  },
+  "optimize": "Debug",
+  "quic_options": {
+    "target": "native",
+    "release": false,
+    "sanitize-c": "trap"
+  },
+  "sources": {
+    "qmesh": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "commit": "6e7a87e4b00107d859e95148b87c497e8d2825e2",
+      "status": "M tests/composition/build.zig\n M tests/composition/build.zig.zon\n?? .github/\n?? tools/check-composition.py",
+      "tree_sha256": "7955c1454f411f0e60903e6021a4f75e423f5d6dc00a1e3bc4bafe6694ac6e57",
+      "file_count": 84,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "qmesh-test",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test",
+        "-Doptimize=Debug",
+        "-j2",
+        "--summary",
+        "all"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 35.983,
+      "summary": "Build Summary: 25/25 steps succeeded; 28/28 tests passed",
+      "log": "qmesh-test.log"
+    },
+    {
+      "name": "qmesh-build",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "-Doptimize=Debug",
+        "-j2",
+        "--summary",
+        "all"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 2.568,
+      "summary": "Build Summary: 14/14 steps succeeded",
+      "log": "qmesh-build.log"
+    },
+    {
+      "name": "released-composition",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint1-baseline-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test",
+        "-Doptimize=Debug",
+        "-j2",
+        "--summary",
+        "all",
+        "-Dlocal-quic=false"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 0.055,
+      "summary": null,
+      "log": "released-composition.log"
+    },
+    {
+      "name": "released-qmsg",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint1-baseline-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-qmsg",
+        "-Doptimize=Debug",
+        "-j2",
+        "--summary",
+        "all",
+        "-Dlocal-quic=false"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 0.054,
+      "summary": null,
+      "log": "released-qmsg.log"
+    },
+    {
+      "name": "selected-composition",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint1-baseline-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test",
+        "-Doptimize=Debug",
+        "-j2",
+        "--summary",
+        "all",
+        "-Dlocal-quic=true"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 0.055,
+      "summary": null,
+      "log": "selected-composition.log"
+    },
+    {
+      "name": "selected-qmsg",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint1-baseline-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-qmsg",
+        "-Doptimize=Debug",
+        "-j2",
+        "--summary",
+        "all",
+        "-Dlocal-quic=true"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 0.056,
+      "summary": null,
+      "log": "selected-qmsg.log"
+    }
+  ],
+  "pinned_inputs": {
+    "qmsg": ".qmsg = .{\n            .url = \"https://github.com/nullstyle/qmsg/archive/1e6960465c1af8f2cfdb8675b01fb00fbea38326.tar.gz\",\n            .hash = \"qmsg-0.8.5-g3pJMT1MFQBr6yT5WNY9vEFF-JC3k_FSapLit3BAgi_5\",\n        },",
+    "quic": ".quic = .{\n            .url = \"https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz\",\n            .hash = \"quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-\",\n        },"
+  },
+  "composition_manifest_sha256": "7074a72cfacbf16779532bfd98708cc2ae75a6285dfb1b1a22e4bdcfbe1cac40",
+  "passed": false,
+  "finished_utc": "2026-10-26T17:57:12.523684+00:00"
+}

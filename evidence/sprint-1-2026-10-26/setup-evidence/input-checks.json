@@ -1,0 +1,46 @@
+[
+  {
+    "name": "missing-verifier",
+    "command": [
+      "python3",
+      "tools/check-composition.py",
+      "--quic-archive",
+      "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-1-2026-10-26/candidate/quic-zig-sprint-1.tar.gz"
+    ],
+    "returncode": 2,
+    "expected": 2,
+    "output": "usage: check-composition.py [-h] [--qmsg-path QMSG_PATH]\n                            [--quic-path QUIC_PATH | --quic-archive QUIC_ARCHIVE]\n                            [--quic-hash QUIC_HASH | --quic-sha256 QUIC_SHA256]\n                            [--mode {both,released,selected}]\n                            [--optimize {Debug,ReleaseSafe}] [--jobs JOBS]\n                            [--core] [--output-dir OUTPUT_DIR]\ncheck-composition.py: error: --quic-archive requires exactly one of --quic-hash or --quic-sha256\n"
+  },
+  {
+    "name": "ambiguous-verifiers",
+    "command": [
+      "python3",
+      "tools/check-composition.py",
+      "--quic-archive",
+      "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-1-2026-10-26/candidate/quic-zig-sprint-1.tar.gz",
+      "--quic-hash",
+      "bogus",
+      "--quic-sha256",
+      "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "returncode": 2,
+    "expected": 2,
+    "output": "usage: check-composition.py [-h] [--qmsg-path QMSG_PATH]\n                            [--quic-path QUIC_PATH | --quic-archive QUIC_ARCHIVE]\n                            [--quic-hash QUIC_HASH | --quic-sha256 QUIC_SHA256]\n                            [--mode {both,released,selected}]\n                            [--optimize {Debug,ReleaseSafe}] [--jobs JOBS]\n                            [--core] [--output-dir OUTPUT_DIR]\ncheck-composition.py: error: argument --quic-sha256: not allowed with argument --quic-hash\n"
+  },
+  {
+    "name": "wrong-sha256",
+    "command": [
+      "python3",
+      "tools/check-composition.py",
+      "--quic-archive",
+      "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-1-2026-10-26/candidate/quic-zig-sprint-1.tar.gz",
+      "--quic-sha256",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "--output-dir",
+      ".zig-cache/sprint1-rejected-archive-v2"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "output": "Traceback (most recent call last):\n  File \"/Users/nullstyle/prj/zig/qmesh-zig/tools/check-composition.py\", line 299, in <module>\n    sys.exit(main())\n  File \"/Users/nullstyle/prj/zig/qmesh-zig/tools/check-composition.py\", line 195, in main\n    fail_setup(f\"QUIC archive SHA-256 mismatch: expected {args.quic_sha256}, got {archive_sha256}\")\n  File \"/Users/nullstyle/prj/zig/qmesh-zig/tools/check-composition.py\", line 174, in fail_setup\n    raise ValueError(message)\nValueError: QUIC archive SHA-256 mismatch: expected 0000000000000000000000000000000000000000000000000000000000000000, got d5363946e9bbb5a7a0042cb17c29b8f2ed6b33e019ebe2659e8f60823926da53\n"
+  }
+]

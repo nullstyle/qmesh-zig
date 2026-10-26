@@ -300,7 +300,7 @@ Separate connections preserve each protocol's own framing, resources,
 and lifecycle. The implementation can share generic connection-driving
 machinery (`quic.app.ConnectionDriver`) without combining wire protocols.
 qmesh uses that driver when quic-zig supplies it (v0.22.0 and later, so
-the pinned v0.32.0 too); a fallback path with the same mesh interface
+the pinned v0.37.2 too); a fallback path with the same mesh interface
 serves older releases. qmesh's 1152-byte reliable frames remain
 protocol traffic, not a tunnel for qmsg's application wire.
 
@@ -350,7 +350,7 @@ stream allocation/read/write operations, datagrams, and connection timers.
 `tests/quic_boundary_test.zig` pins that surface. The generic
 `quic.app.ConnectionDriver` path borrows accepted or dialed connections,
 with bounded pending output, explicit stream refusal, and one lifecycle
-implementation. The pinned release (v0.32.0) has the driver, and
+implementation. The pinned release (v0.37.2) has the driver, and
 `tests/quic_boundary_test.zig` pins it; the fallback path serves quic-zig
 releases without it (v0.21.x). A refused stream ends in both halves:
 STOP_SENDING, and RESET_STREAM on a bidirectional stream. With
@@ -401,15 +401,23 @@ tests/
 ## Development
 
 Toolchain is pinned via mise (the tagged Zig 0.17.0, the floor of the
-quic-zig v0.32.0 pin, whose build.zig refuses every 0.17.0-dev build):
+quic-zig v0.37.2 pin, whose build.zig refuses every 0.17.0-dev build):
 
 ```sh
 mise install        # zig 0.17.0
 zig build test      # unit + simulator + quic boundary + mesh + mdns tests
+mise run check-sprint1  # Debug + ReleaseSafe, core + both composition modes
 ```
 
 `build.zig.zon` pins a quic-zig release tarball and hash. Keep the
 version and build option set aligned with qmsg when composing both.
+`tools/check-composition.py` records compiler/source identities, commands,
+counts and logs, and uses immutable qmsg/QUIC inputs without sibling
+checkouts. Pass `--qmsg-path` and `--quic-path` for coordinated working-tree
+changes, or `--quic-archive` plus its Zig package `--quic-hash` for a local
+candidate. `--quic-sha256` verifies known archive bytes without a package rehash.
+See [docs/MESSAGING.md](docs/MESSAGING.md#validation-and-local-development)
+and [the Sprint 1 evidence](docs/sprint-1-evidence.md).
 It also pins [mdns-zig](https://github.com/nullstyle/mdns-zig) as a
 **lazy** tarball dependency: only the `qmesh-node` binary and the
 discovery test use it, no library module imports it, and a consumer

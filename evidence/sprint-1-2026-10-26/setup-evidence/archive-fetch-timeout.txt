@@ -1,0 +1,4 @@
+Independent isolated Zig 0.17 archive fetch proof timed out after120 seconds.
+Command: zig fetch --pkg-dir <temporary>/packages /Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-1-2026-10-26/candidate/quic-zig-sprint-1.tar.gz
+Both ZIG_GLOBAL_CACHE_DIR and ZIG_LOCAL_PKG_DIR were isolated; subprocess.TimeoutExpired, no package hash returned.
+Final matrix uses explicit archive SHA256 verification instead. A prior independent hash call and producer metadata reported quic-0.42.2-DnSYvRosaAAz3R7QCdwmgtF2GYdyZm9CAzjwPcr4z50X; final matrix does not claim a completed rehash gate.

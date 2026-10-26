@@ -1,6 +1,6 @@
 [tools]
 # The tagged Zig 0.17.0 release: the floor of the quic-zig tarball
-# pin (v0.32.0), whose build.zig refuses every 0.17.0-dev build.
+# pin (v0.37.2), whose build.zig refuses every 0.17.0-dev build.
 # mdns-zig 0.1.1 (floor dev.1786) builds on it too.
 zig = "0.17.0"
 
@@ -10,3 +10,14 @@ ZIG_GLOBAL_CACHE_DIR = "{{config_root}}/.zig-global-cache"
 [tasks.test]
 description = "Run the qmesh test suite (unit + sim + quic boundary)"
 run = "zig build test"
+
+[tasks.check-composition]
+description = "Verify native released pins and one selected QUIC module, with evidence"
+run = "python3 tools/check-composition.py"
+
+[tasks.check-sprint1]
+description = "Full qmesh and composition gates in Debug and ReleaseSafe"
+run = [
+    "python3 tools/check-composition.py --core --optimize Debug --jobs 2",
+    "python3 tools/check-composition.py --core --optimize ReleaseSafe --jobs 2",
+]

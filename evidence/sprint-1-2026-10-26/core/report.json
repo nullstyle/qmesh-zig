@@ -1,0 +1,77 @@
+{
+  "sources": {
+    "qmesh": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "commit": "6e7a87e4b00107d859e95148b87c497e8d2825e2",
+      "status": "M README.md\n M build.zig\n M docs/MESSAGING.md\n M docs/tutorial.md\n M mise.toml\n M src/composition/pool_test.zig\n M src/composition/root.zig\n M tests/composition/build.zig\n M tests/composition/build.zig.zon\n M tests/composition/mise.toml\n M tests/composition_test.zig\n?? .github/\n?? docs/sprint-1-evidence.md\n?? tools/check-composition.py",
+      "tree_sha256": "854701dfd89c8ff71016a7c118513fdf07df2e8a0d8b8f48bac507f5de7b2fed",
+      "file_count": 85,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    }
+  },
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+    "version": "0.17.0",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523"
+  },
+  "checks": [
+    {
+      "name": "qmesh-Debug",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test",
+        "-Doptimize=Debug",
+        "-j2",
+        "--summary",
+        "all",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint1-core-final/build-cache/Debug"
+      ],
+      "returncode": 0,
+      "summary": "Build Summary: 25/25 steps succeeded; 128/128 tests passed",
+      "elapsed_seconds": 37.968
+    },
+    {
+      "name": "qmesh-ReleaseSafe",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test",
+        "-Doptimize=ReleaseSafe",
+        "-j2",
+        "--summary",
+        "all",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint1-core-final/build-cache/ReleaseSafe"
+      ],
+      "returncode": 0,
+      "summary": "Build Summary: 25/25 steps succeeded; 128/128 tests passed",
+      "elapsed_seconds": 87.084
+    }
+  ],
+  "passed": true,
+  "final_sources": {
+    "qmesh": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "commit": "6e7a87e4b00107d859e95148b87c497e8d2825e2",
+      "status": "M README.md\n M build.zig\n M docs/MESSAGING.md\n M docs/tutorial.md\n M mise.toml\n M src/composition/pool_test.zig\n M src/composition/root.zig\n M tests/composition/build.zig\n M tests/composition/build.zig.zon\n M tests/composition/mise.toml\n M tests/composition_test.zig\n?? .github/\n?? docs/sprint-1-evidence.md\n?? tools/check-composition.py",
+      "tree_sha256": "854701dfd89c8ff71016a7c118513fdf07df2e8a0d8b8f48bac507f5de7b2fed",
+      "file_count": 85,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    }
+  },
+  "sources_unchanged": true
+}

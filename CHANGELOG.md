@@ -7,6 +7,19 @@ changes.
 
 ## [Unreleased]
 
+- **Messaging pool preserves protocol drains.** A qmsg session in `.closing`
+  stops accepting new pool requests while the messaging Node owns its bounded
+  GOAWAY/transport deadline. Routine pool refresh no longer aborts accepted
+  operations with an immediate close or schedules a stale dial timeout.
+  Retry resumes after Node session removal; explicit pool ownership actions
+  retain their documented close behavior.
+- **Reproducible composition gates.** `tools/check-composition.py` and the
+  Linux/macOS CI matrix compare native QUIC v0.37.2 pins with one injected
+  source (v0.42.2 by default), run the qmsg module/runtime/real-UDP suites,
+  and record exact compiler, source, option and result evidence. Pinned inputs
+  need no sibling checkout; explicit paths and verified local archives support
+  unpublished coordination. Public package versions and pins are unchanged.
+
 - **quic-zig v0.37.2** (2026-10-08; cluster A moves together: nest, qmsg,
   qmesh-zig, mruby-quic; the quic release note has what changed). The
   pin and nothing else. Gates: qmesh-test: 25/25 steps succeeded; 28/28 tests passed; qmesh-build: 14/14 steps succeeded; 

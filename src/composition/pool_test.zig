@@ -112,6 +112,37 @@ test "suspicion preserves ready sessions and confirmed death removes them" {
     try expectEqual(@as(usize, 0), pool.count());
 }
 
+test "protocol drains retire a route without aborting the owned session" {
+    var records = [_]Member{record(1)};
+    var mesh: Mesh = .{ .records = &records };
+    var dialer: Dialer = .{};
+    var pool = try Pool.init(std.testing.allocator, .{ .idle_timeout_us = 0 });
+    defer pool.deinit(&dialer);
+    _ = try pool.ensure(&mesh, &dialer, resolver, peer(1), 0);
+    dialer.ready(1, peer(1));
+    try pool.service(&mesh, &dialer, resolver, 1);
+    try expectEqual(@as(?u64, 1), pool.lookup(peer(1)));
+
+    // The messaging Node owns the bounded GOAWAY/QUIC close deadline.
+    // Pool refresh must stop routing new requests without closing the
+    // connection that still carries previously accepted replies.
+    dialer.statuses[1].?.state = .closing;
+    try pool.service(&mesh, &dialer, resolver, 2);
+    try expectEqual(null, pool.lookup(peer(1)));
+    try expectEqual(@as(usize, 0), dialer.closes);
+    try expectEqual(null, try pool.ensure(&mesh, &dialer, resolver, peer(1), 20_000_000));
+    try expectEqual(@as(usize, 1), dialer.dials);
+    try expectEqual(@as(usize, 0), dialer.closes);
+    try expectEqual(null, pool.nextDeadline());
+
+    // After the Node retires the transport, normal bounded retry resumes.
+    dialer.statuses[1] = null;
+    try pool.service(&mesh, &dialer, resolver, 20_000_001);
+    try expectEqual(@as(?u64, 20_100_001), pool.nextDeadline());
+    try pool.service(&mesh, &dialer, resolver, 20_100_001);
+    try expectEqual(@as(usize, 2), dialer.dials);
+}
+
 test "membership enumeration cannot evict an omitted peer" {
     var records = [_]Member{ record(1), record(2), record(3) };
     var mesh: Mesh = .{ .records = &records };

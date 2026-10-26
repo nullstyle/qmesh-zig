@@ -214,6 +214,20 @@ test "mesh membership composes with qmsg ready sessions and independent restarts
         try std.testing.expectEqual(null, wrong_pool.lookup(id_b));
     }
     try std.testing.expect(wrong_pool.stats.dial_failures > 0);
+
+    // Newer qmsg releases expose a bounded GOAWAY drain. The pool must
+    // stop returning the route without aborting its underlying session.
+    // Keep this test consumer compatible with the immutable baseline pin.
+    if (comptime @hasDecl(qmsg.Node, "goawayQuicSession")) {
+        const closed_before = pool.stats.closed;
+        try client.goawayQuicSession(fourth, 0, "composition drain", drive.now_us, 200_000);
+        try pool.service(&mb.ep.node, &dialer, location.resolver(), drive.now_us);
+        try std.testing.expectEqual(null, pool.lookup(id_a));
+        try std.testing.expectEqual(closed_before, pool.stats.closed);
+        try std.testing.expectEqual(qmsg.node.SessionStatus.State.closing, client.sessionStatus(fourth).?.state);
+        const fifth = try drive.ready(fourth);
+        try drive.exchange(fifth, 45);
+    }
 }
 
 test "composition shares the exact QUIC Connection type" {

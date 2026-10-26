@@ -1,0 +1,115 @@
+{
+  "qmsg_source_sha256": "2f17a5c0ea3864b36292fc744c866be50ac45859745e12370c459080d4e32c5f",
+  "archive_sha256": "d5363946e9bbb5a7a0042cb17c29b8f2ed6b33e019ebe2659e8f60823926da53",
+  "modes": {
+    "Debug": {
+      "report": "debug/report.json",
+      "sources_unchanged": true,
+      "checks": [
+        {
+          "name": "released-composition",
+          "executed": 2,
+          "passed": 2,
+          "cached_test_runs": 0,
+          "skipped": 0,
+          "per_root_executions": [
+            2
+          ]
+        },
+        {
+          "name": "released-qmsg",
+          "executed": 854,
+          "passed": 854,
+          "cached_test_runs": 0,
+          "skipped": 0,
+          "per_root_executions": [
+            323,
+            187,
+            344
+          ]
+        },
+        {
+          "name": "selected-composition",
+          "executed": 2,
+          "passed": 2,
+          "cached_test_runs": 0,
+          "skipped": 0,
+          "per_root_executions": [
+            2
+          ]
+        },
+        {
+          "name": "selected-qmsg",
+          "executed": 854,
+          "passed": 854,
+          "cached_test_runs": 0,
+          "skipped": 0,
+          "per_root_executions": [
+            323,
+            187,
+            344
+          ]
+        }
+      ]
+    },
+    "ReleaseSafe": {
+      "report": "release-safe/report.json",
+      "sources_unchanged": true,
+      "checks": [
+        {
+          "name": "released-composition",
+          "executed": 2,
+          "passed": 2,
+          "cached_test_runs": 0,
+          "skipped": 0,
+          "per_root_executions": [
+            2
+          ]
+        },
+        {
+          "name": "released-qmsg",
+          "executed": 854,
+          "passed": 854,
+          "cached_test_runs": 0,
+          "skipped": 0,
+          "per_root_executions": [
+            323,
+            187,
+            344
+          ]
+        },
+        {
+          "name": "selected-composition",
+          "executed": 2,
+          "passed": 2,
+          "cached_test_runs": 0,
+          "skipped": 0,
+          "per_root_executions": [
+            2
+          ]
+        },
+        {
+          "name": "selected-qmsg",
+          "executed": 854,
+          "passed": 854,
+          "cached_test_runs": 0,
+          "skipped": 0,
+          "per_root_executions": [
+            323,
+            187,
+            344
+          ]
+        }
+      ]
+    }
+  },
+  "reused_qmesh_core_report": "core/report.json",
+  "reused_pinned_source_report": "pinned-selected-debug/report.json",
+  "historical_pre_containment_reports": "pre-containment-v3/",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+    "version": "0.17.0",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523"
+  },
+  "quic_extracted_source_sha256": "39bf98abe6de4e3ac57396ea70ec80f49814870e93897990ad3708be3e93eafe"
+}

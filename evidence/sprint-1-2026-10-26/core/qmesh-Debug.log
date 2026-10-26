@@ -1,0 +1,75 @@
+test
++- run test w
+sim fly-profile anatomy: probes=118 suspects=0 acks_tx=118 acks_rx=118
+ta A/B: with=20/20 (accel=10) without=0/20
+flaky: node3 alive peers=7/7 lh=2
+fly-cadence delivery: 1584/1584 worst-node 100%
+event ring: 7 witnesses hold session+suspect+confirm in causal order; repairs recorded
+failed command: ./.zig-cache/sprint1-core-final/build-cache/Debug/o/caa25df9b197d1514acf45b3083ee26d/test --cache-dir=./.zig-cache/sprint1-core-final/build-cache/Debug --seed=0xe515d4cf --listen=-
+
+Build Summary: 25/25 steps succeeded; 128/128 tests passed
+test success
++- run test 13 pass (13 total) 145ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:270M
++- run test 1 pass (1 total) 143ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:266M
++- run test 67 pass (67 total) 380ms MaxRSS:5M
+|  +- compile test debug native success 2s MaxRSS:317M
++- run test 19 pass (19 total) 16s MaxRSS:152M
+|  +- compile test debug native success 2s MaxRSS:318M
++- run test 10 pass (10 total) 237ms MaxRSS:3M
+|  +- compile test debug native success 2s MaxRSS:312M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native success 445ms MaxRSS:113M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native success 2s MaxRSS:170M
+|     |  +- WriteFile success
+|     |  +- compile lib crypto debug native success 13s MaxRSS:293M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options success
+|     +- translate-c success 196ms MaxRSS:48M
++- run test 2 pass (2 total) 3s MaxRSS:41M
+|  +- compile test debug native success 2s MaxRSS:500M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 11 pass (11 total) 388ms MaxRSS:15M
+|  +- compile test debug native success 2s MaxRSS:484M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 5 pass (5 total) 7s MaxRSS:24M
+   +- compile test debug native success 3s MaxRSS:522M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

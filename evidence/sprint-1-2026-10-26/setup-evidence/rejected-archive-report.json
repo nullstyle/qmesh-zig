@@ -1,0 +1,46 @@
+{
+  "started_utc": "20261026T181901.664082Z",
+  "host": "Darwin 27.0.0 arm64",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+    "version": "0.17.0",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523"
+  },
+  "optimize": "Debug",
+  "quic_options": {
+    "target": "native",
+    "release": false,
+    "sanitize-c": "trap"
+  },
+  "sources": {
+    "qmesh": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "commit": "6e7a87e4b00107d859e95148b87c497e8d2825e2",
+      "status": "M README.md\n M build.zig\n M docs/MESSAGING.md\n M docs/tutorial.md\n M mise.toml\n M src/composition/pool_test.zig\n M src/composition/root.zig\n M tests/composition/build.zig\n M tests/composition/build.zig.zon\n M tests/composition/mise.toml\n M tests/composition_test.zig\n?? .github/\n?? docs/sprint-1-evidence.md\n?? tools/check-composition.py",
+      "tree_sha256": "9ad832e8aeba2d26d06e214b6af02e82b5c51f00101b7c600202265930fe559a",
+      "file_count": 85,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    }
+  },
+  "checks": [],
+  "passed": false,
+  "requested_inputs": {
+    "mode": "both",
+    "qmsg_path": null,
+    "quic_path": null,
+    "quic_archive": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-1-2026-10-26/candidate/quic-zig-sprint-1.tar.gz",
+    "quic_hash": null,
+    "quic_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "pinned_inputs": {
+    "qmsg": ".qmsg = .{\n            .url = \"https://github.com/nullstyle/qmsg/archive/1e6960465c1af8f2cfdb8675b01fb00fbea38326.tar.gz\",\n            .hash = \"qmsg-0.8.5-g3pJMT1MFQBr6yT5WNY9vEFF-JC3k_FSapLit3BAgi_5\",\n        },",
+    "quic": ".quic = .{\n            .url = \"https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.42.2.tar.gz\",\n            .hash = \"quic-0.42.2-DnSYvVJRZQDaf9LFsqj9k1cFzPeYCNwb3HgKBDn8s07g\",\n        },"
+  },
+  "setup_error": "QUIC archive SHA-256 mismatch: expected 0000000000000000000000000000000000000000000000000000000000000000, got d5363946e9bbb5a7a0042cb17c29b8f2ed6b33e019ebe2659e8f60823926da53"
+}

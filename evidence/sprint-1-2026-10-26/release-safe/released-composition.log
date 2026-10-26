@@ -1,0 +1,19 @@
+Build Summary: 11/11 steps succeeded; 2/2 tests passed
+test success
++- run test 2 pass (2 total) 192ms MaxRSS:9M
+   +- compile test safe native success 15s MaxRSS:820M
+      +- WriteFile cached
+      +- compile lib ssl_shim safe native success 743ms MaxRSS:117M
+      +- WriteFile success
+      +- compile lib ssl safe native success 3s MaxRSS:203M
+      |  +- WriteFile cached
+      |  +- compile lib crypto safe native success 22s MaxRSS:458M
+      |  +- compile lib crypto safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options success
+      +- translate-c success 265ms MaxRSS:47M
+

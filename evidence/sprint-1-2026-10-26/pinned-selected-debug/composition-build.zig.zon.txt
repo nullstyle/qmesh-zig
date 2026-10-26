@@ -1,0 +1,21 @@
+.{
+    .name = .qmesh_qmsg_composition,
+    .version = "0.0.0",
+    .fingerprint = 0x3f610eabfc543885,
+    .minimum_zig_version = "0.17.0",
+    .paths = .{""},
+    .dependencies = .{
+        .qmesh = .{ .path = "../../../../.." },
+        // Immutable consumer inputs; no sibling checkouts are required.
+        // tools/check-composition.py can substitute explicit working trees
+        // or a content-verified QUIC candidate archive in an isolated copy.
+        .qmsg = .{
+            .url = "https://github.com/nullstyle/qmsg/archive/1e6960465c1af8f2cfdb8675b01fb00fbea38326.tar.gz",
+            .hash = "qmsg-0.8.5-g3pJMT1MFQBr6yT5WNY9vEFF-JC3k_FSapLit3BAgi_5",
+        },
+        .quic = .{
+            .url = "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.42.2.tar.gz",
+            .hash = "quic-0.42.2-DnSYvVJRZQDaf9LFsqj9k1cFzPeYCNwb3HgKBDn8s07g",
+        },
+    },
+}
