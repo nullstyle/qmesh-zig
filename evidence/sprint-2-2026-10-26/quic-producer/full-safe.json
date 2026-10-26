@@ -1,0 +1,25 @@
+{
+  "name": "full-safe",
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "test",
+    "-Drelease=true",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "shell_command": "mise exec -- zig build test -Drelease=true -j2 --summary all",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "started_utc": "2026-10-26T19:13:56.147822+00:00",
+  "environment": {
+    "COPYFILE_DISABLE": "1"
+  },
+  "log": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/full-safe.log",
+  "exit_code": 0,
+  "duration_seconds": 20.187,
+  "completed_utc": "2026-10-26T19:14:16.335656+00:00"
+}

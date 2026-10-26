@@ -270,6 +270,18 @@ const Runtime = struct {
         }
     }
 
+    fn nextDeadline(ctx: ?*anyopaque, _: *const qmesh_quic.Runner, now_us: u64) ?u64 {
+        const rt: *const Runtime = @ptrCast(@alignCast(ctx.?));
+        var best = rt.next_metrics_us;
+        if (rt.publish_interval_us > 0) best = @min(best, rt.next_publish_us);
+        if (comptime build_options.mdns) {
+            if (rt.discovery) |discovery| {
+                if (discovery.nextDeadline(now_us)) |at| best = @min(best, at);
+            }
+        }
+        return best;
+    }
+
     /// Drain the event rings to stderr since the last interval — the
     /// chaos campaigns' grep-able incident lines, printed in
     /// chronological order within the window (oldest first).
@@ -492,6 +504,7 @@ pub fn main(init: std.process.Init) !void {
         .control = control,
         .on_iteration = Runtime.onIteration,
         .on_iteration_ctx = &rt_storage,
+        .next_deadline = Runtime.nextDeadline,
         .shutdown = &shutdown_flag,
     });
     defer runner.deinit();

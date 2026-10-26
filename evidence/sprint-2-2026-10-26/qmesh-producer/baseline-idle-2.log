@@ -1,0 +1,4 @@
+qmesh-node id=48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143 joins=0 metrics every 3600s
+metrics alive=0 suspect=0 dead=0 active=0 passive=0 ranked=0 eager=0 lazy=0 sess=0 lh=0 rtt_min=0us rtt_max=0us probes=0 acks_tx=0 acks_rx=0 suspects=0 confirms=0 frames_tx=0 frames_rx=0 sends_failed=0 closes=0
+transport sessrec=0 slots=0 shed=0 ep_dgram_rx=0 decode_err=0 unknown_proto=0
+qmesh-node stopped

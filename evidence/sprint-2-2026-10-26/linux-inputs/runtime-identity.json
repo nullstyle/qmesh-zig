@@ -1,0 +1,17 @@
+{
+  "container_id": "a7431b4292a7ee338618eb296377add70940b64f6467eef70ec775d2e7e2e794",
+  "image_id": "sha256:97711185ccd951b04ca293caa83c7b88832ef61c0422439ae82903b7a1f6f969",
+  "entrypoint": [
+    "sh"
+  ],
+  "user": "501:20",
+  "working_directory": "/",
+  "mounts": [
+    {
+      "type": "bind",
+      "source": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition",
+      "destination": "/evidence",
+      "writable": true
+    }
+  ]
+}

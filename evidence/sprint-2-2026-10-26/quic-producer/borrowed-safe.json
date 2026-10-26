@@ -1,0 +1,26 @@
+{
+  "name": "borrowed-safe",
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "test",
+    "-Dtest-filter=ConnectionDriver:",
+    "-Drelease=true",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "shell_command": "mise exec -- zig build test -Dtest-filter=ConnectionDriver: -Drelease=true -j2 --summary all",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "started_utc": "2026-10-26T19:13:17.607701+00:00",
+  "environment": {
+    "COPYFILE_DISABLE": "1"
+  },
+  "log": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/borrowed-safe.log",
+  "exit_code": 0,
+  "duration_seconds": 15.903,
+  "completed_utc": "2026-10-26T19:13:33.511191+00:00"
+}

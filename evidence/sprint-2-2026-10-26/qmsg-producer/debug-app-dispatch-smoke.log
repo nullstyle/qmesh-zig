@@ -1,0 +1,2 @@
+app QUIC reliable reply user.get: {"id":"user-42","name":"Ada"}
+app QUIC datagram publication presence.ada: online

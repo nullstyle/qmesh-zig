@@ -1,0 +1,51 @@
+test-qmsg
++- run test w
+
+[node-pair] dead-peer detection: 2092ms after last contact (negotiated idle timeout 2000ms)
+failed command: /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/build-cache/composition/o/747863bd2fbd47ffa1b42b827c833bf4/test --cache-dir=/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/build-cache/composition --seed=0x909da397 --listen=-
+
+Build Summary: 15/15 steps succeeded; 874/874 tests passed
+test-qmsg success
++- run test 339 pass (339 total) 1s MaxRSS:11M
+|  +- compile test safe native success 22s MaxRSS:1G
+|     +- WriteFile cached
+|     +- compile lib ssl_shim safe native cached 48ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl safe native cached 40ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto safe native cached 56ms MaxRSS:32M
+|     |  +- compile lib crypto safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options cached
+|     +- translate-c cached 33ms MaxRSS:30M
++- run test 188 pass (188 total) 184ms MaxRSS:9M
+|  +- compile test safe native success 15s MaxRSS:839M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 347 pass (347 total) 2s MaxRSS:13M
+   +- compile test safe native success 20s MaxRSS:1G
+      +- WriteFile (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

@@ -1,0 +1,41 @@
+{
+  "container_id": "a7431b4292a7ee338618eb296377add70940b64f6467eef70ec775d2e7e2e794",
+  "create_command": [
+    "docker",
+    "create",
+    "--user",
+    "501:20",
+    "--entrypoint",
+    "sh",
+    "-w",
+    "/",
+    "-v",
+    "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition:/evidence",
+    "-e",
+    "HOME=/tmp",
+    "-e",
+    "PATH=/opt/zig:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "-e",
+    "ZIG_GLOBAL_CACHE_DIR=/evidence/zig-global-cache",
+    "-e",
+    "GIT_OPTIONAL_LOCKS=0",
+    "-e",
+    "COPYFILE_DISABLE=1",
+    "quic-zig-sprint1-builder:local",
+    "-c",
+    "set -eu\ncd /workspace/qmesh-zig\n/opt/zig/zig version\nsha256sum /opt/zig/zig\nuname -a\npython3 -B tools/check-composition.py --sprint2 --mode selected --optimize ReleaseSafe --qmsg-path /workspace/qmsg --quic-path /workspace/quic-zig --jobs 2 --output-dir /evidence/selected-safe\n"
+  ],
+  "copy_command": [
+    "docker",
+    "cp",
+    "--archive",
+    "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-inputs/.",
+    "a7431b4292a7ee338618eb296377add70940b64f6467eef70ec775d2e7e2e794:/workspace"
+  ],
+  "status": "exited",
+  "started_utc": "2026-10-26T19:43:59Z",
+  "exit_code": 0,
+  "attach_returncode": 0,
+  "finished_utc": "2026-10-26T19:46:39Z",
+  "removed": true
+}

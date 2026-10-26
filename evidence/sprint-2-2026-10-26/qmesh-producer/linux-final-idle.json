@@ -1,0 +1,43 @@
+{
+  "source_head": "128c8dcbd5f69310f71e099fffa64e1785ec2129",
+  "runtime_sources": {
+    "src/quic/loop.zig": "9b913164f590b21665804cee7c4b3cea608038983cd47613408ea6878c9cb771",
+    "src/quic/main.zig": "cf947c2ffeb7c41f0c4914e286cf1f90c0baccf6880fa1c77415174a31095eb6",
+    "src/quic/discovery.zig": "889924ad8469bead28e39319c4b880dbc7e51f406d780e2c5d42ec4693647904"
+  },
+  "binary_path": "/workspace/.zig-cache/sprint-2-evidence/linux-final-install/bin/qmesh-node",
+  "binary_sha256": "411e4a4b93c796ecae0d79c7e44c7911613cfb303bbc26ebb8e57cb21823c866",
+  "host": "Linux-7.2.12-orbstack-00394-gbecdd6130068-aarch64-with-glibc2.39",
+  "duration_seconds": 5,
+  "workload": "one idle node, no peers, no mDNS, no publication, metrics interval 3600s",
+  "cpu_scope": "whole process lifetime including startup/shutdown; wakeups exclude 100ms warmup",
+  "context_switch_scope": "whole process lifetime; voluntary context switches are a portable wait proxy",
+  "samples": [
+    {
+      "command": [
+        "/workspace/.zig-cache/sprint-2-evidence/linux-final-install/bin/qmesh-node",
+        "--id",
+        "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143",
+        "--bind",
+        "127.0.0.1:52120",
+        "--cert",
+        "tests/data/node-a.pem",
+        "--key",
+        "tests/data/node-a.key",
+        "--ca",
+        "tests/data/ca.pem",
+        "--metrics-secs",
+        "3600"
+      ],
+      "log": "/workspace/.zig-cache/sprint-2-evidence/linux-final-idle-0.log",
+      "exit_code": 0,
+      "measurement_seconds": 5.00908239200362,
+      "shutdown_seconds": 0.002014769008383155,
+      "user_cpu_seconds": 0.004841,
+      "system_cpu_seconds": 0.004841,
+      "voluntary_context_switches": 97,
+      "involuntary_context_switches": 1,
+      "wakeups": null
+    }
+  ]
+}

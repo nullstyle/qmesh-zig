@@ -18,8 +18,8 @@
 //!
 //! Two ways to drive it:
 //!
-//! * `run()` — blocks until the `shutdown` flag flips; park between
-//!   iterations for `step_sleep_ms`. The simple deployment.
+//! * `run()` — blocks on socket readability or the earliest protocol,
+//!   transport and application deadline until `shutdown` flips.
 //! * `step()` — one nonblocking iteration. Tests, foreign event
 //!   loops, and anything that owns the wait call this (or wire
 //!   `on_iteration` into `run()` for per-pass application work).
@@ -51,15 +51,6 @@ fn nowUs() u64 {
         @as(u64, @intCast(@divTrunc(ts.nsec, 1000)));
     if (clock_origin == null) clock_origin = us;
     return us - clock_origin.?;
-}
-
-fn sleepMs(ms: u64) void {
-    var req: std.c.timespec = .{
-        .sec = @intCast(ms / 1000),
-        .nsec = @intCast((ms % 1000) * std.time.ns_per_ms),
-    };
-    var rem: std.c.timespec = undefined;
-    _ = std.c.nanosleep(&req, &rem);
 }
 
 fn toQuicAddr(a: qmesh.Addr) ?quic.Address {
@@ -170,11 +161,19 @@ pub const Runner = struct {
         /// bound port. An explicit advertised IP may differ from bind.
         endpoint: endpoint_mod.Options,
         bind: qmesh.Addr,
-        /// Park between iterations in `run()`.
+        /// Compatibility cadence for an on_iteration callback that does
+        /// not supply next_deadline. Other waits are deadline driven.
         step_sleep_ms: u64 = 2,
+        /// Maximum park: bounds observation of a cross-thread shutdown
+        /// flag even when no datagram or protocol timer wakes the loop.
+        max_wait_ms: u32 = 50,
         /// Called once per `run()` iteration after the pass completes.
         on_iteration: ?*const fn (ctx: ?*anyopaque, r: *Self, now_us: u64) anyerror!void = null,
         on_iteration_ctx: ?*anyopaque = null,
+        /// Absolute time on clockUs(), using on_iteration_ctx. Supplying
+        /// this callback opts out of the legacy step_sleep_ms cadence;
+        /// null returned by the callback means no application timer.
+        next_deadline: ?*const fn (ctx: ?*anyopaque, r: *const Self, now_us: u64) ?u64 = null,
         /// `run()` exits when this flips true (checked each pass).
         shutdown: ?*std.atomic.Value(bool) = null,
         /// Chaos control channel: bind this address (a second UDP
@@ -202,6 +201,7 @@ pub const Runner = struct {
     control_sock: ?posix.socket_t = null,
 
     pub fn init(allocator: std.mem.Allocator, opts: Options) !*Self {
+        if (opts.max_wait_ms == 0) return error.InvalidWaitLimit;
         const ep = try Endpoint.init(allocator, opts.endpoint);
         errdefer ep.deinit();
         _ = try ep.listen();
@@ -292,9 +292,53 @@ pub const Runner = struct {
         return r.ep;
     }
 
-    /// One nonblocking iteration of the whole node.
+    pub const ReadableSockets = struct {
+        mesh: posix.socket_t,
+        control: ?posix.socket_t,
+    };
+
+    /// Borrowed handle inventory until deinit. An external owner selects
+    /// its admissible read interests, polls them with other protocols,
+    /// then calls nonblocking step(). Never close these handles or read
+    /// their datagrams outside this runner. A foreign owner's pause
+    /// policy must mask mesh readability while it deliberately ignores
+    /// mesh input; run() implements that policy for freeze/slow controls.
+    pub fn readableSockets(r: *const Self) ReadableSockets {
+        return .{ .mesh = r.sock, .control = r.control_sock };
+    }
+
+    /// Earliest absolute service time on clockUs(), including the
+    /// responsiveness cap. Compositors take the minimum with qmsg and
+    /// peer-pool deadlines; the runner owns neither of those modules.
+    /// A foreign pause policy uses its resume deadline instead of overdue
+    /// protocol timers until it resumes protocol stepping.
+    pub fn nextDeadline(r: *const Self, now_us: u64) ?u64 {
+        var best: ?u64 = now_us +| @as(u64, r.opts.max_wait_ms) * std.time.us_per_ms;
+        earliest(&best, r.ep.node.nextDeadline());
+        if (r.ep.server) |server| if (server.nextTimerDeadline(now_us)) |d| earliest(&best, d.at_us);
+        for (r.ep.sessions.items) |session| {
+            if (session.client == null or session.conn.isClosed()) continue;
+            // A callback can create a fresh dial after service(). Its
+            // ClientHello must advance before we park without an fd event.
+            if (!session.advanced) earliest(&best, now_us);
+            if (session.conn.nextTimerDeadline(now_us)) |d| earliest(&best, d.at_us);
+        }
+        if (r.opts.next_deadline) |callback| {
+            earliest(&best, callback(r.opts.on_iteration_ctx, r, now_us));
+        } else if (r.opts.on_iteration != null) {
+            earliest(&best, now_us +| r.opts.step_sleep_ms *| std.time.us_per_ms);
+        }
+        return best;
+    }
+
+    /// One nonblocking iteration, including a bounded control drain.
+    /// Crash commands exit before protocol work; loss/blackhole controls
+    /// apply immediately. This method owns no pacing/wait: freeze/slow
+    /// scheduling belongs to run(), or a foreign owner's pause policy.
+    /// Observed gaps remain raw Lifeguard input for external steppers.
     pub fn step(r: *Self) !void {
         if (!r.live) return;
+        r.drainControl();
         const now = nowUs();
         r.feedLocalHealth(now);
         try r.ingest(now);
@@ -304,6 +348,8 @@ pub const Runner = struct {
 
     /// Blocking drive until the shutdown flag flips.
     pub fn run(r: *Self) !void {
+        var normal_wait_credit_us: u64 = 0;
+        var slow_until_us: u64 = 0;
         while (true) {
             if (r.opts.shutdown) |flag| {
                 if (flag.load(.acquire)) return;
@@ -315,18 +361,67 @@ pub const Runner = struct {
                 // Chaos freeze: nothing processed or sent while the
                 // wall clock advances — Lifeguard observes the stall
                 // through the next iteration gap.
-                sleepMs(r.opts.step_sleep_ms);
+                // Do not watch the deliberately unread mesh socket:
+                // queued traffic must not spin a frozen node. Control
+                // remains responsive, as does the bounded shutdown check.
+                _ = try r.park(r.faults.freeze_until_us, false);
                 continue;
             }
-            r.feedLocalHealth(now);
+            if (r.faults.delay_us == 0) slow_until_us = 0;
+            if (now < slow_until_us) {
+                _ = try r.park(slow_until_us, false);
+                continue;
+            }
+            // Only actual successful normal parking, capped at its
+            // planned duration, is intentional scheduler inactivity.
+            // Work, oversleep, freeze and injected slow delay remain
+            // visible to Lifeguard. step() retains its raw-gap contract.
+            r.feedLocalHealthAfterWait(now, normal_wait_credit_us);
+            normal_wait_credit_us = 0;
             try r.ingest(now);
             try r.service(now);
             try r.drainOutbound(now);
             if (r.opts.on_iteration) |cb| {
                 try cb(r.opts.on_iteration_ctx, r, nowUs());
+                // Application callbacks can enqueue frames without a
+                // new read event. Flush them before choosing a park target.
+                try r.drainOutbound(nowUs());
             }
-            sleepMs(r.opts.step_sleep_ms + r.faults.delay_us / std.time.us_per_ms);
+            if (r.faults.delay_us > 0) {
+                slow_until_us = nowUs() +| r.faults.delay_us;
+                continue;
+            }
+            normal_wait_credit_us = try r.park(r.nextDeadline(nowUs()), true);
         }
+    }
+
+    /// Wait only for readability; UDP writability is normally continuous
+    /// and would turn an idle loop into a spin. EINTR returns to the owner
+    /// so signal handlers' shutdown flags are observed before re-parking.
+    fn park(r: *const Self, deadline_us: ?u64, include_mesh: bool) !u64 {
+        var descriptors: [2]posix.pollfd = undefined;
+        var len: usize = 0;
+        if (include_mesh) {
+            descriptors[len] = .{ .fd = r.sock, .events = posix.POLL.IN, .revents = 0 };
+            len += 1;
+        }
+        if (r.control_sock) |control| {
+            descriptors[len] = .{ .fd = control, .events = posix.POLL.IN, .revents = 0 };
+            len += 1;
+        }
+        const before = nowUs();
+        const timeout_ms = waitTimeoutMs(before, deadline_us, r.opts.max_wait_ms);
+        const rc = posix.system.poll(descriptors[0..len].ptr, @intCast(len), timeout_ms);
+        const after = nowUs();
+        switch (posix.errno(rc)) {
+            .SUCCESS => {},
+            .INTR => return 0,
+            else => return error.WaitFailed,
+        }
+        for (descriptors[0..len]) |descriptor| {
+            if (descriptor.revents & posix.POLL.NVAL != 0) return error.WaitFailed;
+        }
+        return @min(after -| before, @as(u64, @intCast(timeout_ms)) * std.time.us_per_ms);
     }
 
     // --- chaos control channel -------------------------------------------
@@ -509,6 +604,11 @@ pub const Runner = struct {
         r.last_step_us = now;
     }
 
+    fn feedLocalHealthAfterWait(r: *Self, now: u64, normal_wait_credit_us: u64) void {
+        r.ep.node.swim.noteAppDelay(now, (now -| r.last_step_us) -| normal_wait_credit_us);
+        r.last_step_us = now;
+    }
+
     fn ingest(r: *Self, now: u64) !void {
         const srv = r.ep.server.?;
         while (true) {
@@ -610,6 +710,21 @@ pub const Runner = struct {
         }
     }
 };
+
+fn earliest(best: *?u64, candidate: ?u64) void {
+    const at = candidate orelse return;
+    if (best.* == null or at < best.*.?) best.* = at;
+}
+
+/// POSIX poll has millisecond resolution: round a future deadline up,
+/// avoiding a zero-timeout spin during its final fractional millisecond.
+pub fn waitTimeoutMs(now_us: u64, deadline_us: ?u64, cap_ms: u32) i32 {
+    const cap: u64 = @min(cap_ms, std.math.maxInt(i32));
+    const at = deadline_us orelse return @intCast(cap);
+    if (at <= now_us) return 0;
+    const rounded = (at - now_us +| (std.time.us_per_ms - 1)) / std.time.us_per_ms;
+    return @intCast(@min(cap, rounded));
+}
 
 /// The runner's second route for a received datagram, the one for a
 /// datagram that no dial owns (see `Runner.ingest`): `bytes` go to our

@@ -1,0 +1,22 @@
+Build Summary: 14/14 steps succeeded
+install success
++- install qmesh-node success
+|  +- compile exe qmesh-node safe native success 14s MaxRSS:1G
+|     +- options success
+|     +- WriteFile cached
+|     +- compile lib ssl_shim safe native success 322ms MaxRSS:138M
+|     +- WriteFile cached
+|     +- compile lib ssl safe native success 2s MaxRSS:248M
+|     |  +- WriteFile success
+|     |  +- compile lib crypto safe native success 13s MaxRSS:673M
+|     |  +- compile lib crypto safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options success
+|     +- translate-c success 118ms MaxRSS:75M
++- install qmesh-top success
+   +- compile exe qmesh-top safe native success 8s MaxRSS:572M
+

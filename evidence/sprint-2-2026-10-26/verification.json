@@ -1,0 +1,990 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-26T19:48:16.625760+00:00",
+  "passed": true,
+  "sprint1_commits": {
+    "quic-zig": "33f5161becb6f66c7bc475d22d86a447f9281224",
+    "qmsg": "6bdcf69732d1101b9c91c9271674b0416772a6ff",
+    "qmesh-zig": "128c8dcbd5f69310f71e099fffa64e1785ec2129"
+  },
+  "sprint2_branches": {
+    "quic-zig": "codex/sprint-2-consumer-contracts",
+    "qmsg": "codex/sprint-2-quic-ergonomics",
+    "qmesh-zig": "codex/sprint-2-deadline-runner"
+  },
+  "sprint2_committed": false,
+  "pushed": false,
+  "public_versions_or_pins_changed": false,
+  "source_inputs_before_evidence_copy": {
+    "quic-zig": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig",
+      "commit": "33f5161becb6f66c7bc475d22d86a447f9281224",
+      "status": "M CHANGELOG.md\n M EMBEDDING.md\n M docs/DOWNSTREAM_INTEGRATION.md\n M tests/e2e/app_driver.zig\n?? docs/SPRINT_2_CONSUMER_CONTRACTS.md",
+      "tree_sha256": "37b15b020c0bacfd02a22bc5101f3deee66af83d1c68d78f51efc26efe10b6ce",
+      "file_count": 300,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    },
+    "qmsg": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "commit": "6bdcf69732d1101b9c91c9271674b0416772a6ff",
+      "status": "M AUTH.md\n M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/MIGRATION.md\n M docs/SPRINT.md\n M examples/quic_node_localhost.zig\n M src/app.zig\n M src/node.zig\n M src/protocol/root.zig\n M src/quic_transport_test.zig\n M src/root.zig\n M src/transport/quic.zig\n?? docs/SPRINT_2_QUIC_SOCKETS.md\n?? examples/local_tls_fixture.zig\n?? examples/owner_wait.zig\n?? examples/quic_owned_reqrep.zig\n?? src/quic_socket.zig\n?? src/quic_socket_test.zig",
+      "tree_sha256": "647a116bf1386feaee8c0e3c27a145c00586a79b741f9abceeee4e5a522b8ba0",
+      "file_count": 73,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "qmesh-zig": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "commit": "128c8dcbd5f69310f71e099fffa64e1785ec2129",
+      "status": "M README.md\n M build.zig\n M docs/MESSAGING.md\n M src/quic/discovery.zig\n M src/quic/loop.zig\n M src/quic/main.zig\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-2-composition.md\n?? docs/sprint-2-runner-evidence.md\n?? tests/runner_wait_test.zig\n?? tests/sprint2_composition_test.zig\n?? tools/runner-idle-bench.py",
+      "tree_sha256": "52dce39fdbfcb1fa44b7b3774f8532dfc6f20b8fff637d17150b55bedf2984c5",
+      "file_count": 146,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    }
+  },
+  "source_inputs_after_evidence_excluding_directory": {
+    "quic-zig": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig",
+      "commit": "33f5161becb6f66c7bc475d22d86a447f9281224",
+      "status": "M CHANGELOG.md\n M EMBEDDING.md\n M docs/DOWNSTREAM_INTEGRATION.md\n M tests/e2e/app_driver.zig\n?? docs/SPRINT_2_CONSUMER_CONTRACTS.md",
+      "tree_sha256": "37b15b020c0bacfd02a22bc5101f3deee66af83d1c68d78f51efc26efe10b6ce",
+      "file_count": 300,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    },
+    "qmsg": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "commit": "6bdcf69732d1101b9c91c9271674b0416772a6ff",
+      "status": "M AUTH.md\n M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/MIGRATION.md\n M docs/SPRINT.md\n M examples/quic_node_localhost.zig\n M src/app.zig\n M src/node.zig\n M src/protocol/root.zig\n M src/quic_transport_test.zig\n M src/root.zig\n M src/transport/quic.zig\n?? docs/SPRINT_2_QUIC_SOCKETS.md\n?? examples/local_tls_fixture.zig\n?? examples/owner_wait.zig\n?? examples/quic_owned_reqrep.zig\n?? src/quic_socket.zig\n?? src/quic_socket_test.zig",
+      "tree_sha256": "647a116bf1386feaee8c0e3c27a145c00586a79b741f9abceeee4e5a522b8ba0",
+      "file_count": 73,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "qmesh-zig": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "commit": "128c8dcbd5f69310f71e099fffa64e1785ec2129",
+      "status": "M README.md\n M build.zig\n M docs/MESSAGING.md\n M src/quic/discovery.zig\n M src/quic/loop.zig\n M src/quic/main.zig\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-2-composition.md\n?? docs/sprint-2-runner-evidence.md\n?? evidence/sprint-2-2026-10-26/\n?? tests/runner_wait_test.zig\n?? tests/sprint2_composition_test.zig\n?? tools/runner-idle-bench.py",
+      "tree_sha256": "52dce39fdbfcb1fa44b7b3774f8532dfc6f20b8fff637d17150b55bedf2984c5",
+      "file_count": 146,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    }
+  },
+  "source_digest_note": "Checker tree_sha256 hashes path lengths, paths, content lengths and bytes. The QUIC producer manifest source_files_sha256 uses its own serialization; all 300 manifest file hashes and file membership were separately matched to this worktree with zero mismatches.",
+  "quic_candidate": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/candidate/quic-zig-sprint-2.tar.gz",
+    "sha256": "8fbbd4f0b6bdfcfd8a742d4fb5cc06c58eeb24f6a8fc665a993f1cb3502a6675",
+    "package_hash": null,
+    "verified_by": "sha256"
+  },
+  "matrices": [
+    {
+      "name": "mac-debug",
+      "report": "mac-debug/report.json",
+      "host": "Darwin 27.0.0 arm64",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "version": "0.17.0",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523"
+      },
+      "passed": true,
+      "sources_unchanged": true,
+      "checks": [
+        {
+          "name": "released-composition",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed"
+        },
+        {
+          "name": "released-sprint2",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed"
+        },
+        {
+          "name": "released-qmsg",
+          "returncode": 0,
+          "summary": "Build Summary: 15/15 steps succeeded; 874/874 tests passed"
+        },
+        {
+          "name": "selected-composition",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed"
+        },
+        {
+          "name": "selected-sprint2",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed"
+        },
+        {
+          "name": "selected-qmsg",
+          "returncode": 0,
+          "summary": "Build Summary: 15/15 steps succeeded; 874/874 tests passed"
+        }
+      ]
+    },
+    {
+      "name": "mac-release-safe",
+      "report": "mac-release-safe/report.json",
+      "host": "Darwin 27.0.0 arm64",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "version": "0.17.0",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523"
+      },
+      "passed": true,
+      "sources_unchanged": true,
+      "checks": [
+        {
+          "name": "released-composition",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed"
+        },
+        {
+          "name": "released-sprint2",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed"
+        },
+        {
+          "name": "released-qmsg",
+          "returncode": 0,
+          "summary": "Build Summary: 15/15 steps succeeded; 874/874 tests passed"
+        },
+        {
+          "name": "selected-composition",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed"
+        },
+        {
+          "name": "selected-sprint2",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed"
+        },
+        {
+          "name": "selected-qmsg",
+          "returncode": 0,
+          "summary": "Build Summary: 15/15 steps succeeded; 874/874 tests passed"
+        }
+      ]
+    },
+    {
+      "name": "linux-selected-release-safe",
+      "report": "linux-selected-release-safe/report.json",
+      "host": "Linux 7.2.12-orbstack-00394-gbecdd6130068 aarch64",
+      "compiler": {
+        "path": "/opt/zig/zig",
+        "version": "0.17.0",
+        "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+      },
+      "passed": true,
+      "sources_unchanged": true,
+      "checks": [
+        {
+          "name": "selected-composition",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed"
+        },
+        {
+          "name": "selected-sprint2",
+          "returncode": 0,
+          "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed"
+        },
+        {
+          "name": "selected-qmsg",
+          "returncode": 0,
+          "summary": "Build Summary: 15/15 steps succeeded; 874/874 tests passed"
+        }
+      ]
+    }
+  ],
+  "producer_reports": {
+    "quic-zig": "quic-producer/manifest.json",
+    "qmsg": "qmsg-producer/summary.json",
+    "qmesh-zig": "qmesh-producer/summary.json"
+  },
+  "peer_review": "Final bounded independent reviews of qmsg facade, runner controls, and public stack fixture found no remaining actionable findings after corrections.",
+  "compatibility": [
+    "Automatic authorization now requires peer action roles: a requesting peer needs REQ at a local REP receiver. Migrate local-receiver-only grants; explicit requirePattern remains literal.",
+    "QuicSocket pump takes monotonic owner microseconds; queued work must be pumped and polled before waiting; nextTimer is a deadline interface.",
+    "Runner next_deadline callback opts out of legacy callback cadence; atomic shutdown observation has a configurable 50 ms default cap."
+  ],
+  "limits": [
+    "Local native arm64 macOS and Linux container execution; hosted CI and native Windows execution not performed.",
+    "QUIC Sprint 2 changes only tests/docs; inherited mixed-fairness candidate promotion hold remains. No release/pin promotion.",
+    "Runner 95 percent wakeup and 58 percent CPU reductions are this Mac idle workload only.",
+    "Producer reports distinguish fresh tests from cached targets; final composition matrix uses fresh per-run local caches.",
+    "Durable raw evidence was copied after source-stable gates. This evidence-only addition changes qmesh overall file membership; compiled source files remain byte-identical to qualified inputs."
+  ],
+  "artifacts": [
+    {
+      "path": "mac-debug/fetch-archive.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/fetch-archive.log",
+      "sha256": "e8924b3a929901c36ca8f437f9ec1c9fd2d8830df2f1ace09d51379b4e1dd1ad",
+      "bytes": 91
+    },
+    {
+      "path": "mac-debug/fetch-dependencies.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/fetch-dependencies.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "mac-debug/released-composition.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/released-composition.log",
+      "sha256": "ae5ad83d419790eb9e3dffadbb171cbae2f05df5eec7d78d86ea91d78c1ece8e",
+      "bytes": 822
+    },
+    {
+      "path": "mac-debug/released-qmsg.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/released-qmsg.log",
+      "sha256": "0e6ace0017b80da8f36c704221864507012b595bd713b176fa5e8290dbf85317",
+      "bytes": 2402
+    },
+    {
+      "path": "mac-debug/released-sprint2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/released-sprint2.log",
+      "sha256": "1cb172169724583470edabcbd65a9eff28669e03dece091b165c7cc9b68dc78a",
+      "bytes": 823
+    },
+    {
+      "path": "mac-debug/report.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/report.json",
+      "sha256": "9a85125f188ad37494e0f05d06841fc222bb81970eeb1aa2e90e56d2e1b2ed5e",
+      "bytes": 13715
+    },
+    {
+      "path": "mac-debug/selected-composition.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/selected-composition.log",
+      "sha256": "9c238b9d8a97f2bd4cb5ae0dd542d4a13da4c99ef8a68edf55be1157cf5b9f0b",
+      "bytes": 815
+    },
+    {
+      "path": "mac-debug/selected-qmsg.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/selected-qmsg.log",
+      "sha256": "696782e5b4ab289667f8038607594fc3eb856d4ee18bf8830a5eb07e8d99da8f",
+      "bytes": 2402
+    },
+    {
+      "path": "mac-debug/selected-sprint2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/selected-sprint2.log",
+      "sha256": "3237c22f5d9ae743f97064c473eddb43c68159510159d40532a18bd52e15c4d6",
+      "bytes": 822
+    },
+    {
+      "path": "mac-debug/zig-env.txt",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/zig-env.txt",
+      "sha256": "dbbe68becfb5c3d73165f7f5d42f54568f4a6d3812be4ffdd186592a81058005",
+      "bytes": 1423
+    },
+    {
+      "path": "mac-debug/inputs/build.zig",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/workspace/tests/composition/build.zig",
+      "sha256": "6f835cb2e0ba4a30ecb9085fa070a958b3945e45c5f6dd381b0a36e4be8c790b",
+      "bytes": 4223
+    },
+    {
+      "path": "mac-debug/inputs/build.zig.zon",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-debug/workspace/tests/composition/build.zig.zon",
+      "sha256": "08262436338a979e20f74bfd4026722eecd823e292e4c0ae4aba5f582c54fcde",
+      "bytes": 577
+    },
+    {
+      "path": "mac-release-safe/fetch-archive.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/fetch-archive.log",
+      "sha256": "e8924b3a929901c36ca8f437f9ec1c9fd2d8830df2f1ace09d51379b4e1dd1ad",
+      "bytes": 91
+    },
+    {
+      "path": "mac-release-safe/fetch-dependencies.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/fetch-dependencies.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "mac-release-safe/released-composition.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/released-composition.log",
+      "sha256": "e94191821713ca939f221d89199029e4d992778764120b96712050972af25b4a",
+      "bytes": 813
+    },
+    {
+      "path": "mac-release-safe/released-qmsg.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/released-qmsg.log",
+      "sha256": "2b31f7d9473647d90d04e6b102b62f5291e7063e48b2f3f385d65d3810592faa",
+      "bytes": 2373
+    },
+    {
+      "path": "mac-release-safe/released-sprint2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/released-sprint2.log",
+      "sha256": "d93cc633fce7f846af856df3e6399625d2f4d7e333aad9ec488f40de210de815",
+      "bytes": 813
+    },
+    {
+      "path": "mac-release-safe/report.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/report.json",
+      "sha256": "9100ded39b3e27d8818fa827fa389d6c159fc84bcc1497162d81bda3e9899dd6",
+      "bytes": 13746
+    },
+    {
+      "path": "mac-release-safe/selected-composition.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/selected-composition.log",
+      "sha256": "b528ec0add0735e4e68626cdf7615d7efa9060b5954f91574972a5a8a5bba83a",
+      "bytes": 806
+    },
+    {
+      "path": "mac-release-safe/selected-qmsg.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/selected-qmsg.log",
+      "sha256": "991a4eede302a1e0f3337ab5247667b6273abcde257eb0820fea08dbb1a80511",
+      "bytes": 2373
+    },
+    {
+      "path": "mac-release-safe/selected-sprint2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/selected-sprint2.log",
+      "sha256": "26cb1bfee223da197ac579dab01ff7e9488b26f127df11a060102a95f5991929",
+      "bytes": 813
+    },
+    {
+      "path": "mac-release-safe/zig-env.txt",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/zig-env.txt",
+      "sha256": "dbbe68becfb5c3d73165f7f5d42f54568f4a6d3812be4ffdd186592a81058005",
+      "bytes": 1423
+    },
+    {
+      "path": "mac-release-safe/inputs/build.zig",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/workspace/tests/composition/build.zig",
+      "sha256": "6f835cb2e0ba4a30ecb9085fa070a958b3945e45c5f6dd381b0a36e4be8c790b",
+      "bytes": 4223
+    },
+    {
+      "path": "mac-release-safe/inputs/build.zig.zon",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-composition-safe/workspace/tests/composition/build.zig.zon",
+      "sha256": "08262436338a979e20f74bfd4026722eecd823e292e4c0ae4aba5f582c54fcde",
+      "bytes": 577
+    },
+    {
+      "path": "linux-selected-release-safe/fetch-dependencies.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/fetch-dependencies.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "linux-selected-release-safe/report.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/report.json",
+      "sha256": "68969f347fef40f745b35556d556c985135a67aeb2cc3d53a7883859b45c8973",
+      "bytes": 9561
+    },
+    {
+      "path": "linux-selected-release-safe/selected-composition.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/selected-composition.log",
+      "sha256": "635de3ad4cc1c18b051a09157cde2eae293c5c5ed4b8ccdcc2e213b4acc34d89",
+      "bytes": 806
+    },
+    {
+      "path": "linux-selected-release-safe/selected-qmsg.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/selected-qmsg.log",
+      "sha256": "8f713fd91973b318b93822861e67094070fd14a75691e14703346205ff7b2c57",
+      "bytes": 2276
+    },
+    {
+      "path": "linux-selected-release-safe/selected-sprint2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/selected-sprint2.log",
+      "sha256": "d0003ab933a0fccf07db0a1d6745efb94820387535efbb2adb9c956e547310b2",
+      "bytes": 811
+    },
+    {
+      "path": "linux-selected-release-safe/zig-env.txt",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/zig-env.txt",
+      "sha256": "e82873311e70494a9e27093a845ef45c2a5cbaa26f1b58c4825065508cc62d62",
+      "bytes": 1238
+    },
+    {
+      "path": "linux-selected-release-safe/inputs/build.zig",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/workspace/tests/composition/build.zig",
+      "sha256": "6f835cb2e0ba4a30ecb9085fa070a958b3945e45c5f6dd381b0a36e4be8c790b",
+      "bytes": 4223
+    },
+    {
+      "path": "linux-selected-release-safe/inputs/build.zig.zon",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/workspace/tests/composition/build.zig.zon",
+      "sha256": "171d88f8153bfda9de8bf715995fc0a0860cb14a16c0d4fda1b7e6457f5749b6",
+      "bytes": 614
+    },
+    {
+      "path": "linux-inputs/container-state.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/container-state.json",
+      "sha256": "60d730b49d127a23d5b8f5da45652d373750bcaf97b6aca813d3890b4fddf9a0",
+      "bytes": 1311
+    },
+    {
+      "path": "linux-inputs/container.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/container.log",
+      "sha256": "f92d323802ce8e46cab6a108a2e4711a12bc06949a811d64d79e23ff5b16377e",
+      "bytes": 1152
+    },
+    {
+      "path": "linux-inputs/input-manifest.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/input-manifest.json",
+      "sha256": "eb329e480e2b10ac020c737b1b43049b230cf1573797e48f845918639235be72",
+      "bytes": 7684
+    },
+    {
+      "path": "linux-inputs/input-preparation-failure.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/input-preparation-failure.json",
+      "sha256": "6d4b20a18f83500b44e153872a66c41d7298b2a515033eb7235e50a456e13d7c",
+      "bytes": 3513
+    },
+    {
+      "path": "linux-inputs/runtime-identity.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/runtime-identity.json",
+      "sha256": "a32683bcbc3f909f4d807f325be33eef8814e0acfb35161ac4c9b70a0295ad9a",
+      "bytes": 460
+    },
+    {
+      "path": "linux-inputs/summary.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/summary.json",
+      "sha256": "383db7bac776e3c45ac8a8e6028e250d4d6008ab27a488c59b5da61b1c706076",
+      "bytes": 7563
+    },
+    {
+      "path": "qmsg-producer/auth-green.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/auth-green.log",
+      "sha256": "8dc41381b089ce9bcc82d59ccef4161b499e8d638bee0b0329943c8629db2c9d",
+      "bytes": 1926
+    },
+    {
+      "path": "qmsg-producer/auth-red.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/auth-red.log",
+      "sha256": "cddab34ee999b174eb6565c5bbbe989c17b6883da9f52ef002c89039c44bab5a",
+      "bytes": 12143
+    },
+    {
+      "path": "qmsg-producer/debug-app-dispatch-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-app-dispatch-smoke.log",
+      "sha256": "d470e819ee84d798eb4f4debd5f2952270348f82807442bffeaf631cf01e7cff",
+      "bytes": 115
+    },
+    {
+      "path": "qmsg-producer/debug-before-owner-flush.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-before-owner-flush.log",
+      "sha256": "658de6eae487bed661c8751621020f778aafb728247c1d830a62ead63efc8a5a",
+      "bytes": 7914
+    },
+    {
+      "path": "qmsg-producer/debug-before-quiet-wait.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-before-quiet-wait.log",
+      "sha256": "a7728714da72590566bb23487e571e23880caf9728abe817446498197108428f",
+      "bytes": 7874
+    },
+    {
+      "path": "qmsg-producer/debug-command.json",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-command.json",
+      "sha256": "abba2b11d351b2b3cc208825c89b42eef05c9598c7feff095211ceb5df342074",
+      "bytes": 238
+    },
+    {
+      "path": "qmsg-producer/debug-initial-fixture-failure.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-initial-fixture-failure.log",
+      "sha256": "b096d56117967cd41a82cf2114dda04f6ea193b33dffbb59fa0841892f1b9d55",
+      "bytes": 9745
+    },
+    {
+      "path": "qmsg-producer/debug-node-app-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-node-app-smoke.log",
+      "sha256": "e8b8fa4ea34de0de5330b7749fe27cd4661c7e709d18ba390e498d9f85be2867",
+      "bytes": 25
+    },
+    {
+      "path": "qmsg-producer/debug-owned-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-owned-smoke.log",
+      "sha256": "bc274e64285ca0bfe1897daefbfca75d70546706c827be30ab50c075fc55ec61",
+      "bytes": 33
+    },
+    {
+      "path": "qmsg-producer/debug-runtime-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-runtime-smoke.log",
+      "sha256": "612a17e2e172442ba743d3e2fb3f03a834771375a0e73fb5a4960c4379b4778f",
+      "bytes": 62
+    },
+    {
+      "path": "qmsg-producer/debug.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug.log",
+      "sha256": "7185751c17aeea032a1aafe42eb608e18117beb4de6406fa71a6ea85d41740e0",
+      "bytes": 7871
+    },
+    {
+      "path": "qmsg-producer/owned-targeted.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/owned-targeted.log",
+      "sha256": "9259fb0a956a749ed379078936b64fb8479aec132f94a72157c0ebf832af0d4f",
+      "bytes": 1955
+    },
+    {
+      "path": "qmsg-producer/release-safe-app-dispatch-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-app-dispatch-smoke.log",
+      "sha256": "d470e819ee84d798eb4f4debd5f2952270348f82807442bffeaf631cf01e7cff",
+      "bytes": 115
+    },
+    {
+      "path": "qmsg-producer/release-safe-before-owner-flush.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-before-owner-flush.log",
+      "sha256": "3ed97cf3db86bd8fe6065b8f679984e44023aff417601d8f46d2bc783017fed0",
+      "bytes": 8121
+    },
+    {
+      "path": "qmsg-producer/release-safe-before-quiet-wait.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-before-quiet-wait.log",
+      "sha256": "38ed08debc2917a242101050184c46e170131366e51830d3f312b6a712678879",
+      "bytes": 7784
+    },
+    {
+      "path": "qmsg-producer/release-safe-command.json",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-command.json",
+      "sha256": "4fb44d69b769086d26d8eaece8b0fac593a8d7a19c4548b8cb085bc5c57c4ff1",
+      "bytes": 264
+    },
+    {
+      "path": "qmsg-producer/release-safe-node-app-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-node-app-smoke.log",
+      "sha256": "e8b8fa4ea34de0de5330b7749fe27cd4661c7e709d18ba390e498d9f85be2867",
+      "bytes": 25
+    },
+    {
+      "path": "qmsg-producer/release-safe-owned-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-owned-smoke.log",
+      "sha256": "bc274e64285ca0bfe1897daefbfca75d70546706c827be30ab50c075fc55ec61",
+      "bytes": 33
+    },
+    {
+      "path": "qmsg-producer/release-safe-runtime-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-runtime-smoke.log",
+      "sha256": "612a17e2e172442ba743d3e2fb3f03a834771375a0e73fb5a4960c4379b4778f",
+      "bytes": 62
+    },
+    {
+      "path": "qmsg-producer/release-safe.log",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe.log",
+      "sha256": "226486b2c730155f7083ec131523d57d46b26ca0cbd8d10229845baddf0b6657",
+      "bytes": 7779
+    },
+    {
+      "path": "qmsg-producer/summary.json",
+      "origin": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/summary.json",
+      "sha256": "ff1f3c5b0e837f4e64a76c09157e7523a6185ee57b2e178d3d25ec08fd573617",
+      "bytes": 9366
+    },
+    {
+      "path": "qmesh-producer/baseline-build.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-build.log",
+      "sha256": "92b78eeb2eaedbc0a02abec679ed0f7940cd61424c2058162263de0bec5e4495",
+      "bytes": 908
+    },
+    {
+      "path": "qmesh-producer/baseline-idle-0.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-idle-0.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/baseline-idle-1.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-idle-1.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/baseline-idle-2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-idle-2.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/baseline-idle.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-idle.json",
+      "sha256": "a5577760ca8b7b75225f2b5e6bb25fda3c55c53a2839ffbb422f2cc268e10a88",
+      "bytes": 3752
+    },
+    {
+      "path": "qmesh-producer/control-regression-green.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/control-regression-green.log",
+      "sha256": "cf8280c3e91432bc8a11c737dade333e681982ea6329b7cbb6e72107ee0a351b",
+      "bytes": 822
+    },
+    {
+      "path": "qmesh-producer/control-regression-red-v2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/control-regression-red-v2.log",
+      "sha256": "bd97319b44a139a731a7b3f4379a77dc2f19d0d351fd419f8a9a5e548f929804",
+      "bytes": 1832
+    },
+    {
+      "path": "qmesh-producer/control-regression-red.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/control-regression-red.log",
+      "sha256": "7cfddb9d3a65bf95e0ee6525b76f2fe74298cd2fa221eb5b44ad861d327a344b",
+      "bytes": 1831
+    },
+    {
+      "path": "qmesh-producer/deadline-idle-0.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/deadline-idle-0.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/deadline-idle-1.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/deadline-idle-1.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/deadline-idle-2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/deadline-idle-2.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/deadline-idle.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/deadline-idle.json",
+      "sha256": "667f3b619047f3fba3cc4dca73fa869c3e08c2172f1d9bb8923b5def948e6e8f",
+      "bytes": 3756
+    },
+    {
+      "path": "qmesh-producer/final-build.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-build.log",
+      "sha256": "823000f96ce3036d3925346291c6ad879f48461512a47ce957fb78739e07cef6",
+      "bytes": 901
+    },
+    {
+      "path": "qmesh-producer/final-idle-0.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-idle-0.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/final-idle-1.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-idle-1.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/final-idle-2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-idle-2.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/final-idle.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-idle.json",
+      "sha256": "895c4d1c326ca3059bee2ff1eaee233c716edb2798d148b6c452099ca76dbb69",
+      "bytes": 3731
+    },
+    {
+      "path": "qmesh-producer/first-build.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/first-build.log",
+      "sha256": "27a064f087c0db32b7fc91f40ea47826a760e826f5a2028a8d3c6ae9f6ff54d8",
+      "bytes": 901
+    },
+    {
+      "path": "qmesh-producer/fixed-poll-idle-0.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/fixed-poll-idle-0.log",
+      "sha256": "192aa6538639199cd71778e941d5cc8d6ea9096be32aff021a9ab5d51142ef23",
+      "bytes": 15
+    },
+    {
+      "path": "qmesh-producer/full-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/full-debug.log",
+      "sha256": "774af10d3e5821bd2427d515a5846c6f6a8428614bf24132149736b359839399",
+      "bytes": 3432
+    },
+    {
+      "path": "qmesh-producer/full-safe.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/full-safe.log",
+      "sha256": "82534b9f7912fa052449110d74e9ebb7ef2b3ba21e414af946ee3b45574dc899",
+      "bytes": 3927
+    },
+    {
+      "path": "qmesh-producer/linux-cli-smoke.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-cli-smoke.log",
+      "sha256": "12855074952553dfa59e12b131a9ae0254981404841612ec978df39c25e9010e",
+      "bytes": 641
+    },
+    {
+      "path": "qmesh-producer/linux-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-debug.log",
+      "sha256": "6bf9c379fbbda1ee04ad1c9f21e74e68b3001dda837b3270a971483063ebd7f4",
+      "bytes": 4174
+    },
+    {
+      "path": "qmesh-producer/linux-final-build.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-final-build.log",
+      "sha256": "1c5ead1e7f80d02a23a3ee3a9bda9a500d48f4c5b771d2cca35649b61706f2a1",
+      "bytes": 908
+    },
+    {
+      "path": "qmesh-producer/linux-final-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-final-debug.log",
+      "sha256": "6b5a2158bd0d8c3f59837297202ac901bb76eab66d4c5e922a1f76a904eb7e65",
+      "bytes": 4273
+    },
+    {
+      "path": "qmesh-producer/linux-final-idle-0.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-final-idle-0.log",
+      "sha256": "d2ce336436f53ce6a928a217524a183472b136f80dd864a482d84fbd363ea077",
+      "bytes": 415
+    },
+    {
+      "path": "qmesh-producer/linux-final-idle.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-final-idle.json",
+      "sha256": "30bd193b0921bc9c8556ff90c676b85b5535d3c0e49f65027e503a8f0260ff79",
+      "bytes": 1797
+    },
+    {
+      "path": "qmesh-producer/linux-final-safe.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-final-safe.log",
+      "sha256": "56025e5663acf57c4adaf467355836cb491313b2ad114d065140c2882282dd68",
+      "bytes": 4233
+    },
+    {
+      "path": "qmesh-producer/mac-final-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/mac-final-debug.log",
+      "sha256": "c5cfd7115516825e96654a0597bfdf216e3f1ce9ab994dba8d4332c806d35b88",
+      "bytes": 4058
+    },
+    {
+      "path": "qmesh-producer/mac-final-safe.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/mac-final-safe.log",
+      "sha256": "c1ca78039a061e53a80db57684bfe197a05e83f9be2a3679f2f9c0a83579a2a2",
+      "bytes": 4015
+    },
+    {
+      "path": "qmesh-producer/runner-debug-v2.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/runner-debug-v2.log",
+      "sha256": "4331c63d71f3438adb6c20f8f6de210afef1183d705c0bf4029f56fdbec92571",
+      "bytes": 818
+    },
+    {
+      "path": "qmesh-producer/runner-debug-v3.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/runner-debug-v3.log",
+      "sha256": "5d15b5de4bf3db8feaba8e961d05ea384e8a9e8c821cd3deecde82be78564664",
+      "bytes": 818
+    },
+    {
+      "path": "qmesh-producer/runner-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/runner-debug.log",
+      "sha256": "7a3c69afbd8d4ef335492445c85b1b562eab618bcac05c9bc389901412b6075b",
+      "bytes": 2628
+    },
+    {
+      "path": "qmesh-producer/summary.json",
+      "origin": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/summary.json",
+      "sha256": "a8d69b85330969cb984d6ee1703e275a688691b90bd2117de0e82bccc9fd5e10",
+      "bytes": 16532
+    },
+    {
+      "path": "quic-producer/bench-examples.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/bench-examples.json",
+      "sha256": "0048cdfedc2f9700592ff3e3e1efe3e8e60c7de3f6f6a5741231f7f8fc0b4963",
+      "bytes": 619
+    },
+    {
+      "path": "quic-producer/bench-examples.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/bench-examples.log",
+      "sha256": "ce104e5f180eab3e0e5f14458de32fd735e7b192f8326749902d9d2bc9aa4726",
+      "bytes": 4575
+    },
+    {
+      "path": "quic-producer/borrowed-debug.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/borrowed-debug.json",
+      "sha256": "0c8e4d40bcdf6c83fdc635fe4f8032dadeea8ef303125e6d7080c6bea96de4b7",
+      "bytes": 653
+    },
+    {
+      "path": "quic-producer/borrowed-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/borrowed-debug.log",
+      "sha256": "1986995cd90be23bdc03e59aa6eca2da1f5682c3cd2e632f32dc3a3ab3ad7182",
+      "bytes": 5049
+    },
+    {
+      "path": "quic-producer/borrowed-safe.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/borrowed-safe.json",
+      "sha256": "71d9ab14e5ad923d3cb8a8af1814dc14ea695492fa7b9d5ed3b112cb4cb4feee",
+      "bytes": 690
+    },
+    {
+      "path": "quic-producer/borrowed-safe.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/borrowed-safe.log",
+      "sha256": "f4f35516725be6fafc36b156d5f44f01f44b5f4a8535dbe952174da165c60cd2",
+      "bytes": 4833
+    },
+    {
+      "path": "quic-producer/candidate-identity.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/candidate-identity.json",
+      "sha256": "000b67a1378a33bde042886b0a0ea779d9b3c0f49b4524f4264a8547873dc76f",
+      "bytes": 29701
+    },
+    {
+      "path": "quic-producer/consumer-debug.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-debug.json",
+      "sha256": "23f524a3f79d8d007c0c07a1e5e707a7d412cc1dd0fed6b6a86848b2d0db54e2",
+      "bytes": 602
+    },
+    {
+      "path": "quic-producer/consumer-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-debug.log",
+      "sha256": "444baa16133409c5bf2ad1039d75d06798613ddc16be2402addde01bec45d4ce",
+      "bytes": 837
+    },
+    {
+      "path": "quic-producer/consumer-pressure-debug-2.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-pressure-debug-2.json",
+      "sha256": "e9cc986dd7df8e7422efd988f062c1c006a098a1a9806a8c90dbc1c38751fc6c",
+      "bytes": 678
+    },
+    {
+      "path": "quic-producer/consumer-pressure-debug-2.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-pressure-debug-2.log",
+      "sha256": "183f2fd35ed7529c2bb31417bc7dee5fc23e379d9401d464e3e29606bd8e0a6d",
+      "bytes": 7175
+    },
+    {
+      "path": "quic-producer/consumer-pressure-debug-3.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-pressure-debug-3.json",
+      "sha256": "1ba8d158022458a02cf6401b195569a8752c04337a3c387c3c045adf7d03be23",
+      "bytes": 678
+    },
+    {
+      "path": "quic-producer/consumer-pressure-debug-3.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-pressure-debug-3.log",
+      "sha256": "d04aa241b2fb65728eb29339d6245f96edf0fbe52dab782adc522569f63a9d5c",
+      "bytes": 5021
+    },
+    {
+      "path": "quic-producer/consumer-pressure-debug.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-pressure-debug.json",
+      "sha256": "4f5ad0d9bde058552572b04f8e475a0934d7d418b70b59c09875edd6b53a7c74",
+      "bytes": 674
+    },
+    {
+      "path": "quic-producer/consumer-pressure-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-pressure-debug.log",
+      "sha256": "2b1790ab6a921229189df211696db49f38e7347bac0f7cc351c6bebdb8353f16",
+      "bytes": 6492
+    },
+    {
+      "path": "quic-producer/consumer-safe.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-safe.json",
+      "sha256": "d4d8c1cdd1c2f11b04ccde6c04c850bfc51b75cc3ab61fb82fe20bba26b1b879",
+      "bytes": 653
+    },
+    {
+      "path": "quic-producer/consumer-safe.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-safe.log",
+      "sha256": "49e647d92ee9d3c356c26307cfe1d4d67d8294e6cd9c46768357b01b02f927ae",
+      "bytes": 827
+    },
+    {
+      "path": "quic-producer/echo.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/echo.json",
+      "sha256": "0c90762eed41ecf08030467700de99da634feb009b6046c0a6d2c2542a030fa3",
+      "bytes": 583
+    },
+    {
+      "path": "quic-producer/echo.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/echo.log",
+      "sha256": "f623c0bcce87b30d1c8a496dd0b1cc86f8dcab6a43bb93f14f73124e8d0d4648",
+      "bytes": 1826
+    },
+    {
+      "path": "quic-producer/fmt.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/fmt.json",
+      "sha256": "647e8120f3839470e92f134110bd53fc0674370c6670b3ae6e962d4832fa680b",
+      "bytes": 563
+    },
+    {
+      "path": "quic-producer/fmt.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "quic-producer/full-debug.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/full-debug.json",
+      "sha256": "177aa50f378fa7832e97d61174f0bdb70965788d45bd28604f140904e118f7ba",
+      "bytes": 576
+    },
+    {
+      "path": "quic-producer/full-debug.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/full-debug.log",
+      "sha256": "87d2f09ee9275345521da169d093bfcba7f02d3b203e4b1c460df342d6144169",
+      "bytes": 5028
+    },
+    {
+      "path": "quic-producer/full-safe.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/full-safe.json",
+      "sha256": "4857b13cb99acaa18e1f3243f0e15898e841d5e869b2f9a0b064b6fe67cefea0",
+      "bytes": 611
+    },
+    {
+      "path": "quic-producer/full-safe.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/full-safe.log",
+      "sha256": "fbd7d1153bb15e0ac29e4e1b0dfa2959978f887519caa8701e2d131e924d588b",
+      "bytes": 4808
+    },
+    {
+      "path": "quic-producer/manifest.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/manifest.json",
+      "sha256": "29f328b78e50a324144ce07cbaa59df6215e7dfd38ed18983c262438af2db17b",
+      "bytes": 118116
+    },
+    {
+      "path": "quic-producer/whitespace-final.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/whitespace-final.json",
+      "sha256": "3b2464a0273240c596951948bfd342e78b8654d36a75b1fcd691ef0ea5c063f6",
+      "bytes": 487
+    },
+    {
+      "path": "quic-producer/whitespace-final.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/whitespace-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "quic-producer/whitespace.json",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/whitespace.json",
+      "sha256": "07c50da3678a46f2fb7d5fe55510bd54bdfd192dce802fb1e6101a1bf32f19a1",
+      "bytes": 474
+    },
+    {
+      "path": "quic-producer/whitespace.log",
+      "origin": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/whitespace.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

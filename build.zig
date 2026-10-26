@@ -210,6 +210,19 @@ pub fn build(b: *std.Build) !void {
     const run_mesh_tests = b.addRunArtifact(mesh_tests);
     test_step.dependOn(&run_mesh_tests.step);
 
+    const runner_tests_mod = b.createModule(.{
+        .root_source_file = b.path("tests/runner_wait_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    runner_tests_mod.addImport("qmesh", qmesh_mod);
+    runner_tests_mod.addImport("qmesh_quic", qmesh_quic_mod);
+    const runner_tests = b.addTest(.{ .root_module = runner_tests_mod });
+    const run_runner_tests = b.addRunArtifact(runner_tests);
+    const runner_test_step = b.step("runner-test", "Test deadline-driven socket waiting and fault/shutdown behavior");
+    runner_test_step.dependOn(&run_runner_tests.step);
+    test_step.dependOn(&run_runner_tests.step);
+
     // Milestone-2 acceptance: real mesh sessions over quic.testing
     // Loopback, real mTLS with the vendored test PKI.
     const session_tests_mod = b.createModule(.{

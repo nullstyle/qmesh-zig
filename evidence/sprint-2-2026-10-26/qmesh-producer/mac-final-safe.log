@@ -1,0 +1,88 @@
+test
++- run test w
+sim fly-profile anatomy: probes=118 suspects=0 acks_tx=118 acks_rx=118
+ta A/B: with=20/20 (accel=10) without=0/20
+flaky: node3 alive peers=7/7 lh=2
+fly-cadence delivery: 1584/1584 worst-node 100%
+event ring: 7 witnesses hold session+suspect+confirm in causal order; repairs recorded
+failed command: ./.zig-cache/sprint-2-evidence/mac-final-safe-cache/o/412581acb91dceee148d63e38b527128/test --cache-dir=./.zig-cache/sprint-2-evidence/mac-final-safe-cache --seed=0x94b53e01 --listen=-
+
+Build Summary: 27/27 steps succeeded; 138/138 tests passed
+test success
++- run test 13 pass (13 total) 135ms MaxRSS:2M
+|  +- compile test safe native success 6s MaxRSS:377M
++- run test 1 pass (1 total) 157ms MaxRSS:2M
+|  +- compile test safe native success 19s MaxRSS:367M
++- run test 67 pass (67 total) 140ms MaxRSS:3M
+|  +- compile test safe native success 8s MaxRSS:461M
++- run test 19 pass (19 total) 367ms MaxRSS:13M
+|  +- compile test safe native success 12s MaxRSS:469M
++- run test 10 pass (10 total) 135ms MaxRSS:2M
+|  +- compile test safe native success 6s MaxRSS:408M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim safe native success 1s MaxRSS:117M
+|     +- WriteFile success
+|     +- compile lib ssl safe native success 3s MaxRSS:201M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto safe native success 30s MaxRSS:452M
+|     |  +- compile lib crypto safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options success
+|     +- translate-c success 376ms MaxRSS:49M
++- run test 2 pass (2 total) 3s MaxRSS:29M
+|  +- compile test safe native success 11s MaxRSS:653M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 10 pass (10 total) 1s MaxRSS:9M
+|  +- compile test safe native success 9s MaxRSS:643M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 11 pass (11 total) 178ms MaxRSS:9M
+|  +- compile test safe native success 9s MaxRSS:662M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 5 pass (5 total) 7s MaxRSS:16M
+   +- compile test safe native success 15s MaxRSS:776M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

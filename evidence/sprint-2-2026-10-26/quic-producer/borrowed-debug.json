@@ -1,0 +1,25 @@
+{
+  "name": "borrowed-debug",
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "test",
+    "-Dtest-filter=ConnectionDriver:",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "shell_command": "mise exec -- zig build test -Dtest-filter=ConnectionDriver: -j2 --summary all",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "started_utc": "2026-10-26T19:13:13.550602+00:00",
+  "environment": {
+    "COPYFILE_DISABLE": "1"
+  },
+  "log": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/borrowed-debug.log",
+  "exit_code": 0,
+  "duration_seconds": 4.03,
+  "completed_utc": "2026-10-26T19:13:17.580344+00:00"
+}

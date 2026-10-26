@@ -1,0 +1,25 @@
+{
+  "name": "consumer-safe",
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "run",
+    "-Doptimize=ReleaseSafe",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "shell_command": "mise exec -- zig build run -Doptimize=ReleaseSafe -j2 --summary all",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig/tools/consumer-smoke",
+  "started_utc": "2026-10-26T19:14:17.805617+00:00",
+  "environment": {
+    "COPYFILE_DISABLE": "1"
+  },
+  "log": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-safe.log",
+  "exit_code": 0,
+  "duration_seconds": 0.205,
+  "completed_utc": "2026-10-26T19:14:18.010745+00:00"
+}

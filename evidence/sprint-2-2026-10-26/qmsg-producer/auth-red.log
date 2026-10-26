@@ -1,0 +1,175 @@
+test
++- run test 11 pass, 1 fail (12 total); 5 leaks
+error: 'quic_socket_test.test.owned QUIC: authenticated req rep use minimal peer grants and deny subjects' failed:
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/testing.zig:584:14: 0x10372d45b in expect (test)
+           if (!ok) return error.TestUnexpectedResult;
+                    ^
+       /Users/nullstyle/prj/zig/qmsg/src/quic_socket_test.zig:440:21: 0x10372e1ff in test.owned QUIC: authenticated req rep use minimal peer grants and deny subjects (test)
+                           try std.testing.expect(!event.reply.msg.flags.err);
+                           ^
+       [SafeAllocator] (err): leaked [addr: 104336e38, len: 12 (0xc) align: 1] allocated at: 
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/mem/Allocator.zig:481:40: 0x1035de403 in dupe__func_117 (test)
+           const new_buf = try allocator.alloc(T, m.len);
+                                              ^
+       /Users/nullstyle/prj/zig/qmsg/src/message.zig:145:46: 0x1037146e7 in init (test)
+                   const value_copy = allocator.dupe(u8, header.value) catch |err| {
+                                                    ^
+       /Users/nullstyle/prj/zig/qmsg/src/envelope.zig:87:32: 0x103715617 in decode (test)
+           return message.Message.init(allocator, .{
+                                      ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:470:27: 0x103715733 in decodeReliableMessage (test)
+           return envelope.decode(allocator, bytes, options);
+                                 ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:425:50: 0x103715baf in pump__func_1051 (test)
+               const decoded = try decodeReliableMessage(self.allocator, self.bytes.items, self.codec_options);
+                                                        ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:1045:55: 0x103716267 in pumpReliableReceivers__func_1049 (test)
+                   const received = (try entry.value_ptr.pump(transport)) orelse continue;
+                                                             ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:808:67: 0x103716e6b in pump__func_1026 (test)
+               result.reliable_received += try self.pumpReliableReceivers(transport);
+                                                                         ^
+       (additional stack frames may have been skipped...)
+       
+       [SafeAllocator] (err): leaked [addr: 104336da0, len: 15 (0xf) align: 1] allocated at: 
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/mem/Allocator.zig:481:40: 0x1035de403 in dupe__func_117 (test)
+           const new_buf = try allocator.alloc(T, m.len);
+                                              ^
+       /Users/nullstyle/prj/zig/qmsg/src/message.zig:144:49: 0x103714663 in init (test)
+                   const name_copy = try allocator.dupe(u8, header.name);
+                                                       ^
+       /Users/nullstyle/prj/zig/qmsg/src/envelope.zig:87:32: 0x103715617 in decode (test)
+           return message.Message.init(allocator, .{
+                                      ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:470:27: 0x103715733 in decodeReliableMessage (test)
+           return envelope.decode(allocator, bytes, options);
+                                 ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:425:50: 0x103715baf in pump__func_1051 (test)
+               const decoded = try decodeReliableMessage(self.allocator, self.bytes.items, self.codec_options);
+                                                        ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:1045:55: 0x103716267 in pumpReliableReceivers__func_1049 (test)
+                   const received = (try entry.value_ptr.pump(transport)) orelse continue;
+                                                             ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:808:67: 0x103716e6b in pump__func_1026 (test)
+               result.reliable_received += try self.pumpReliableReceivers(transport);
+                                                                         ^
+       (additional stack frames may have been skipped...)
+       
+       [SafeAllocator] (err): leaked [addr: 104336cf8, len: 32 (0x20) align: 8] allocated at: 
+       /Users/nullstyle/prj/zig/qmsg/src/message.zig:132:49: 0x103714417 in init (test)
+               const headers_copy = try allocator.alloc(Header, out.headers.len);
+                                                       ^
+       /Users/nullstyle/prj/zig/qmsg/src/envelope.zig:87:32: 0x103715617 in decode (test)
+           return message.Message.init(allocator, .{
+                                      ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:470:27: 0x103715733 in decodeReliableMessage (test)
+           return envelope.decode(allocator, bytes, options);
+                                 ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:425:50: 0x103715baf in pump__func_1051 (test)
+               const decoded = try decodeReliableMessage(self.allocator, self.bytes.items, self.codec_options);
+                                                        ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:1045:55: 0x103716267 in pumpReliableReceivers__func_1049 (test)
+                   const received = (try entry.value_ptr.pump(transport)) orelse continue;
+                                                             ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:808:67: 0x103716e6b in pump__func_1026 (test)
+               result.reliable_received += try self.pumpReliableReceivers(transport);
+                                                                         ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_embedded.zig:572:24: 0x10371ad0b in pumpSeat (test)
+                   _ = rt.pump(&adapter) catch |err| switch (err) {
+                              ^
+       (additional stack frames may have been skipped...)
+       
+       [SafeAllocator] (err): leaked [addr: 104336c60, len: 12 (0xc) align: 1] allocated at: 
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/mem/Allocator.zig:481:40: 0x1035de403 in dupe__func_117 (test)
+           const new_buf = try allocator.alloc(T, m.len);
+                                              ^
+       /Users/nullstyle/prj/zig/qmsg/src/message.zig:129:45: 0x103714347 in init (test)
+               const body_copy = try allocator.dupe(u8, out.body);
+                                                   ^
+       /Users/nullstyle/prj/zig/qmsg/src/envelope.zig:87:32: 0x103715617 in decode (test)
+           return message.Message.init(allocator, .{
+                                      ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:470:27: 0x103715733 in decodeReliableMessage (test)
+           return envelope.decode(allocator, bytes, options);
+                                 ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:425:50: 0x103715baf in pump__func_1051 (test)
+               const decoded = try decodeReliableMessage(self.allocator, self.bytes.items, self.codec_options);
+                                                        ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:1045:55: 0x103716267 in pumpReliableReceivers__func_1049 (test)
+                   const received = (try entry.value_ptr.pump(transport)) orelse continue;
+                                                             ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:808:67: 0x103716e6b in pump__func_1026 (test)
+               result.reliable_received += try self.pumpReliableReceivers(transport);
+                                                                         ^
+       (additional stack frames may have been skipped...)
+       
+       [SafeAllocator] (err): leaked [addr: 104336bc8, len: 14 (0xe) align: 1] allocated at: 
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/mem/Allocator.zig:481:40: 0x1035de403 in dupe__func_117 (test)
+           const new_buf = try allocator.alloc(T, m.len);
+                                              ^
+       /Users/nullstyle/prj/zig/qmsg/src/message.zig:126:48: 0x10371429b in init (test)
+               const subject_copy = try allocator.dupe(u8, out.subject);
+                                                      ^
+       /Users/nullstyle/prj/zig/qmsg/src/envelope.zig:87:32: 0x103715617 in decode (test)
+           return message.Message.init(allocator, .{
+                                      ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:470:27: 0x103715733 in decodeReliableMessage (test)
+           return envelope.decode(allocator, bytes, options);
+                                 ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_streams.zig:425:50: 0x103715baf in pump__func_1051 (test)
+               const decoded = try decodeReliableMessage(self.allocator, self.bytes.items, self.codec_options);
+                                                        ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:1045:55: 0x103716267 in pumpReliableReceivers__func_1049 (test)
+                   const received = (try entry.value_ptr.pump(transport)) orelse continue;
+                                                             ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic_session_runtime.zig:808:67: 0x103716e6b in pump__func_1026 (test)
+               result.reliable_received += try self.pumpReliableReceivers(transport);
+                                                                         ^
+       (additional stack frames may have been skipped...)
+failed command: ./.zig-cache/o/c19ef602d8f1ca7bf7d3c437c0239748/test --cache-dir=./.zig-cache --seed=0x27c84a8f --listen=-
+
+Build Summary: 13/15 steps succeeded (1 failed); 13/14 tests passed (1 failed)
+test transitive failure
++- run test 11 pass, 1 fail (12 total); 5 leaks
+|  +- compile test debug native success 2s MaxRSS:509M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native cached 43ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native cached 34ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug native cached 49ms MaxRSS:32M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options cached
+|     +- translate-c cached 29ms MaxRSS:30M
++- run test 1 pass (1 total) 233ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:298M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 1 pass (1 total) 178ms MaxRSS:3M
+   +- compile test debug native success 970ms MaxRSS:297M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

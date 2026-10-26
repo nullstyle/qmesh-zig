@@ -171,3 +171,10 @@ The integration test establishes real mesh membership with mutual TLS, sends
 qmsg requests through the peer pool, loses a qmsg session, restarts the
 application listener while the mesh stays alive, changes the application
 endpoint, and verifies that the recovered routes still exchange messages.
+
+For the Sprint 2 owned-socket and deadline-runner application, pass `--sprint2`
+with a qmsg revision exporting `QuicSocket`. The opt-in consumer uses public
+methods, borrowed readiness handles, and the owner clock; it runs in addition
+to the existing pool/restart scenarios. See
+[`sprint-2-composition.md`](sprint-2-composition.md) for commands, scope, and
+the final source-identified evidence.

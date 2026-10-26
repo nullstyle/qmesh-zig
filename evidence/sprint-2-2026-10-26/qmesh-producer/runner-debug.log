@@ -1,0 +1,30 @@
+runner-test
++- run test
+   +- compile test debug native 1 errors
+tests/runner_wait_test.zig:50:89: error: division with 'c_long' and 'comptime_int': signed integers must use @divTrunc, @divFloor, @divCeil, or @divExact
+    return @as(u64, @intCast(now.sec)) * std.time.us_per_s + @as(u64, @intCast(now.nsec / std.time.ns_per_us));
+                                                                               ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+referenced by:
+    test.freeze ignores queued mesh readability without hiding the stall: tests/runner_wait_test.zig:141:29
+error: 1 compilation errors
+failed command: /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig test -Odebug --dep qmesh --dep qmesh_quic -Mroot=tests/runner_wait_test.zig -Odebug -Mqmesh=src/root.zig -Odebug --dep qmesh --dep quic -Mqmesh_quic=src/quic/root.zig -fsanitize-c=trap -Odebug --dep boringssl --dep build_options -Mquic=zig-pkg/quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-/src/root.zig .zig-cache/o/e6f27bef4e30d786ba90d71f345ee2ae/libssl_shim.a .zig-cache/o/ecca46f54d69a1f781f46cc6dca871e3/libssl.a .zig-cache/o/49abe7dbfdef4fd85c850f78e1695926/libcrypto.a -fsanitize-c=trap -Odebug -I .zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/o/99643627a011968f089148bb3544ce0e --dep c -Mboringssl=zig-pkg/boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2/src/root.zig -Mbuild_options=.zig-cache/o/a366b4c418195a5caef29f9783ad83c6/options.zig -fsanitize-c=trap -Odebug -Mc=.zig-cache/o/bf99cc69f024679a08be5262da7ae82d/c_imports.zig .zig-cache/o/49abe7dbfdef4fd85c850f78e1695926/libcrypto.a -lc++ -lc --cache-dir .zig-cache --global-cache-dir .zig-global-cache --build-root . --name test --zig-lib-dir /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/ --listen=-
+
+Build Summary: 8/11 steps succeeded (1 failed)
+runner-test transitive failure
++- run test transitive failure
+   +- compile test debug native 1 errors
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native cached 46ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl debug native cached 47ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto debug native cached 60ms MaxRSS:32M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options cached
+      +- translate-c cached 36ms MaxRSS:30M
+

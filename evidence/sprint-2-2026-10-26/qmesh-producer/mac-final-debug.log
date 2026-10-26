@@ -1,0 +1,88 @@
+test
++- run test w
+sim fly-profile anatomy: probes=118 suspects=0 acks_tx=118 acks_rx=118
+ta A/B: with=20/20 (accel=10) without=0/20
+flaky: node3 alive peers=7/7 lh=2
+fly-cadence delivery: 1584/1584 worst-node 100%
+event ring: 7 witnesses hold session+suspect+confirm in causal order; repairs recorded
+failed command: ./.zig-cache/sprint-2-evidence/mac-final-debug-cache/o/caa25df9b197d1514acf45b3083ee26d/test --cache-dir=./.zig-cache/sprint-2-evidence/mac-final-debug-cache --seed=0xc0d46e3b --listen=-
+
+Build Summary: 27/27 steps succeeded; 138/138 tests passed
+test success
++- run test 13 pass (13 total) 159ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:270M
++- run test 1 pass (1 total) 148ms MaxRSS:3M
+|  +- compile test debug native success 2s MaxRSS:266M
++- run test 67 pass (67 total) 278ms MaxRSS:5M
+|  +- compile test debug native success 1s MaxRSS:315M
++- run test 19 pass (19 total) 27s MaxRSS:152M
+|  +- compile test debug native success 5s MaxRSS:318M
++- run test 10 pass (10 total) 146ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:309M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native success 745ms MaxRSS:112M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native success 3s MaxRSS:170M
+|     |  +- WriteFile success
+|     |  +- compile lib crypto debug native success 25s MaxRSS:288M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options success
+|     +- translate-c success 387ms MaxRSS:48M
++- run test 2 pass (2 total) 3s MaxRSS:40M
+|  +- compile test debug native success 2s MaxRSS:474M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 10 pass (10 total) 1s MaxRSS:14M
+|  +- compile test debug native success 3s MaxRSS:502M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 11 pass (11 total) 397ms MaxRSS:15M
+|  +- compile test debug native success 2s MaxRSS:484M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 5 pass (5 total) 7s MaxRSS:25M
+   +- compile test debug native success 3s MaxRSS:523M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

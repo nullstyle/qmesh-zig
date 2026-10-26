@@ -1,0 +1,205 @@
+test
++- run test 187 pass, 1 fail (188 total)
+error: 'quic_transport_test.test.qmsg QUIC sessions exchange HELLO over real QUIC uni streams' failed:
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic.zig:542:104: 0x1055afe37 in validateHelloPolicy (test)
+               if ((hello.supported_patterns & compatiblePeerPatterns(self.options.supported_patterns)) == 0) return error.InvalidPattern;
+                                                                                                              ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic.zig:508:9: 0x1055b1933 in acceptHello (test)
+               try self.validateHelloPolicy(hello);
+               ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic.zig:474:35: 0x1055b20b3 in acceptPeerControl (test)
+                       .hello => |hello| try self.acceptHello(hello),
+                                         ^
+       /Users/nullstyle/prj/zig/qmsg/src/transport/quic.zig:499:9: 0x1057fc5bb in acceptPeerControlFromStream (test)
+               try self.acceptPeerControl(bytes.items);
+               ^
+       /Users/nullstyle/prj/zig/qmsg/src/quic_transport_test.zig:367:5: 0x10580937f in test.qmsg QUIC sessions exchange HELLO over real QUIC uni streams (test)
+           try server.acceptPeerControlFromStream(slot.conn, quic.peerControlStreamId(.server), 64 * 1024);
+           ^
+failed command: ./.zig-cache/o/c4456d75e560e854afa3732d9831c479/test --cache-dir=./.zig-cache --seed=0x2e6b9364 --listen=-
+
+test
++- run test w
+
+[node-pair] dead-peer detection: 2092ms after last contact (negotiated idle timeout 2000ms)
+failed command: ./.zig-cache/o/12a43806a49664d531a472a7dc2fad93/test --cache-dir=./.zig-cache --seed=0x2e6b9364 --listen=-
+
+Build Summary: 37/39 steps succeeded (1 failed); 873/874 tests passed (1 failed)
+capnp-test success
++- run test cached
+   +- compile test debug native cached 49ms MaxRSS:31M
+examples success
++- install inproc-reqrep success
+|  +- compile exe inproc-reqrep debug native success 929ms MaxRSS:300M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native cached 50ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native cached 35ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug native cached 45ms MaxRSS:32M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options cached
+|     +- translate-c cached 30ms MaxRSS:30M
++- install embedded-inproc-node success
+|  +- compile exe embedded-inproc-node debug native success 1s MaxRSS:490M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install embedded-quic-attach success
+|  +- compile exe embedded-quic-attach debug native success 2s MaxRSS:502M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install app-ergonomics success
+|  +- compile exe app-ergonomics debug native success 1s MaxRSS:352M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install auth-paseto success
+|  +- compile exe auth-paseto debug native success 1s MaxRSS:353M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-runtime-reqrep success
+|  +- compile exe quic-runtime-reqrep debug native success 1s MaxRSS:449M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-socket-hooks success
+|  +- compile exe quic-socket-hooks debug native success 921ms MaxRSS:297M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-app-dispatch success
+|  +- compile exe quic-app-dispatch debug native success 1s MaxRSS:348M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-node-localhost success
+|  +- compile exe quic-node-localhost debug native success 2s MaxRSS:503M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-owned-reqrep success
+   +- compile exe quic-owned-reqrep debug native success 2s MaxRSS:501M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+test transitive failure
++- run test 339 pass (339 total) 3s MaxRSS:29M
+|  +- compile test debug native success 4s MaxRSS:879M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 187 pass, 1 fail (188 total)
+|  +- compile test debug native success 2s MaxRSS:569M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 347 pass (347 total) 13s MaxRSS:153M
+   +- compile test debug native success 4s MaxRSS:881M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

@@ -74,13 +74,17 @@ distributed systems. It is **not** an actor runtime.
 - [x] `qmesh_quic.Runner` (src/quic/loop.zig): the supported socket
       loop — binds the UDP socket, owns one Endpoint, drives ingest →
       stateless drain → dial advance → protocol service → ticks/reap →
-      outbound drain per iteration. `run()` blocks until a shutdown
-      flag; `step()` is one nonblocking pass for tests and foreign
+      outbound drain per iteration. `run()` parks on mesh/control socket
+      readability and the earliest core, QUIC or application deadline,
+      with a 50 ms default cap for atomic shutdown. `step()` is one
+      nonblocking pass for tests and foreign
       event loops. POSIX (raw syscalls; Darwin needs fcntl nonblock).
       Each iteration also feeds its observed clock gap into SWIM's
       Lifeguard local-health multiplier — scheduler starvation scales
       probe/suspicion windows up instead of escalating a stall to
       CONFIRM + eviction, and clean cadence decays them back.
+      Planned normal parks are excluded from that delay signal; oversleep,
+      injected pause/slow faults and callback stalls remain observable.
 - [x] Twelve-node mesh over REAL UDP sockets (tests/quic_mesh_test.zig)
       driving the Runner directly: bootstrap convergence with
       cert-bound identities, duplicate-suppressed cluster broadcast, a 25%
@@ -406,6 +410,7 @@ quic-zig v0.37.2 pin, whose build.zig refuses every 0.17.0-dev build):
 ```sh
 mise install        # zig 0.17.0
 zig build test      # unit + simulator + quic boundary + mesh + mdns tests
+zig build runner-test  # socket/deadline, control, pause and shutdown regressions
 mise run check-sprint1  # Debug + ReleaseSafe, core + both composition modes
 ```
 
@@ -427,6 +432,19 @@ only for Debug and ReleaseSafe (the fly posture already) unless
 `-Dmdns=true|false` says otherwise; a ReleaseFast `zig build` still
 produces every binary and test, with a `qmesh-node` that refuses
 `--mdns` at start-up.
+
+`Runner.run()` accepts an optional `next_deadline` callback on the same
+monotonic microsecond clock as `Runner.clockUs()`. It shares
+`on_iteration_ctx`; returning null means no application timer. Existing
+`on_iteration` callbacks without that hook retain the `step_sleep_ms` cadence.
+The node binary supplies telemetry, publication and mDNS deadlines itself.
+Foreign loops can combine `Runner.nextDeadline(now_us)` with their qmsg/pool
+timers and poll the borrowed `Runner.readableSockets()` inventory before
+calling `step()`. `step()` drains control messages without blocking; the
+foreign owner supplies its own pause/pacing policy and masks mesh readability
+while it deliberately pauses input. `run()` handles freeze/slow masking and
+planned-wait Lifeguard accounting internally. See
+[the runner qualification](docs/sprint-2-runner-evidence.md).
 
 ## Running a node (fly smoke-test posture)
 

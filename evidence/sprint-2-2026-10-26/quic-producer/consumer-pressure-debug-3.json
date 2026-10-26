@@ -1,0 +1,25 @@
+{
+  "name": "consumer-pressure-debug-3",
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "test",
+    "-Dtest-filter=consumer pressure",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "shell_command": "mise exec -- zig build test '-Dtest-filter=consumer pressure' -j2 --summary all",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "started_utc": "2026-10-26T19:11:48.296204+00:00",
+  "environment": {
+    "COPYFILE_DISABLE": "1"
+  },
+  "log": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/consumer-pressure-debug-3.log",
+  "exit_code": 0,
+  "duration_seconds": 4.256,
+  "completed_utc": "2026-10-26T19:11:52.552928+00:00"
+}

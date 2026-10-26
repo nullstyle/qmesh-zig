@@ -184,6 +184,18 @@ pub const Discovery = struct {
         }
     }
 
+    /// The mode-A service still needs periodic receive drains because
+    /// its multicast sockets belong to mdns, not the mesh runner's poll
+    /// set. Preserve that configured cadence alongside Engine timers.
+    pub fn nextDeadline(d: *const Self, now_us: u64) ?u64 {
+        const receive_at = if (d.svc.last_drain_us) |last|
+            last +| d.svc.rx_poll_interval_us
+        else
+            now_us;
+        const engine_at = d.svc.nextDeadline(now_us) orelse return receive_at;
+        return @min(receive_at, engine_at);
+    }
+
     /// The `on_iteration` shape, for embedders that need nothing else
     /// per pass; qmesh-node wraps it in its own callback.
     pub fn onIteration(ctx: ?*anyopaque, runner: *qmesh_quic.Runner, now_us: u64) anyerror!void {

@@ -1,0 +1,10 @@
+0.17.0
+5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7  /opt/zig/zig
+Linux a7431b4292a7 7.2.12-orbstack-00394-gbecdd6130068 #1 SMP PREEMPT Thu Oct 22 22:17:17 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+[selected-composition] /opt/zig/zig build test -Doptimize=ReleaseSafe -j2 --cache-dir /evidence/selected-safe/build-cache/composition --summary all -Dlocal-quic=true
+[selected-composition] exit=0 Build Summary: 11/11 steps succeeded; 2/2 tests passed; /evidence/selected-safe/selected-composition.log
+[selected-sprint2] /opt/zig/zig build test-sprint2 -Doptimize=ReleaseSafe -j2 --cache-dir /evidence/selected-safe/build-cache/composition --summary all -Dlocal-quic=true
+[selected-sprint2] exit=0 Build Summary: 11/11 steps succeeded; 1/1 tests passed; /evidence/selected-safe/selected-sprint2.log
+[selected-qmsg] /opt/zig/zig build test-qmsg -Doptimize=ReleaseSafe -j2 --cache-dir /evidence/selected-safe/build-cache/composition --summary all -Dlocal-quic=true
+[selected-qmsg] exit=0 Build Summary: 15/15 steps succeeded; 874/874 tests passed; /evidence/selected-safe/selected-qmsg.log
+Evidence: /evidence/selected-safe/report.json

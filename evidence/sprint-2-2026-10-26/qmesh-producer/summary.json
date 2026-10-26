@@ -1,0 +1,442 @@
+{
+  "qmesh": {
+    "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+    "commit": "128c8dcbd5f69310f71e099fffa64e1785ec2129",
+    "status": "M README.md\n M build.zig\n M docs/MESSAGING.md\n M src/quic/discovery.zig\n M src/quic/loop.zig\n M src/quic/main.zig\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-2-composition.md\n?? docs/sprint-2-runner-evidence.md\n?? tests/runner_wait_test.zig\n?? tests/sprint2_composition_test.zig\n?? tools/runner-idle-bench.py",
+    "tree_sha256": "52dce39fdbfcb1fa44b7b3774f8532dfc6f20b8fff637d17150b55bedf2984c5",
+    "file_count": 146,
+    "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+    "dependency_pins": {
+      "quic": {
+        "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+        "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+      }
+    }
+  },
+  "public_pin": "quic v0.37.2",
+  "compiler": "stock Zig 0.17.0",
+  "checks": [
+    {
+      "name": "mac-final-debug",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/mac-final-debug.log",
+      "summary": "Build Summary: 27/27 steps succeeded; 138/138 tests passed",
+      "executed": 138,
+      "cached_test_runs": 0,
+      "skipped": 0,
+      "returncode": 0,
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "zig",
+        "build",
+        "test",
+        "-j2",
+        "--summary",
+        "all",
+        "--cache-dir",
+        ".zig-cache/sprint-2-evidence/mac-final-debug-cache"
+      ]
+    },
+    {
+      "name": "mac-final-safe",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/mac-final-safe.log",
+      "summary": "Build Summary: 27/27 steps succeeded; 138/138 tests passed",
+      "executed": 138,
+      "cached_test_runs": 0,
+      "skipped": 0,
+      "returncode": 0,
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "zig",
+        "build",
+        "test",
+        "-Doptimize=ReleaseSafe",
+        "-j2",
+        "--summary",
+        "all",
+        "--cache-dir",
+        ".zig-cache/sprint-2-evidence/mac-final-safe-cache"
+      ]
+    },
+    {
+      "name": "linux-final-debug",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-final-debug.log",
+      "summary": "Build Summary: 27/27 steps succeeded; 138/138 tests passed",
+      "executed": 138,
+      "cached_test_runs": 0,
+      "skipped": 0,
+      "returncode": 0,
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--user",
+        "501:20",
+        "--entrypoint",
+        "sh",
+        "-v",
+        "/Users/nullstyle/prj/zig/qmesh-zig:/workspace",
+        "-w",
+        "/workspace",
+        "-e",
+        "HOME=/tmp",
+        "-e",
+        "ZIG_GLOBAL_CACHE_DIR=/workspace/.zig-cache/sprint-2-evidence/linux-global",
+        "-e",
+        "ZIG_LOCAL_PKG_DIR=/workspace/zig-pkg",
+        "quic-zig-sprint1-builder:local",
+        "-c",
+        "/opt/zig/zig version; sha256sum /opt/zig/zig; uname -a; /opt/zig/zig build test -j2 --summary all --cache-dir .zig-cache/sprint-2-evidence/linux-final-debug-cache"
+      ]
+    },
+    {
+      "name": "linux-final-safe",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-final-safe.log",
+      "summary": "Build Summary: 27/27 steps succeeded; 138/138 tests passed",
+      "executed": 138,
+      "cached_test_runs": 0,
+      "skipped": 0,
+      "returncode": 0,
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--user",
+        "501:20",
+        "--entrypoint",
+        "sh",
+        "-v",
+        "/Users/nullstyle/prj/zig/qmesh-zig:/workspace",
+        "-w",
+        "/workspace",
+        "-e",
+        "HOME=/tmp",
+        "-e",
+        "ZIG_GLOBAL_CACHE_DIR=/workspace/.zig-cache/sprint-2-evidence/linux-global",
+        "-e",
+        "ZIG_LOCAL_PKG_DIR=/workspace/zig-pkg",
+        "quic-zig-sprint1-builder:local",
+        "-c",
+        "/opt/zig/zig version; sha256sum /opt/zig/zig; uname -a; /opt/zig/zig build test -Doptimize=ReleaseSafe -j2 --summary all --cache-dir .zig-cache/sprint-2-evidence/linux-final-safe-cache"
+      ]
+    },
+    {
+      "name": "final-build",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-build.log",
+      "summary": "Build Summary: 14/14 steps succeeded",
+      "returncode": 0,
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "zig",
+        "build",
+        "-Doptimize=ReleaseSafe",
+        "-j2",
+        "--summary",
+        "all",
+        "--prefix",
+        ".zig-cache/sprint-2-evidence/final-install"
+      ]
+    },
+    {
+      "name": "linux-final-build",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/linux-final-build.log",
+      "summary": "Build Summary: 14/14 steps succeeded",
+      "returncode": 0,
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--user",
+        "501:20",
+        "--entrypoint",
+        "sh",
+        "-v",
+        "/Users/nullstyle/prj/zig/qmesh-zig:/workspace",
+        "-w",
+        "/workspace",
+        "-e",
+        "HOME=/tmp",
+        "-e",
+        "ZIG_GLOBAL_CACHE_DIR=/workspace/.zig-cache/sprint-2-evidence/linux-global",
+        "-e",
+        "ZIG_LOCAL_PKG_DIR=/workspace/zig-pkg",
+        "quic-zig-sprint1-builder:local",
+        "-c",
+        "/opt/zig/zig build -Doptimize=ReleaseSafe -j2 --summary all --cache-dir .zig-cache/sprint-2-evidence/linux-cli-cache --prefix .zig-cache/sprint-2-evidence/linux-final-install"
+      ]
+    }
+  ],
+  "metrics": {
+    "baseline-idle": {
+      "source_head": "128c8dcbd5f69310f71e099fffa64e1785ec2129",
+      "runtime_sources": {
+        "src/quic/loop.zig": "cefb1ea6739e13fe80daa98ca21c54b15e1a5ee087f96d6ab1eb8cb5ac981b1a",
+        "src/quic/main.zig": "9b1bc62026eb5d759ff695dbb160ccda64ca9faf6fe14d5ba3b3462832a8da13",
+        "src/quic/discovery.zig": "17fefeca391d1d9be8111188f3f69897cb1b7cede04c532c4530ef2c16cc9cec"
+      },
+      "binary_path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-install/bin/qmesh-node",
+      "binary_sha256": "eef0ab484d73d8a84ce79a4410d4bf16096b893052a380c081e4595b05b64e1f",
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "duration_seconds": 5,
+      "workload": "one idle node, no peers, no mDNS, no publication, metrics interval 3600s",
+      "cpu_scope": "whole process lifetime including startup/shutdown; wakeups exclude 100ms warmup",
+      "context_switch_scope": "whole process lifetime; voluntary context switches are a portable wait proxy",
+      "samples": [
+        {
+          "command": [
+            "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-install/bin/qmesh-node",
+            "--id",
+            "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143",
+            "--bind",
+            "127.0.0.1:64667",
+            "--cert",
+            "tests/data/node-a.pem",
+            "--key",
+            "tests/data/node-a.key",
+            "--ca",
+            "tests/data/ca.pem",
+            "--metrics-secs",
+            "3600"
+          ],
+          "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-idle-0.log",
+          "exit_code": 0,
+          "measurement_seconds": 5.002427916,
+          "shutdown_seconds": 0.0018774579999991658,
+          "user_cpu_seconds": 0.007903,
+          "system_cpu_seconds": 0.025384,
+          "voluntary_context_switches": 0,
+          "involuntary_context_switches": 2017,
+          "wakeups": {
+            "interrupt": 1979,
+            "package_idle": 2
+          }
+        },
+        {
+          "command": [
+            "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-install/bin/qmesh-node",
+            "--id",
+            "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143",
+            "--bind",
+            "127.0.0.1:57873",
+            "--cert",
+            "tests/data/node-a.pem",
+            "--key",
+            "tests/data/node-a.key",
+            "--ca",
+            "tests/data/ca.pem",
+            "--metrics-secs",
+            "3600"
+          ],
+          "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-idle-1.log",
+          "exit_code": 0,
+          "measurement_seconds": 5.005119083,
+          "shutdown_seconds": 0.001986333999999701,
+          "user_cpu_seconds": 0.008797,
+          "system_cpu_seconds": 0.027295999999999997,
+          "voluntary_context_switches": 0,
+          "involuntary_context_switches": 2110,
+          "wakeups": {
+            "interrupt": 2036,
+            "package_idle": 2
+          }
+        },
+        {
+          "command": [
+            "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-install/bin/qmesh-node",
+            "--id",
+            "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143",
+            "--bind",
+            "127.0.0.1:64574",
+            "--cert",
+            "tests/data/node-a.pem",
+            "--key",
+            "tests/data/node-a.key",
+            "--ca",
+            "tests/data/ca.pem",
+            "--metrics-secs",
+            "3600"
+          ],
+          "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/baseline-idle-2.log",
+          "exit_code": 0,
+          "measurement_seconds": 5.003676291000001,
+          "shutdown_seconds": 0.002122916999999447,
+          "user_cpu_seconds": 0.010222,
+          "system_cpu_seconds": 0.031883999999999996,
+          "voluntary_context_switches": 0,
+          "involuntary_context_switches": 2109,
+          "wakeups": {
+            "interrupt": 2034,
+            "package_idle": 1
+          }
+        }
+      ]
+    },
+    "final-idle": {
+      "source_head": "128c8dcbd5f69310f71e099fffa64e1785ec2129",
+      "runtime_sources": {
+        "src/quic/loop.zig": "9b913164f590b21665804cee7c4b3cea608038983cd47613408ea6878c9cb771",
+        "src/quic/main.zig": "cf947c2ffeb7c41f0c4914e286cf1f90c0baccf6880fa1c77415174a31095eb6",
+        "src/quic/discovery.zig": "889924ad8469bead28e39319c4b880dbc7e51f406d780e2c5d42ec4693647904"
+      },
+      "binary_path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-install/bin/qmesh-node",
+      "binary_sha256": "736c61a3881a75169e69bd61713490f782d2af9c46ed933a23dcea7a33a8eac7",
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "duration_seconds": 5,
+      "workload": "one idle node, no peers, no mDNS, no publication, metrics interval 3600s",
+      "cpu_scope": "whole process lifetime including startup/shutdown; wakeups exclude 100ms warmup",
+      "context_switch_scope": "whole process lifetime; voluntary context switches are a portable wait proxy",
+      "samples": [
+        {
+          "command": [
+            "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-install/bin/qmesh-node",
+            "--id",
+            "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143",
+            "--bind",
+            "127.0.0.1:60226",
+            "--cert",
+            "tests/data/node-a.pem",
+            "--key",
+            "tests/data/node-a.key",
+            "--ca",
+            "tests/data/ca.pem",
+            "--metrics-secs",
+            "3600"
+          ],
+          "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-idle-0.log",
+          "exit_code": 0,
+          "measurement_seconds": 5.009991417,
+          "shutdown_seconds": 0.004550708000000014,
+          "user_cpu_seconds": 0.002949,
+          "system_cpu_seconds": 0.006595999999999999,
+          "voluntary_context_switches": 0,
+          "involuntary_context_switches": 110,
+          "wakeups": {
+            "interrupt": 97,
+            "package_idle": 0
+          }
+        },
+        {
+          "command": [
+            "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-install/bin/qmesh-node",
+            "--id",
+            "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143",
+            "--bind",
+            "127.0.0.1:63179",
+            "--cert",
+            "tests/data/node-a.pem",
+            "--key",
+            "tests/data/node-a.key",
+            "--ca",
+            "tests/data/ca.pem",
+            "--metrics-secs",
+            "3600"
+          ],
+          "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-idle-1.log",
+          "exit_code": 0,
+          "measurement_seconds": 5.008287749999999,
+          "shutdown_seconds": 0.002516374999999016,
+          "user_cpu_seconds": 0.0046489999999999995,
+          "system_cpu_seconds": 0.010661,
+          "voluntary_context_switches": 0,
+          "involuntary_context_switches": 117,
+          "wakeups": {
+            "interrupt": 101,
+            "package_idle": 0
+          }
+        },
+        {
+          "command": [
+            "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-install/bin/qmesh-node",
+            "--id",
+            "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143",
+            "--bind",
+            "127.0.0.1:56482",
+            "--cert",
+            "tests/data/node-a.pem",
+            "--key",
+            "tests/data/node-a.key",
+            "--ca",
+            "tests/data/ca.pem",
+            "--metrics-secs",
+            "3600"
+          ],
+          "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-evidence/final-idle-2.log",
+          "exit_code": 0,
+          "measurement_seconds": 5.006652124999999,
+          "shutdown_seconds": 0.0021959999999996427,
+          "user_cpu_seconds": 0.004816,
+          "system_cpu_seconds": 0.011292,
+          "voluntary_context_switches": 0,
+          "involuntary_context_switches": 125,
+          "wakeups": {
+            "interrupt": 101,
+            "package_idle": 0
+          }
+        }
+      ]
+    },
+    "linux-final-idle": {
+      "source_head": "128c8dcbd5f69310f71e099fffa64e1785ec2129",
+      "runtime_sources": {
+        "src/quic/loop.zig": "9b913164f590b21665804cee7c4b3cea608038983cd47613408ea6878c9cb771",
+        "src/quic/main.zig": "cf947c2ffeb7c41f0c4914e286cf1f90c0baccf6880fa1c77415174a31095eb6",
+        "src/quic/discovery.zig": "889924ad8469bead28e39319c4b880dbc7e51f406d780e2c5d42ec4693647904"
+      },
+      "binary_path": "/workspace/.zig-cache/sprint-2-evidence/linux-final-install/bin/qmesh-node",
+      "binary_sha256": "411e4a4b93c796ecae0d79c7e44c7911613cfb303bbc26ebb8e57cb21823c866",
+      "host": "Linux-7.2.12-orbstack-00394-gbecdd6130068-aarch64-with-glibc2.39",
+      "duration_seconds": 5,
+      "workload": "one idle node, no peers, no mDNS, no publication, metrics interval 3600s",
+      "cpu_scope": "whole process lifetime including startup/shutdown; wakeups exclude 100ms warmup",
+      "context_switch_scope": "whole process lifetime; voluntary context switches are a portable wait proxy",
+      "samples": [
+        {
+          "command": [
+            "/workspace/.zig-cache/sprint-2-evidence/linux-final-install/bin/qmesh-node",
+            "--id",
+            "48b3be63f84888a0d5e972492fe74ce3a39fbb564d162ef03462ee75e11ea143",
+            "--bind",
+            "127.0.0.1:52120",
+            "--cert",
+            "tests/data/node-a.pem",
+            "--key",
+            "tests/data/node-a.key",
+            "--ca",
+            "tests/data/ca.pem",
+            "--metrics-secs",
+            "3600"
+          ],
+          "log": "/workspace/.zig-cache/sprint-2-evidence/linux-final-idle-0.log",
+          "exit_code": 0,
+          "measurement_seconds": 5.00908239200362,
+          "shutdown_seconds": 0.002014769008383155,
+          "user_cpu_seconds": 0.004841,
+          "system_cpu_seconds": 0.004841,
+          "voluntary_context_switches": 97,
+          "involuntary_context_switches": 1,
+          "wakeups": null
+        }
+      ]
+    }
+  },
+  "implementation_files": [
+    "src/quic/loop.zig",
+    "src/quic/main.zig",
+    "src/quic/discovery.zig"
+  ],
+  "public_versions_pins_unchanged": true,
+  "linux_image": "sha256:97711185ccd951b04ca293caa83c7b88832ef61c0422439ae82903b7a1f6f969",
+  "mac_zig_sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+  "linux_zig_sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7",
+  "passed": true,
+  "quic_options": {
+    "target": "native",
+    "release": "optimize != Debug",
+    "sanitize-c": "trap"
+  }
+}

@@ -31,6 +31,21 @@ pub fn build(b: *std.Build) void {
     const run = b.addRunArtifact(tests);
     const step = b.step("test", "Test mesh discovery and qmsg exchanges/reconnect over real QUIC");
     step.dependOn(&run.step);
+
+    // Opt-in because the immutable baseline qmsg pin predates QuicSocket.
+    // The composition wrapper selects a Sprint 2 qmsg source explicitly.
+    const public_mod = b.createModule(.{
+        .root_source_file = b.path("../sprint2_composition_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    public_mod.addImport("qmesh", qmesh.module("qmesh"));
+    public_mod.addImport("qmesh_quic", qmesh.module("qmesh_quic"));
+    public_mod.addImport("qmsg", qmsg.module("qmsg"));
+    const public_tests = b.addTest(.{ .root_module = public_mod });
+    const public_step = b.step("test-sprint2", "Test public messaging sockets alongside deadline-driven mesh runners");
+    public_step.dependOn(&b.addRunArtifact(public_tests).step);
+
     const qmsg_tests = b.addTest(.{ .root_module = qmsg.module("qmsg") });
     const qmsg_step = b.step("test-qmsg", "Run qmsg unit, QUIC runtime, and real-UDP pair tests with the selected QUIC implementation");
     qmsg_step.dependOn(&b.addRunArtifact(qmsg_tests).step);

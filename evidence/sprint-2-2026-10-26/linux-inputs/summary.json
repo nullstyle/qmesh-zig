@@ -1,0 +1,180 @@
+{
+  "passed": true,
+  "report": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/report.json",
+  "runtime": {
+    "container_id": "a7431b4292a7ee338618eb296377add70940b64f6467eef70ec775d2e7e2e794",
+    "image_id": "sha256:97711185ccd951b04ca293caa83c7b88832ef61c0422439ae82903b7a1f6f969",
+    "entrypoint": [
+      "sh"
+    ],
+    "user": "501:20",
+    "working_directory": "/",
+    "mounts": [
+      {
+        "type": "bind",
+        "source": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition",
+        "destination": "/evidence",
+        "writable": true
+      }
+    ]
+  },
+  "compiler": {
+    "path": "/opt/zig/zig",
+    "version": "0.17.0",
+    "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+  },
+  "os": "Linux 7.2.12-orbstack-00394-gbecdd6130068 aarch64",
+  "sources_unchanged": true,
+  "sources": {
+    "qmesh": {
+      "path": "/workspace/qmesh-zig",
+      "commit": "128c8dcbd5f69310f71e099fffa64e1785ec2129",
+      "status": "M README.md\n M build.zig\n M docs/MESSAGING.md\n M src/quic/discovery.zig\n M src/quic/loop.zig\n M src/quic/main.zig\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-2-composition.md\n?? docs/sprint-2-runner-evidence.md\n?? tests/runner_wait_test.zig\n?? tests/sprint2_composition_test.zig\n?? tools/runner-idle-bench.py",
+      "tree_sha256": "52dce39fdbfcb1fa44b7b3774f8532dfc6f20b8fff637d17150b55bedf2984c5",
+      "file_count": 146,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "qmsg": {
+      "path": "/workspace/qmsg",
+      "commit": "6bdcf69732d1101b9c91c9271674b0416772a6ff",
+      "status": "M AUTH.md\n M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/MIGRATION.md\n M docs/SPRINT.md\n M examples/quic_node_localhost.zig\n M src/app.zig\n M src/node.zig\n M src/protocol/root.zig\n M src/quic_transport_test.zig\n M src/root.zig\n M src/transport/quic.zig\n?? docs/SPRINT_2_QUIC_SOCKETS.md\n?? examples/local_tls_fixture.zig\n?? examples/owner_wait.zig\n?? examples/quic_owned_reqrep.zig\n?? src/quic_socket.zig\n?? src/quic_socket_test.zig",
+      "tree_sha256": "647a116bf1386feaee8c0e3c27a145c00586a79b741f9abceeee4e5a522b8ba0",
+      "file_count": 73,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "quic": {
+      "path": "/workspace/quic-zig",
+      "commit": "33f5161becb6f66c7bc475d22d86a447f9281224",
+      "status": "M CHANGELOG.md\n M EMBEDDING.md\n M docs/DOWNSTREAM_INTEGRATION.md\n M tests/e2e/app_driver.zig\n?? docs/SPRINT_2_CONSUMER_CONTRACTS.md",
+      "tree_sha256": "37b15b020c0bacfd02a22bc5101f3deee66af83d1c68d78f51efc26efe10b6ce",
+      "file_count": 300,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    }
+  },
+  "originals_after_execution": [
+    {
+      "name": "qmesh-zig",
+      "tree_sha256": "52dce39fdbfcb1fa44b7b3774f8532dfc6f20b8fff637d17150b55bedf2984c5",
+      "file_count": 146,
+      "unchanged": true
+    },
+    {
+      "name": "qmsg",
+      "tree_sha256": "647a116bf1386feaee8c0e3c27a145c00586a79b741f9abceeee4e5a522b8ba0",
+      "file_count": 73,
+      "unchanged": true
+    },
+    {
+      "name": "quic-zig",
+      "tree_sha256": "37b15b020c0bacfd02a22bc5101f3deee66af83d1c68d78f51efc26efe10b6ce",
+      "file_count": 300,
+      "unchanged": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "selected-composition",
+      "executed": 2,
+      "per_root_executions": [
+        2
+      ],
+      "cached_test_runs": 0,
+      "skipped": 0,
+      "returncode": 0,
+      "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/selected-composition.log"
+    },
+    {
+      "name": "selected-sprint2",
+      "executed": 1,
+      "per_root_executions": [
+        1
+      ],
+      "cached_test_runs": 0,
+      "skipped": 0,
+      "returncode": 0,
+      "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/selected-sprint2.log"
+    },
+    {
+      "name": "selected-qmsg",
+      "executed": 874,
+      "per_root_executions": [
+        339,
+        188,
+        347
+      ],
+      "cached_test_runs": 0,
+      "skipped": 0,
+      "returncode": 0,
+      "summary": "Build Summary: 15/15 steps succeeded; 874/874 tests passed",
+      "log": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/selected-safe/selected-qmsg.log"
+    }
+  ],
+  "input_manifest": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition/input-manifest.json",
+  "hash_resolution": {
+    "producer_quic_manifest_digest": "fe173b0bf2f66d6908b62bcfcbcd935b2136ef6c07f788f0fd81607511f99304",
+    "checker_quic_tree_sha256": "37b15b020c0bacfd02a22bc5101f3deee66af83d1c68d78f51efc26efe10b6ce",
+    "meaning": "Different serialization/hash schemes; root verified all300 producer-listed files individually with zero differences, extras or missing files. No source drift."
+  },
+  "container": {
+    "container_id": "a7431b4292a7ee338618eb296377add70940b64f6467eef70ec775d2e7e2e794",
+    "create_command": [
+      "docker",
+      "create",
+      "--user",
+      "501:20",
+      "--entrypoint",
+      "sh",
+      "-w",
+      "/",
+      "-v",
+      "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-composition:/evidence",
+      "-e",
+      "HOME=/tmp",
+      "-e",
+      "PATH=/opt/zig:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "-e",
+      "ZIG_GLOBAL_CACHE_DIR=/evidence/zig-global-cache",
+      "-e",
+      "GIT_OPTIONAL_LOCKS=0",
+      "-e",
+      "COPYFILE_DISABLE=1",
+      "quic-zig-sprint1-builder:local",
+      "-c",
+      "set -eu\ncd /workspace/qmesh-zig\n/opt/zig/zig version\nsha256sum /opt/zig/zig\nuname -a\npython3 -B tools/check-composition.py --sprint2 --mode selected --optimize ReleaseSafe --qmsg-path /workspace/qmsg --quic-path /workspace/quic-zig --jobs 2 --output-dir /evidence/selected-safe\n"
+    ],
+    "copy_command": [
+      "docker",
+      "cp",
+      "--archive",
+      "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-2-linux-inputs/.",
+      "a7431b4292a7ee338618eb296377add70940b64f6467eef70ec775d2e7e2e794:/workspace"
+    ],
+    "status": "exited",
+    "started_utc": "2026-10-26T19:43:59Z",
+    "exit_code": 0,
+    "attach_returncode": 0,
+    "finished_utc": "2026-10-26T19:46:39Z",
+    "removed": true
+  },
+  "reporting_note": "Native Linux arm64 local OrbStack container; not hosted CI. Source clones have independent shallow .git objects; only tracked/nonignored frozen files overlaid. Original nonignored files were not modified."
+}

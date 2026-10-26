@@ -1,0 +1,24 @@
+{
+  "name": "full-debug",
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "test",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "shell_command": "mise exec -- zig build test -j2 --summary all",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "started_utc": "2026-10-26T19:13:33.540070+00:00",
+  "environment": {
+    "COPYFILE_DISABLE": "1"
+  },
+  "log": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-2-2026-10-26/full-debug.log",
+  "exit_code": 0,
+  "duration_seconds": 22.579,
+  "completed_utc": "2026-10-26T19:13:56.119876+00:00"
+}

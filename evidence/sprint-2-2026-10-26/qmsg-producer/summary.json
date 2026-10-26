@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-26T19:33:18.782249+00:00",
+  "passed": true,
+  "branch": "codex/sprint-2-quic-ergonomics",
+  "source": {
+    "path": "/Users/nullstyle/prj/zig/qmsg",
+    "commit": "6bdcf69732d1101b9c91c9271674b0416772a6ff",
+    "status": "M AUTH.md\n M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/MIGRATION.md\n M docs/SPRINT.md\n M examples/quic_node_localhost.zig\n M src/app.zig\n M src/node.zig\n M src/protocol/root.zig\n M src/quic_transport_test.zig\n M src/root.zig\n M src/transport/quic.zig\n?? docs/SPRINT_2_QUIC_SOCKETS.md\n?? examples/local_tls_fixture.zig\n?? examples/owner_wait.zig\n?? examples/quic_owned_reqrep.zig\n?? src/quic_socket.zig\n?? src/quic_socket_test.zig",
+    "tree_sha256": "647a116bf1386feaee8c0e3c27a145c00586a79b741f9abceeee4e5a522b8ba0",
+    "file_count": 73,
+    "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+    "dependency_pins": {
+      "quic": {
+        "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+        "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+      }
+    }
+  },
+  "compiler": {
+    "version": "0.17.0",
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "host": "macOS arm64"
+  },
+  "gates": {
+    "debug": {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "zig",
+        "build",
+        "test",
+        "examples",
+        "capnp-test",
+        "-Dcapnp=true",
+        "-j2",
+        "--summary",
+        "all"
+      ],
+      "returncode": 0,
+      "duration_seconds": 4.726611375,
+      "build_steps": 39,
+      "passed": true,
+      "final_run_executed_tests": 0,
+      "unchanged_cached_test_artifacts": 4,
+      "suite_total_including_cached": 877,
+      "root": 339,
+      "quic_runtime": 188,
+      "node_pair": 347,
+      "optional_codec": 3,
+      "failed": 0,
+      "skipped": 0,
+      "log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug.log",
+        "sha256": "7185751c17aeea032a1aafe42eb608e18117beb4de6406fa71a6ea85d41740e0"
+      }
+    },
+    "release-safe": {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "zig",
+        "build",
+        "test",
+        "examples",
+        "capnp-test",
+        "-Dcapnp=true",
+        "-Doptimize=ReleaseSafe",
+        "-j2",
+        "--summary",
+        "all"
+      ],
+      "returncode": 0,
+      "duration_seconds": 24.0089,
+      "build_steps": 39,
+      "passed": true,
+      "final_run_executed_tests": 0,
+      "unchanged_cached_test_artifacts": 4,
+      "suite_total_including_cached": 877,
+      "root": 339,
+      "quic_runtime": 188,
+      "node_pair": 347,
+      "optional_codec": 3,
+      "failed": 0,
+      "skipped": 0,
+      "log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe.log",
+        "sha256": "226486b2c730155f7083ec131523d57d46b26ca0cbd8d10229845baddf0b6657"
+      }
+    }
+  },
+  "fresh_test_execution": {
+    "release_safe": {
+      "passed": 874,
+      "failed": 0,
+      "skipped": 0,
+      "root": 339,
+      "quic_runtime": 188,
+      "node_pair": 347,
+      "optional_codec_cached": 3,
+      "log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-before-owner-flush.log",
+        "sha256": "3ed97cf3db86bd8fe6065b8f679984e44023aff417601d8f46d2bc783017fed0"
+      },
+      "note": "All test sources unchanged in final example-only reactor refinements."
+    },
+    "debug": {
+      "root": {
+        "passed": 339,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-initial-fixture-failure.log",
+          "sha256": "b096d56117967cd41a82cf2114dda04f6ea193b33dffbb59fa0841892f1b9d55"
+        }
+      },
+      "node_pair": {
+        "passed": 347,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-initial-fixture-failure.log",
+          "sha256": "b096d56117967cd41a82cf2114dda04f6ea193b33dffbb59fa0841892f1b9d55"
+        }
+      },
+      "quic_runtime": {
+        "passed": 188,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-before-owner-flush.log",
+          "sha256": "658de6eae487bed661c8751621020f778aafb728247c1d830a62ead63efc8a5a"
+        }
+      },
+      "optional_codec_cached": 3,
+      "note": "Initial only failure was old same-role REQ/REQ HELLO fixture; corrected to complementary REQ/REP. Root and Node-pair unchanged since successful initial execution."
+    }
+  },
+  "regressions": {
+    "minimal_peer_grant": {
+      "red": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/auth-red.log",
+        "sha256": "cddab34ee999b174eb6565c5bbbe989c17b6883da9f52ef002c89039c44bab5a"
+      },
+      "green": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/auth-green.log",
+        "sha256": "8dc41381b089ce9bcc82d59ccef4161b499e8d638bee0b0329943c8629db2c9d"
+      },
+      "green_executed": 14,
+      "green_generic_artifacts_cached": 2,
+      "note": "Public REQ-only grant passed HELLO but received Unauthorized for an allowed request before admission correction. Red early-abort fixture also leaked the rest of an already-owned event batch; green fixture deinits the whole batch."
+    },
+    "strict_role_hello": {
+      "initial_focused_log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/owned-targeted.log",
+        "sha256": "9259fb0a956a749ed379078936b64fb8479aec132f94a72157c0ebf832af0d4f"
+      },
+      "note": "REQ-only/REP-only surfaced old identical-bit compatibility defect; seven-role hermetic table and public readiness/same-role rejection are covered in full gates."
+    }
+  },
+  "smokes": {
+    "debug": {
+      "owned": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-owned-smoke.log",
+          "sha256": "bc274e64285ca0bfe1897daefbfca75d70546706c827be30ab50c075fc55ec61"
+        }
+      },
+      "node-app": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-node-app-smoke.log",
+          "sha256": "e8b8fa4ea34de0de5330b7749fe27cd4661c7e709d18ba390e498d9f85be2867"
+        }
+      },
+      "runtime": {
+        "exit_code": 0,
+        "live_udp": false,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-runtime-smoke.log",
+          "sha256": "612a17e2e172442ba743d3e2fb3f03a834771375a0e73fb5a4960c4379b4778f"
+        }
+      },
+      "app-dispatch": {
+        "exit_code": 0,
+        "live_udp": false,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/debug-app-dispatch-smoke.log",
+          "sha256": "d470e819ee84d798eb4f4debd5f2952270348f82807442bffeaf631cf01e7cff"
+        }
+      }
+    },
+    "release-safe": {
+      "owned": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-owned-smoke.log",
+          "sha256": "bc274e64285ca0bfe1897daefbfca75d70546706c827be30ab50c075fc55ec61"
+        }
+      },
+      "node-app": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-node-app-smoke.log",
+          "sha256": "e8b8fa4ea34de0de5330b7749fe27cd4661c7e709d18ba390e498d9f85be2867"
+        }
+      },
+      "runtime": {
+        "exit_code": 0,
+        "live_udp": false,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-runtime-smoke.log",
+          "sha256": "612a17e2e172442ba743d3e2fb3f03a834771375a0e73fb5a4960c4379b4778f"
+        }
+      },
+      "app-dispatch": {
+        "exit_code": 0,
+        "live_udp": false,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-2-evidence/release-safe-app-dispatch-smoke.log",
+          "sha256": "d470e819ee84d798eb4f4debd5f2952270348f82807442bffeaf631cf01e7cff"
+        }
+      }
+    }
+  },
+  "read_only_review": [
+    "Heap-stable private Node; movable facade handle; one canonical request and receive owner.",
+    "Selected HELLO role requires counterpart and canonical profile; REQ refuses peer requests and PAIR authorizes peer PAIR.",
+    "Automatic Node/inproc/legacy/App admission grants peer actions; explicit requirePattern remains literal.",
+    "Owner clock is explicit and backwards pump rejected. Socket inventory is complete or atomically BufferTooSmall.",
+    "Public owner loops immediately continue after queued work or consumed events and park only on quiet iterations.",
+    "Independent quic agent final targeted read-only review: no further actionable findings."
+  ],
+  "committed": false,
+  "published": false,
+  "public_pins_changed": false,
+  "limitations": [
+    "Local macOS arm64 only; hosted CI not run.",
+    "Shared candidate/archive consumer matrix is recorded separately by qmesh."
+  ],
+  "source_frozen": true
+}
