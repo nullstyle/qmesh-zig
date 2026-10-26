@@ -1,0 +1,75 @@
+[DEBUG-rest-s3] before=.{ .cached = true, .at_rest = false, .can_send = true, .now = 241255, .streams = 2, .gc = false, .ack = false, .delayed_ack = false, .ping = false, .pto = 0, .stop = 0, .sendable = 0, .initial_discarded = true, .handshake_discarded = true } built=.{ .len = 29, .to = .{ .ipv4 = .{ .addr = { ... }, .port = 63125 } }, .path_id = 0 }
+thread 67015727 panic: reached unreachable code
+error return context:
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmesh-zig/src/quic/endpoint.zig:433:44: 0x1015f9617 in sendReliable (qmesh-snapshot-recovery)
+        const s = e.by_peer.get(to) orelse return error.NoSession;
+                                           ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmesh-zig/src/quic/transport.zig:26:9: 0x1015f979f in sendReliable (qmesh-snapshot-recovery)
+        try t.endpoint.sendReliable(to, bytes);
+        ^
+
+stack trace:
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/debug.zig:442:14: 0x1014a24db in assert (qmesh-snapshot-recovery)
+    if (!ok) unreachable; // assertion failure
+             ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/quic-zig/src/Connection/send.zig:154:29: 0x1016b0b47 in pollDatagram (qmesh-snapshot-recovery)
+            std.debug.assert(built == null);
+                            ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg/src/transport/quic_runtime.zig:429:50: 0x101672947 in drainOutbound (qmesh-snapshot-recovery)
+        const out = self.client.conn.pollDatagram(dst, now_us) catch |err| return mapQuicError(err);
+                                                 ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg/src/transport/quic_udp.zig:213:42: 0x10167270b in drainOne (qmesh-snapshot-recovery)
+        return self.runtime.drainOutbound(self.tx_buffer, now_us);
+                                         ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg/src/transport/quic_udp.zig:240:43: 0x101671cf3 in sendNext__func_1273 (qmesh-snapshot-recovery)
+    const drained = (try endpoint.drainOne(now_us)) orelse return null;
+                                          ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg/src/transport/quic_udp.zig:217:24: 0x101671b13 in drainAndSendOne (qmesh-snapshot-recovery)
+        return sendNext(self, now_us);
+                       ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg/src/node.zig:2722:45: 0x1015db61b in drainQuicEndpoint__func_935 (qmesh-snapshot-recovery)
+            if (try endpoint.drainAndSendOne(now_us) == null) return;
+                                            ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg/src/node.zig:2702:34: 0x1015dbf5b in tickQuicClients (qmesh-snapshot-recovery)
+            try drainQuicEndpoint(&client.client, now_us);
+                                 ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg/src/node.zig:868:33: 0x1015dcdf3 in tick (qmesh-snapshot-recovery)
+        try self.tickQuicClients(now_us);
+                                ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg/src/quic_socket.zig:90:32: 0x1015dd047 in pump (qmesh-snapshot-recovery)
+            try owned.node.tick(now_us);
+                               ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmesh-zig/examples/snapshot_recovery.zig:291:24: 0x1015e6f13 in runScenario (qmesh-snapshot-recovery)
+        try client.pump(now);
+                       ^
+/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmesh-zig/examples/snapshot_recovery.zig:378:35: 0x1015e93ab in main (qmesh-snapshot-recovery)
+    const report = try runScenario(init.gpa, init.io, .{});
+                                  ^
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/start.zig:827:30: 0x1015e99a3 in callMain (qmesh-snapshot-recovery)
+    return wrapMain(root.main(.{
+                             ^
+???:?:?: 0x18afa7e7f in start (/usr/lib/dyld)
+run-recovery
++- run exe qmesh-snapshot-recovery failure
+error: process terminated with signal ABRT
+failed command: ./benchmark-reports/sprint-3-2026-10-26/recovery-repro/workspace/tests/composition/.zig-cache/o/a5b146a72ea6f0f3aec01b4506e2b3da/qmesh-snapshot-recovery
+
+Build Summary: 9/11 steps succeeded (1 failed)
+run-recovery transitive failure
++- run exe qmesh-snapshot-recovery failure
+   +- compile exe qmesh-snapshot-recovery debug native success 9s MaxRSS:596M
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native success 2s MaxRSS:112M
+      +- WriteFile success
+      +- compile lib ssl debug native success 9s MaxRSS:169M
+      |  +- WriteFile cached
+      |  +- compile lib crypto debug native success 1m MaxRSS:292M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options success
+      +- translate-c success 532ms MaxRSS:49M
+

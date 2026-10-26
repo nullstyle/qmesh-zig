@@ -1,0 +1,19 @@
+Build Summary: 11/11 steps succeeded
+install success
++- install application-profile success
+   +- compile exe application-profile safe native success 13s MaxRSS:764M
+      +- WriteFile cached
+      +- compile lib ssl_shim safe native success 446ms MaxRSS:117M
+      +- WriteFile cached
+      +- compile lib ssl safe native success 3s MaxRSS:203M
+      |  +- WriteFile success
+      |  +- compile lib crypto safe native success 20s MaxRSS:457M
+      |  +- compile lib crypto safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options success
+      +- translate-c success 213ms MaxRSS:49M
+

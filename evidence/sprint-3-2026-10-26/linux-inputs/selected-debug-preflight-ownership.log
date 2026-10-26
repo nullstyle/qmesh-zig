@@ -1,0 +1,18 @@
+fatal: detected dubious ownership in repository at '/workspace/quic-zig'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /workspace/quic-zig
+Traceback (most recent call last):
+  File "<stdin>", line 12, in <module>
+  File "/workspace/qmesh-zig/tools/check-composition.py", line 39, in source_identity
+    result["commit"] = capture(["git", "rev-parse", "HEAD"], path)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qmesh-zig/tools/check-composition.py", line 23, in capture
+    return subprocess.check_output(command, cwd=cwd, text=True).strip()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'rev-parse', 'HEAD']' returned non-zero exit status 128.

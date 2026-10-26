@@ -1,0 +1,11 @@
+{
+  "scope": "deterministic focused regression on current QUIC before flow-control cache invalidation fix; confirmed idle connection, failed public openNext, pollDatagram assert",
+  "binary": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/focused-idle-open-red",
+  "binary_sha256": "a1bc93146930f88d8439607024750876bd05f8747a24cb8e3e00a84400d1d64e",
+  "command": [
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/focused-idle-open-red"
+  ],
+  "observed_exit_code": 134,
+  "log": "focused-idle-open-red-binary.log",
+  "filtered_test_name": "an idle connection sends STREAMS_BLOCKED after a stream open hits the peer limit"
+}

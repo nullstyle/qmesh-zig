@@ -1,0 +1,198 @@
+test
++- run test w
+
+[node-pair] dead-peer detection: 2084ms after last contact (negotiated idle timeout 2000ms)
+failed command: ./.zig-cache/o/f176d279c2b4b74cf084de8543a7aa86/test --cache-dir=./.zig-cache --seed=0x9e294e22 --listen=-
+
+Build Summary: 41/41 steps succeeded; 894/894 tests passed
+capnp-test success
++- run test cached
+   +- compile test safe native cached 77ms MaxRSS:31M
+examples success
++- install quic-pubsub-localhost success
+|  +- compile exe quic-pubsub-localhost safe native success 30s MaxRSS:720M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim safe native cached 104ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl safe native cached 72ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto safe native cached 155ms MaxRSS:32M
+|     |  +- compile lib crypto safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options cached
+|     +- translate-c cached 75ms MaxRSS:31M
++- install inproc-reqrep success
+|  +- compile exe inproc-reqrep safe native success 9s MaxRSS:388M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install embedded-inproc-node success
+|  +- compile exe embedded-inproc-node safe native success 34s MaxRSS:683M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install embedded-quic-attach success
+|  +- compile exe embedded-quic-attach safe native success 27s MaxRSS:700M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install app-ergonomics success
+|  +- compile exe app-ergonomics safe native success 15s MaxRSS:441M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install auth-paseto success
+|  +- compile exe auth-paseto safe native success 11s MaxRSS:493M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-runtime-reqrep success
+|  +- compile exe quic-runtime-reqrep safe native success 21s MaxRSS:608M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-socket-hooks success
+|  +- compile exe quic-socket-hooks safe native success 8s MaxRSS:381M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-app-dispatch success
+|  +- compile exe quic-app-dispatch safe native success 16s MaxRSS:416M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-node-localhost success
+|  +- compile exe quic-node-localhost safe native success 36s MaxRSS:708M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-owned-reqrep success
+   +- compile exe quic-owned-reqrep safe native success 17s MaxRSS:702M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+test success
++- run test 350 pass (350 total) 10s MaxRSS:12M
+|  +- compile test safe native success 1m MaxRSS:1G
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 188 pass (188 total) 240ms MaxRSS:9M
+|  +- compile test safe native success 55s MaxRSS:837M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 356 pass (356 total) 12s MaxRSS:13M
+   +- compile test safe native success 1m MaxRSS:1G
+      +- WriteFile (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

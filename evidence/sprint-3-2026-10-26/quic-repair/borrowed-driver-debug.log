@@ -1,0 +1,32 @@
+Build Summary: 13/13 steps succeeded; 51/51 tests passed
+test-app success
++- run test 33 pass (33 total) 1s MaxRSS:12M
+|  +- compile test debug native success 4s MaxRSS:422M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native cached 94ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native cached 92ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug native cached 105ms MaxRSS:32M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options cached
+|     +- translate-c cached 79ms MaxRSS:30M
++- run test 18 pass (18 total) 2s MaxRSS:19M
+   +- compile test debug native success 7s MaxRSS:532M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

@@ -46,6 +46,53 @@ pub fn build(b: *std.Build) void {
     const public_step = b.step("test-sprint2", "Test public messaging sockets alongside deadline-driven mesh runners");
     public_step.dependOn(&b.addRunArtifact(public_tests).step);
 
+    // Public application workloads are opt-in: the immutable qmsg pin
+    // predates reliable publication. Reuse the selected consumer modules.
+    const pubsub_workload = b.createModule(.{
+        .root_source_file = qmsg.path("examples/reliable_pubsub_workload.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    pubsub_workload.addImport("qmsg", qmsg.module("qmsg"));
+    const recovery_workload = b.createModule(.{
+        .root_source_file = qmesh.path("examples/snapshot_recovery.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    recovery_workload.addImport("qmesh", qmesh.module("qmesh"));
+    recovery_workload.addImport("qmesh_quic", qmesh.module("qmesh_quic"));
+    recovery_workload.addImport("qmesh_messaging", qmesh.module("qmesh_messaging"));
+    recovery_workload.addImport("qmsg", qmsg.module("qmsg"));
+    const sprint3_mod = b.createModule(.{
+        .root_source_file = b.path("../sprint3_composition_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    sprint3_mod.addImport("pubsub_workload", pubsub_workload);
+    sprint3_mod.addImport("snapshot_recovery", recovery_workload);
+    const sprint3_tests = b.addTest(.{ .root_module = sprint3_mod });
+    const sprint3_step = b.step("test-sprint3", "Test reliable publication and missed-announcement snapshot recovery");
+    sprint3_step.dependOn(&b.addRunArtifact(sprint3_tests).step);
+
+    const pubsub_cli = b.createModule(.{
+        .root_source_file = qmsg.path("examples/quic_pubsub_localhost.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    pubsub_cli.addImport("qmsg", qmsg.module("qmsg"));
+    const pubsub_exe = b.addExecutable(.{ .name = "qmsg-pubsub-workload", .root_module = pubsub_cli });
+    const run_pubsub = b.addRunArtifact(pubsub_exe);
+    run_pubsub.addPassthruArgs();
+    b.step("run-pubsub-workload", "Run the public reliable publication workload with this transport").dependOn(&run_pubsub.step);
+
+    const recovery_exe = b.addExecutable(.{ .name = "qmesh-snapshot-recovery", .root_module = recovery_workload });
+    const run_recovery = b.addRunArtifact(recovery_exe);
+    run_recovery.addPassthruArgs();
+    b.step("run-recovery", "Run the public missed-announcement snapshot recovery example").dependOn(&run_recovery.step);
+    const install_workloads = b.step("install-workloads", "Install both public application workloads for profiling outside the build");
+    install_workloads.dependOn(&b.addInstallArtifact(pubsub_exe, .{}).step);
+    install_workloads.dependOn(&b.addInstallArtifact(recovery_exe, .{}).step);
+
     const qmsg_tests = b.addTest(.{ .root_module = qmsg.module("qmsg") });
     const qmsg_step = b.step("test-qmsg", "Run qmsg unit, QUIC runtime, and real-UDP pair tests with the selected QUIC implementation");
     qmsg_step.dependOn(&b.addRunArtifact(qmsg_tests).step);

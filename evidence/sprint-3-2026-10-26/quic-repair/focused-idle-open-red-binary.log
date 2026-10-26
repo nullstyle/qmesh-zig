@@ -1,0 +1,31 @@
+1/12 root.test_0...OK
+2/12 wire.root.test_0...OK
+3/12 frame.root.test_0...OK
+4/12 tls.root.test_0...OK
+5/12 conn.root.test_0...OK
+6/12 transport.root.test_0...OK
+7/12 lb.root.test_0...OK
+8/12 qlog.root.test_0...OK
+9/12 Server.test_0...OK
+10/12 Connection.test_0...OK
+11/12 Connection._tests.test_0...OK
+12/12 Connection._tests_flow.test.an idle connection sends STREAMS_BLOCKED after a stream open hits the peer limit...thread 67053411 panic: reached unreachable code
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/debug.zig:442:14: 0x10153c04b in assert (test)
+    if (!ok) unreachable; // assertion failure
+             ^
+/Users/nullstyle/prj/zig/quic-zig/src/Connection/send.zig:152:29: 0x101682adb in pollDatagram (test)
+            std.debug.assert(built == null);
+                            ^
+/Users/nullstyle/prj/zig/quic-zig/src/Connection/_tests_flow.zig:927:44: 0x10166ed23 in test.an idle connection sends STREAMS_BLOCKED after a stream open hits the peer limit (test)
+        const sent = (try conn.pollDatagram(&out, 1_001)) orelse return error.BlockedFrameNotSent;
+                                           ^
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/compiler/test_runner.zig:295:25: 0x101648507 in mainTerminal (test)
+        if (test_fn.func()) |_| {
+                        ^
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/compiler/test_runner.zig:74:28: 0x101647fe7 in main (test)
+        return mainTerminal(init);
+                           ^
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/start.zig:789:88: 0x101645f17 in callMain (test)
+    if (fn_info.param_types[0].? == std.process.Init.Minimal) return wrapMain(root.main(.{
+                                                                                       ^
+???:?:?: 0x18afa7e7f in start (/usr/lib/dyld)

@@ -1,0 +1,146 @@
+{
+  "started_utc": "2026-10-26T20:00:52.029776+00:00",
+  "source_report": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/reqrep-s2-baseline/report.json",
+  "source_report_sha256": "d2cc56acd72b2a9e15905d38da2a7fecbb185257858980010203606bf2fd8d99",
+  "binary": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/reqrep-s2-baseline/install-selected/bin/application-profile",
+  "binary_sha256": "679c1971c514b7e56c836996e34ea131e8f43c0d6c0288c1b93c44c67cb4b79e",
+  "command": [
+    "xcrun",
+    "xctrace",
+    "record",
+    "--template",
+    "Time Profiler",
+    "--time-limit",
+    "8s",
+    "--no-prompt",
+    "--target-stdout",
+    "-",
+    "--output",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/reqrep-cpu-profile/selected.trace",
+    "--launch",
+    "--",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/reqrep-s2-baseline/install-selected/bin/application-profile",
+    "--requests",
+    "50000",
+    "--payload-bytes",
+    "1024",
+    "--concurrency",
+    "8",
+    "--stream-window",
+    "8",
+    "--warmup",
+    "128",
+    "--idle-ms",
+    "200",
+    "--timeout-seconds",
+    "30"
+  ],
+  "scope": "separate profiler capture, not a timing sample",
+  "xctrace_version": "xctrace version 27.0 (27A266a)",
+  "record_exit_code": 0,
+  "exports": {
+    "analysis.log": "e08c93538bb1b43c569619d79c1936468f920834b477f4bac4514849dc6457c7",
+    "summarize-profile.py": "acc3517eac7223c709a32095ce838e0f3df8168d5f1976bc037fe8df86e7a1e1",
+    "samples.analysis.json": "49fb96ce5f18df188b50ca8528b94c2e265bc215e1f1caca064338cec0dfb0aa",
+    "toc.xml": "9bb7e41de835eeec91f6bcd6ef92ce5616b74e5ba637545e36b5f00318dcb078",
+    "samples.xml": "84a5c3d36b200855285de40dafe6e81db0739c593979a72f34cd14dba07f909d",
+    "record.log": "5ab6dfaddecce8eca80c1ae1a1755da2f2bd1c060f1eb769b29ee848fe46275f"
+  },
+  "profile_workload": {
+    "schema_version": 1,
+    "workload": "public-qmsg-reqrep",
+    "config": {
+      "requests": 50000,
+      "payload_bytes": 1024,
+      "concurrency": 8,
+      "stream_window": 8,
+      "warmup": 128,
+      "idle_ms": 200,
+      "timeout_seconds": 30
+    },
+    "cold_elapsed_us": 8940,
+    "cold_cpu_us": 2218,
+    "warmup": {
+      "sent": 128,
+      "received": 128,
+      "replies": 128,
+      "queue_full": 0,
+      "max_outstanding": 8,
+      "iterations": 83,
+      "parks": 24,
+      "elapsed_us": 6555,
+      "cpu_us": 4512,
+      "latency_p50_us": 406,
+      "latency_p99_us": 615,
+      "allocations": {
+        "allocs": 4638,
+        "frees": 4621,
+        "resizes": 0,
+        "remaps": 362,
+        "bytes_allocated": 3024201,
+        "live_bytes": 1575345,
+        "peak_live_bytes": 1645609
+      }
+    },
+    "warm": {
+      "sent": 50000,
+      "received": 50000,
+      "replies": 50000,
+      "queue_full": 0,
+      "max_outstanding": 8,
+      "iterations": 27355,
+      "parks": 2547,
+      "elapsed_us": 1888829,
+      "cpu_us": 1308607,
+      "latency_p50_us": 293,
+      "latency_p99_us": 439,
+      "allocations": {
+        "allocs": 1805675,
+        "frees": 1805681,
+        "resizes": 0,
+        "remaps": 140540,
+        "bytes_allocated": 1174420751,
+        "live_bytes": 1572980,
+        "peak_live_bytes": 1652229
+      }
+    },
+    "idle": {
+      "elapsed_us": 201831,
+      "cpu_us": 190,
+      "iterations": 5
+    },
+    "client_stats": {
+      "sent": 50128,
+      "recv": 50128,
+      "dropped": 0,
+      "queue_high_water": 0,
+      "events_dropped": 0
+    },
+    "server_stats": {
+      "sent": 50128,
+      "recv": 50128,
+      "dropped": 0,
+      "queue_high_water": 0,
+      "events_dropped": 0
+    },
+    "allocator_before_teardown": {
+      "allocs": 1810447,
+      "frees": 1810373,
+      "resizes": 0,
+      "remaps": 140928,
+      "bytes_allocated": 1179075343,
+      "live_bytes": 1572980,
+      "peak_live_bytes": 1652229
+    },
+    "allocator_after_teardown": {
+      "allocs": 1810447,
+      "frees": 1810447,
+      "resizes": 0,
+      "remaps": 140928,
+      "bytes_allocated": 1179075343,
+      "live_bytes": 0,
+      "peak_live_bytes": 1652229
+    }
+  },
+  "profile_completed_exact_replies": true
+}

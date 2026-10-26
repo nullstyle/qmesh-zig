@@ -1,0 +1,7 @@
+Build Summary: 5/5 steps succeeded; 1/1 tests passed
+recovery-test success
++- run test 1 pass (1 total) 144ms MaxRSS:3M
+|  +- compile test safe native success 37s MaxRSS:373M
++- run test cached
+   +- compile test safe native cached 72ms MaxRSS:31M
+

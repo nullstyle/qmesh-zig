@@ -126,6 +126,7 @@ def main():
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--core", action="store_true", help="also run qmesh's full suite and binary build")
     parser.add_argument("--sprint2", action="store_true", help="also test public QuicSocket traffic with deadline-driven mesh runners")
+    parser.add_argument("--sprint3", action="store_true", help="also test reliable publication and missed-announcement snapshot recovery")
     parser.add_argument("--output-dir", type=Path, help="new evidence directory (default: .zig-cache/composition/<UTC time>)")
     args = parser.parse_args()
     if bool(args.quic_archive) != bool(args.quic_hash or args.quic_sha256):
@@ -165,7 +166,7 @@ def main():
                              "quic_path": str(args.quic_path) if args.quic_path else None,
                              "quic_archive": str(args.quic_archive) if args.quic_archive else None,
                              "quic_hash": args.quic_hash, "quic_sha256": args.quic_sha256,
-                             "sprint2": args.sprint2},
+                             "sprint2": args.sprint2, "sprint3": args.sprint3},
     }
     def save_report():
         (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
@@ -221,9 +222,10 @@ def main():
     (stage / "build.zig.zon").write_text(manifest)
     shutil.copy2(ROOT / "tests/composition/build.zig", stage / "build.zig")
     shutil.copy2(ROOT / "tests/composition_test.zig", stage.parent / "composition_test.zig")
-    public_test = ROOT / "tests/sprint2_composition_test.zig"
-    if public_test.is_file():
-        shutil.copy2(public_test, stage.parent / public_test.name)
+    for filename in ("sprint2_composition_test.zig", "sprint3_composition_test.zig"):
+        public_test = ROOT / "tests" / filename
+        if public_test.is_file():
+            shutil.copy2(public_test, stage.parent / public_test.name)
     shutil.copytree(ROOT / "tests/data", stage.parent / "data")
     report["composition_manifest_sha256"] = sha256(stage / "build.zig.zon")
     save_report()
@@ -283,6 +285,8 @@ def main():
         passed = check(mode + "-composition", stage, ["test"], extra) and passed
         if args.sprint2:
             passed = check(mode + "-sprint2", stage, ["test-sprint2"], extra) and passed
+        if args.sprint3:
+            passed = check(mode + "-sprint3", stage, ["test-sprint3"], extra) and passed
         passed = check(mode + "-qmsg", stage, ["test-qmsg"], extra) and passed
     report["passed"] = passed
     report["final_sources"] = {"qmesh": source_identity(ROOT, output)}

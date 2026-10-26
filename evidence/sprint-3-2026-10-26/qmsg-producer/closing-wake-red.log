@@ -1,0 +1,56 @@
+test
++- run test 12 pass, 1 fail (13 total)
+error: 'node.test.reliable pubsub: a closing foreign session cannot keep the local work timer spinning' failed:
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/testing.zig:584:14: 0x10482a5ff in expect (test)
+           if (!ok) return error.TestUnexpectedResult;
+                    ^
+       /Users/nullstyle/prj/zig/qmsg/src/node.zig:7326:5: 0x10482ab3f in test.reliable pubsub: a closing foreign session cannot keep the local work timer spinning (test)
+           try std.testing.expect(n.nextTimer() == null or n.nextTimer().? > n.now_us);
+           ^
+failed command: ./.zig-cache/o/1bb9f51f43e6f5ff9156a16c8b6af7a7/test --cache-dir=./.zig-cache --seed=0x94f4cfff --listen=-
+
+Build Summary: 13/15 steps succeeded (1 failed); 14/15 tests passed (1 failed)
+test transitive failure
++- run test 12 pass, 1 fail (13 total)
+|  +- compile test debug native success 12s MaxRSS:373M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native cached 192ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native cached 231ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug native cached 137ms MaxRSS:32M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options cached
+|     +- translate-c cached 106ms MaxRSS:31M
++- run test 1 pass (1 total) 140ms MaxRSS:3M
+|  +- compile test debug native success 9s MaxRSS:310M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 1 pass (1 total) 153ms MaxRSS:3M
+   +- compile test debug native success 10s MaxRSS:308M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

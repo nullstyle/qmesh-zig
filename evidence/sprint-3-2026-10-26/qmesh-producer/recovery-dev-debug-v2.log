@@ -1,0 +1,74 @@
+thread 66800201 panic: reached unreachable code
+error return context:
+/Users/nullstyle/prj/zig/qmesh-zig/src/quic/endpoint.zig:433:44: 0x10310941f in sendReliable (qmesh-snapshot-recovery)
+        const s = e.by_peer.get(to) orelse return error.NoSession;
+                                           ^
+/Users/nullstyle/prj/zig/qmesh-zig/src/quic/transport.zig:26:9: 0x1031095a7 in sendReliable (qmesh-snapshot-recovery)
+        try t.endpoint.sendReliable(to, bytes);
+        ^
+
+stack trace:
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/debug.zig:442:14: 0x102fb24db in assert (qmesh-snapshot-recovery)
+    if (!ok) unreachable; // assertion failure
+             ^
+/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg/quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-/src/Connection/send.zig:127:29: 0x1031bf57b in pollDatagram (qmesh-snapshot-recovery)
+            std.debug.assert(built == null);
+                            ^
+/Users/nullstyle/prj/zig/qmesh-zig/../qmsg/src/transport/quic_runtime.zig:429:50: 0x103181dd7 in drainOutbound (qmesh-snapshot-recovery)
+        const out = self.client.conn.pollDatagram(dst, now_us) catch |err| return mapQuicError(err);
+                                                 ^
+/Users/nullstyle/prj/zig/qmesh-zig/../qmsg/src/transport/quic_udp.zig:213:42: 0x103181b9b in drainOne (qmesh-snapshot-recovery)
+        return self.runtime.drainOutbound(self.tx_buffer, now_us);
+                                         ^
+/Users/nullstyle/prj/zig/qmesh-zig/../qmsg/src/transport/quic_udp.zig:240:43: 0x103181183 in sendNext__func_1265 (qmesh-snapshot-recovery)
+    const drained = (try endpoint.drainOne(now_us)) orelse return null;
+                                          ^
+/Users/nullstyle/prj/zig/qmesh-zig/../qmsg/src/transport/quic_udp.zig:217:24: 0x103180fa3 in drainAndSendOne (qmesh-snapshot-recovery)
+        return sendNext(self, now_us);
+                       ^
+/Users/nullstyle/prj/zig/qmesh-zig/../qmsg/src/node.zig:2716:45: 0x1030eb47f in drainQuicEndpoint__func_934 (qmesh-snapshot-recovery)
+            if (try endpoint.drainAndSendOne(now_us) == null) return;
+                                            ^
+/Users/nullstyle/prj/zig/qmesh-zig/../qmsg/src/node.zig:2696:34: 0x1030ebdbf in tickQuicClients (qmesh-snapshot-recovery)
+            try drainQuicEndpoint(&client.client, now_us);
+                                 ^
+/Users/nullstyle/prj/zig/qmesh-zig/../qmsg/src/node.zig:867:33: 0x1030ecc57 in tick (qmesh-snapshot-recovery)
+        try self.tickQuicClients(now_us);
+                                ^
+/Users/nullstyle/prj/zig/qmesh-zig/../qmsg/src/quic_socket.zig:90:32: 0x1030eceab in pump (qmesh-snapshot-recovery)
+            try owned.node.tick(now_us);
+                               ^
+/Users/nullstyle/prj/zig/qmesh-zig/examples/snapshot_recovery.zig:291:24: 0x1030f6d73 in runScenario (qmesh-snapshot-recovery)
+        try client.pump(now);
+                       ^
+/Users/nullstyle/prj/zig/qmesh-zig/examples/snapshot_recovery.zig:377:35: 0x1030f91b3 in main (qmesh-snapshot-recovery)
+    const report = try runScenario(init.gpa, init.io, .{});
+                                  ^
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/start.zig:827:30: 0x1030f97ab in callMain (qmesh-snapshot-recovery)
+    return wrapMain(root.main(.{
+                             ^
+???:?:?: 0x18afa7e7f in start (/usr/lib/dyld)
+run-recovery
++- run exe qmesh-snapshot-recovery failure
+error: process terminated with signal ABRT
+failed command: ./.zig-cache/sprint-3-dev-native/workspace/tests/composition/.zig-cache/o/4ab64eff5b571e29ac086e6ca82eef62/qmesh-snapshot-recovery
+
+Build Summary: 9/11 steps succeeded (1 failed)
+run-recovery transitive failure
++- run exe qmesh-snapshot-recovery failure
+   +- compile exe qmesh-snapshot-recovery debug native success 3s MaxRSS:542M
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native cached 59ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl debug native cached 48ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto debug native cached 66ms MaxRSS:32M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options cached
+      +- translate-c cached 44ms MaxRSS:31M
+

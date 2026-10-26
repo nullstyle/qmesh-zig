@@ -1,0 +1,19 @@
+{
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "test",
+    "examples",
+    "capnp-test",
+    "-Dcapnp=true",
+    "-Doptimize=ReleaseSafe",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "returncode": 0,
+  "duration_seconds": 396.034467541
+}

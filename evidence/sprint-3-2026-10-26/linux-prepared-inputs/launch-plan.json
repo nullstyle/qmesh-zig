@@ -1,0 +1,40 @@
+{
+  "status": "prepared_not_started",
+  "launcher": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-3-linux-inputs/run_linux_lanes.py",
+  "required_signal": "Explicit root quiet-profiles-finished authorization",
+  "entrypoint_override": "/bin/bash",
+  "image_id": "sha256:97711185ccd951b04ca293caa83c7b88832ef61c0422439ae82903b7a1f6f969",
+  "mounts": [
+    {
+      "source": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-3-linux-composition",
+      "target": "/evidence",
+      "access": "read_write"
+    }
+  ],
+  "inputs_transfer": "docker cp ignored shallow clones to /inputs; copy only three repositories into writable /workspace",
+  "container_source_paths": [
+    "/workspace/quic-zig",
+    "/workspace/qmsg",
+    "/workspace/qmesh-zig"
+  ],
+  "compiler": "/opt/zig/zig 0.17.0; SHA256 prefix 5165c9a2 verified at first allowed execution",
+  "global_cache": "ZIG_GLOBAL_CACHE_DIR=/workspace/.zig-global-cache",
+  "lanes": [
+    "selected-debug",
+    "selected-safe"
+  ],
+  "checker_flags": [
+    "--sprint2",
+    "--sprint3",
+    "--mode",
+    "selected",
+    "--qmsg-path",
+    "/workspace/qmsg",
+    "--quic-path",
+    "/workspace/quic-zig",
+    "--jobs",
+    "2"
+  ],
+  "container_started": false,
+  "compiles_or_tests_run": false
+}

@@ -1,0 +1,224 @@
+test
++- run test
+   +- compile test debug native 1 errors
+src/node.zig:2319:115: error: enum 'node.test.canonical event delivery has one consumer even when runOnce is called.Dispatcher.dispatchQuicReliable__enum_2497' has no member named 'sub'
+                var result = try dispatcher.dispatchQuicReliable(if (self.options.quic_inbound == .publications) .sub else .rep, incoming, runtime.appSession());
+                                                                                                                 ~^~~
+src/node.zig:6850:56: note: enum declared here
+        pub fn dispatchQuicReliable(self: *@This(), _: enum { rep }, incoming: message.Message, _: *session.Session) !Result {
+                                                       ^~~~~~~~~~~~
+referenced by:
+    test.canonical event delivery has one consumer even when runOnce is called: src/node.zig:6863:62
+    node_mod: src/node_pair_test.zig:39:26
+    1 reference(s) hidden; use '-freference-trace=3' to see all references
+error: 1 compilation errors
+failed command: /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig test -Odebug --dep quic --dep paseto -Mroot=src/node_pair_test.zig -fsanitize-c=trap -Odebug --dep boringssl --dep build_options -Mquic=zig-pkg/quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-/src/root.zig -Odebug -Mpaseto=zig-pkg/paseto-0.4.0-EBI95RcXCADs0jz3tebS1xMaAiT2r3Tpx8HsF5LfpqOS/src/root.zig .zig-cache/o/a352dd1799481215f211e7f3b30b4d5c/libssl_shim.a .zig-cache/o/26d816c71784852715ea05bf696689f5/libssl.a .zig-cache/o/4f7ea38cea067cde6e887b668f1891df/libcrypto.a -fsanitize-c=trap -Odebug -I .zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/o/99643627a011968f089148bb3544ce0e --dep c -Mboringssl=zig-pkg/boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2/src/root.zig -Mbuild_options=.zig-cache/o/a366b4c418195a5caef29f9783ad83c6/options.zig -fsanitize-c=trap -Odebug -Mc=.zig-cache/o/0f1aba98b0eb84d1da8c29cb291d3505/c_imports.zig .zig-cache/o/4f7ea38cea067cde6e887b668f1891df/libcrypto.a -lc++ -lc --cache-dir .zig-cache --global-cache-dir .zig-global-cache --build-root . --name test --zig-lib-dir /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/ --listen=-
+
+test
++- run test
+   +- compile test debug native 1 errors
+src/node.zig:2319:115: error: enum 'node.test.canonical event delivery has one consumer even when runOnce is called.Dispatcher.dispatchQuicReliable__enum_2244' has no member named 'sub'
+                var result = try dispatcher.dispatchQuicReliable(if (self.options.quic_inbound == .publications) .sub else .rep, incoming, runtime.appSession());
+                                                                                                                 ~^~~
+src/node.zig:6850:56: note: enum declared here
+        pub fn dispatchQuicReliable(self: *@This(), _: enum { rep }, incoming: message.Message, _: *session.Session) !Result {
+                                                       ^~~~~~~~~~~~
+referenced by:
+    test.canonical event delivery has one consumer even when runOnce is called: src/node.zig:6863:62
+    node: src/reliable_pubsub_test.zig:3:22
+    2 reference(s) hidden; use '-freference-trace=4' to see all references
+error: 1 compilation errors
+failed command: /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig test -Odebug --dep paseto --dep quic -Mroot=src/root.zig -Odebug -Mpaseto=zig-pkg/paseto-0.4.0-EBI95RcXCADs0jz3tebS1xMaAiT2r3Tpx8HsF5LfpqOS/src/root.zig -fsanitize-c=trap -Odebug --dep boringssl --dep build_options -Mquic=zig-pkg/quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-/src/root.zig .zig-cache/o/a352dd1799481215f211e7f3b30b4d5c/libssl_shim.a .zig-cache/o/26d816c71784852715ea05bf696689f5/libssl.a .zig-cache/o/4f7ea38cea067cde6e887b668f1891df/libcrypto.a -fsanitize-c=trap -Odebug -I .zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/o/99643627a011968f089148bb3544ce0e --dep c -Mboringssl=zig-pkg/boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2/src/root.zig -Mbuild_options=.zig-cache/o/a366b4c418195a5caef29f9783ad83c6/options.zig -fsanitize-c=trap -Odebug -Mc=.zig-cache/o/0f1aba98b0eb84d1da8c29cb291d3505/c_imports.zig .zig-cache/o/4f7ea38cea067cde6e887b668f1891df/libcrypto.a -lc++ -lc --cache-dir .zig-cache --global-cache-dir .zig-global-cache --build-root . --name test --zig-lib-dir /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/ --listen=-
+
+Build Summary: 36/41 steps succeeded (2 failed)
+capnp-test success
++- run test cached
+   +- compile test debug native cached 147ms MaxRSS:31M
+examples success
++- install quic-pubsub-localhost success
+|  +- compile exe quic-pubsub-localhost debug native success 3s MaxRSS:509M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native cached 63ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native cached 116ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug native cached 81ms MaxRSS:32M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options cached
+|     +- translate-c cached 45ms MaxRSS:30M
++- install inproc-reqrep success
+|  +- compile exe inproc-reqrep debug native success 1s MaxRSS:300M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install embedded-inproc-node success
+|  +- compile exe embedded-inproc-node debug native success 3s MaxRSS:495M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install embedded-quic-attach success
+|  +- compile exe embedded-quic-attach debug native success 3s MaxRSS:506M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install app-ergonomics success
+|  +- compile exe app-ergonomics debug native success 2s MaxRSS:367M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install auth-paseto success
+|  +- compile exe auth-paseto debug native success 1s MaxRSS:362M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-runtime-reqrep success
+|  +- compile exe quic-runtime-reqrep debug native success 2s MaxRSS:452M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-socket-hooks success
+|  +- compile exe quic-socket-hooks debug native success 2s MaxRSS:305M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-app-dispatch success
+|  +- compile exe quic-app-dispatch debug native success 1s MaxRSS:348M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-node-localhost success
+|  +- compile exe quic-node-localhost debug native success 3s MaxRSS:508M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- install quic-owned-reqrep success
+   +- compile exe quic-owned-reqrep debug native success 2s MaxRSS:502M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+test transitive failure
++- run test transitive failure
+|  +- compile test debug native 1 errors
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test cached
+|  +- compile test debug native cached 93ms MaxRSS:32M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test transitive failure
+   +- compile test debug native 1 errors
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

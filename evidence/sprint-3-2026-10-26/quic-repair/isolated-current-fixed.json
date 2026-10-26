@@ -1,0 +1,249 @@
+{
+  "scope": "isolated preserved current quic source snapshot plus two flow-control cache invalidations; original qmsg and qmesh repro snapshots unchanged; not final full-tree candidate",
+  "recorded_utc": "2026-10-26T20:18:08.654389+00:00",
+  "binary": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/isolated-current-fixed",
+  "built_binary": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/workspace/tests/composition/.zig-cache/o/041f0fd58f81575a0713d428bacaa24f/qmesh-snapshot-recovery",
+  "binary_sha256": "776077d18f31c8dcc4438d1cb8153c5ee6cb2ed44e9d3307776d0f1484bae859",
+  "source_differences_from_preserved_manifest": {
+    "qmsg": {},
+    "qmesh-zig": {},
+    "quic-zig": {
+      "src/Connection/flow.zig": {
+        "baseline": "7be4b879512967723e95db02760947b44569965651c619d726df0e902aa28cfb",
+        "current": "5c5a4a83d39fd29b7e130bca5ab33bb913d9dc472441716cc49362d092d2a118"
+      }
+    }
+  },
+  "runs": [
+    {
+      "index": 1,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 546183
+      },
+      "log": "isolated-current-fixed-1.log"
+    },
+    {
+      "index": 2,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 540657
+      },
+      "log": "isolated-current-fixed-2.log"
+    },
+    {
+      "index": 3,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 541858
+      },
+      "log": "isolated-current-fixed-3.log"
+    },
+    {
+      "index": 4,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 545617
+      },
+      "log": "isolated-current-fixed-4.log"
+    },
+    {
+      "index": 5,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 543840
+      },
+      "log": "isolated-current-fixed-5.log"
+    },
+    {
+      "index": 6,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 542793
+      },
+      "log": "isolated-current-fixed-6.log"
+    },
+    {
+      "index": 7,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 545143
+      },
+      "log": "isolated-current-fixed-7.log"
+    },
+    {
+      "index": 8,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 575569
+      },
+      "log": "isolated-current-fixed-8.log"
+    },
+    {
+      "index": 9,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 556816
+      },
+      "log": "isolated-current-fixed-9.log"
+    },
+    {
+      "index": 10,
+      "exit_code": 0,
+      "passed": true,
+      "report": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 544268
+      },
+      "log": "isolated-current-fixed-10.log"
+    }
+  ]
+}

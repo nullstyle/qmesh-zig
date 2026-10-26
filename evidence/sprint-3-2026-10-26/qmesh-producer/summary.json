@@ -1,0 +1,93 @@
+{
+  "status": "qmesh_source_ready_selected_transport_repair_pending",
+  "head": "35b4e914e5457157649bbc07c367b569382f1851",
+  "branch": "codex/sprint-3-snapshot-recovery",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+    "version": "0.17.0",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523"
+  },
+  "compiled_source_sha256": {
+    "build.zig": "16a38346fa437e5b39371134a1c65572b410b4fa53aad08b67b252046ce2ee08",
+    "examples/snapshot_recovery.zig": "0e934b355576178074cdcedc32877cd662841707892056227eb2b29df4fe3893",
+    "examples/snapshot_state.zig": "248942543fdea053a3e431007619354408e251a73cf31b5492da44ea70bcaabb",
+    "tests/snapshot_recovery_test.zig": "b55cdde4b0711f13a9dbadbb6db9488682651781ab063369ebee7ee844863237"
+  },
+  "checks": {
+    "pure_debug": "pure-debug-v2.log",
+    "pure_safe": "pure-safe-v2.log",
+    "core_debug": "core-debug.log",
+    "core_safe": "core-safe.log",
+    "historical_pre_quiet_loop_udp_green": "recovery-dev-debug.log",
+    "native_debug_transport_assertion": "recovery-dev-debug-v2.log",
+    "native_safe_quiet_loop_green": "recovery-dev-safe.log",
+    "linux_core_debug": "linux-debug-v2.log",
+    "linux_core_safe": "linux-safe-v2.log",
+    "linux_runtime_identity": "linux-container-v2.log"
+  },
+  "infrastructure_attempts": {
+    "unsupported_build_flag": "linux-debug.log",
+    "corrected_container": "linux-container-v2.log"
+  },
+  "note": "Immutable native QUICv0.37.2 and moving current candidate reproduce pollDatagram rest shortcut assertion under the quiet-loop workload. Compiled recovery sources frozen for transport diagnosis. No final matrix claimed.",
+  "core_suite_tests": 142,
+  "linux_debug": {
+    "steps": "31/31",
+    "executed": 142,
+    "cached": 0,
+    "failures": 0,
+    "skips": 0
+  },
+  "linux_safe": {
+    "steps": "31/31",
+    "executed": 142,
+    "cached": 0,
+    "failures": 0,
+    "skips": 0
+  },
+  "mac_debug": {
+    "steps": "31/31",
+    "executed": 18,
+    "cached": 124,
+    "failures": 0,
+    "skips": 0
+  },
+  "mac_safe": {
+    "steps": "31/31",
+    "executed": 32,
+    "cached": 110,
+    "failures": 0,
+    "skips": 0
+  },
+  "source_identity": {
+    "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+    "commit": "35b4e914e5457157649bbc07c367b569382f1851",
+    "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-3-composition.md\n?? docs/sprint-3-recovery.md\n?? examples/recovery-pki/\n?? examples/snapshot_recovery.zig\n?? examples/snapshot_state.zig\n?? tests/snapshot_recovery_test.zig\n?? tests/sprint3_composition_test.zig",
+    "tree_sha256": "598ddf1c5f1d91ed3dae5323c28066db7945c9459187f91679e812bf97604d2c",
+    "file_count": 282,
+    "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+    "dependency_pins": {
+      "quic": {
+        "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+        "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+      }
+    }
+  },
+  "native_safe_report": {
+    "converged": true,
+    "authority_revision": 40,
+    "replica_revision": 40,
+    "gossip_only_revision": 0,
+    "hints_published": 40,
+    "noise_published": 40,
+    "hints_evicted": 40,
+    "hints_delivered_after_heal": 0,
+    "snapshot_attempts": 6,
+    "snapshot_timeouts": 5,
+    "snapshots_applied": 1,
+    "snapshot_bytes": 81,
+    "peak_pending_requests": 1,
+    "peak_pool_entries": 1,
+    "elapsed_us": 510343
+  }
+}

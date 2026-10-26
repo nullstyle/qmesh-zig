@@ -1,0 +1,20 @@
+RECOVERY_WORKLOAD {"converged":true,"authority_revision":40,"replica_revision":40,"gossip_only_revision":0,"hints_published":40,"noise_published":40,"hints_evicted":40,"hints_delivered_after_heal":0,"snapshot_attempts":6,"snapshot_timeouts":5,"snapshots_applied":1,"snapshot_bytes":81,"peak_pending_requests":1,"peak_pool_entries":1,"elapsed_us":510343}
+Build Summary: 11/11 steps succeeded
+run-recovery success
++- run exe qmesh-snapshot-recovery success 675ms
+   +- compile exe qmesh-snapshot-recovery safe native success 2m MaxRSS:788M
+      +- WriteFile cached
+      +- compile lib ssl_shim safe native success 634ms MaxRSS:117M
+      +- WriteFile cached
+      +- compile lib ssl safe native success 54s MaxRSS:202M
+      |  +- WriteFile cached
+      |  +- compile lib crypto safe native success 3m MaxRSS:427M
+      |  +- compile lib crypto safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options cached
+      +- translate-c success 306ms MaxRSS:49M
+

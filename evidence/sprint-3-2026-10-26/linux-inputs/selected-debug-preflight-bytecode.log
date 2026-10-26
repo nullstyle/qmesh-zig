@@ -1,0 +1,3 @@
+Traceback (most recent call last):
+  File "<stdin>", line 13, in <module>
+AssertionError: ('qmesh-zig', 'tree_sha256', '76a3250c3ff80798112c23fa9354bbf05dbad832ea527666cecbe74e41de2fe4', 'd9dc3a186416f512193c1c84f3fff791d73b10870338a79651aad1ca3f7e8e7e')

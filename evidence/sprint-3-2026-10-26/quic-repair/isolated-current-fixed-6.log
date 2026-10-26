@@ -1,0 +1,1 @@
+RECOVERY_WORKLOAD {"converged":true,"authority_revision":40,"replica_revision":40,"gossip_only_revision":0,"hints_published":40,"noise_published":40,"hints_evicted":40,"hints_delivered_after_heal":0,"snapshot_attempts":6,"snapshot_timeouts":5,"snapshots_applied":1,"snapshot_bytes":81,"peak_pending_requests":1,"peak_pool_entries":1,"elapsed_us":542793}

@@ -1,0 +1,155 @@
+test
++- run test 1 pass, 1 crash (2 total)
+error: 'e2e.rest_cache_table.test.the rest cache against every public call that changes state: each one touches, or leaves the cache true' terminated with signal ABRT with stderr:
+       thread 67063585 panic: reached unreachable code
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/debug.zig:442:14: 0x10083e54b in assert (test)
+           if (!ok) unreachable; // assertion failure
+                    ^
+       /Users/nullstyle/prj/zig/quic-zig/src/Connection/send.zig:152:29: 0x10097aa7f in pollDatagram (test)
+                   std.debug.assert(built == null);
+                                   ^
+       /Users/nullstyle/prj/zig/quic-zig/src/Connection/send.zig:118:39: 0x100a36f3b in poll (test)
+           const datagram = (try pollDatagram(conn, dst, now_us)) orelse return null;
+                                             ^
+       /Users/nullstyle/prj/zig/quic-zig/tests/e2e/rest_cache_table.zig:58:35: 0x10096f35b in pump (test)
+               while (try p.cli.conn.poll(&rx, p.now_us)) |len| _ = try p.srv.feed(rx[0..len], addr, p.now_us);
+                                         ^
+       /Users/nullstyle/prj/zig/quic-zig/tests/e2e/rest_cache_table.zig:66:19: 0x10096f757 in cycle (test)
+               try p.pump();
+                         ^
+       /Users/nullstyle/prj/zig/quic-zig/tests/e2e/rest_cache_table.zig:111:51: 0x1009700fb in after (test)
+               while (step < 6) : (step += 1) try p.cycle(30_000);
+                                                         ^
+       /Users/nullstyle/prj/zig/quic-zig/tests/e2e/rest_cache_table.zig:233:16: 0x1009703a7 in test.the rest cache against every public call that changes state: each one touches, or leaves the cache true (test)
+               p.after() catch |err| {
+                      ^
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/compiler/test_runner.zig:143:68: 0x100949ebf in mainServer (test)
+                       const status: TestResults.Status = if (test_fn.func()) |v| s: {
+                                                                          ^
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/compiler/test_runner.zig:72:26: 0x10094a4cb in main (test)
+               return mainServer(init) catch |err| panic("internal test runner failure: {t}", .{err});
+                                ^
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/start.zig:789:88: 0x100948417 in callMain (test)
+           if (fn_info.param_types[0].? == std.process.Init.Minimal) return wrapMain(root.main(.{
+                                                                                              ^
+       ???:?:?: 0x18afa7e7f in start (/usr/lib/dyld)
+failed command: ./.zig-cache/o/b40d3e2ce19bcf7f5e3f88dec41c6a09/test --cache-dir=./.zig-cache --seed=0xf9b074c9 --listen=-
+
+Build Summary: 35/37 steps succeeded (1 failed); 12/13 tests passed (1 crashed)
+test transitive failure
++- run test 11 pass (11 total) 185ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:334M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native cached 125ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native cached 84ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug native cached 138ms MaxRSS:32M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options cached
+|     +- translate-c cached 66ms MaxRSS:31M
++- run test 1 pass, 1 crash (2 total)
+|  +- compile test debug native success 5s MaxRSS:480M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test cached
+|  +- compile test debug native cached 78ms MaxRSS:32M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test cached
+|  +- compile test debug native cached 78ms MaxRSS:32M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test cached
+|  +- compile test debug native cached 66ms MaxRSS:32M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test cached
+|  +- compile test debug native cached 55ms MaxRSS:32M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test cached
+|  +- compile test debug native cached 58ms MaxRSS:32M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test cached
+|  +- compile test debug native cached 83ms MaxRSS:31M
++- run test cached
+|  +- compile test debug native cached 69ms MaxRSS:31M
++- run test cached
+   +- compile test safe native cached 82ms MaxRSS:32M
+      +- WriteFile cached
+      +- compile lib ssl_shim safe native cached 77ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl safe native cached 94ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto safe native cached 144ms MaxRSS:32M
+      |  +- compile lib crypto safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options cached
+      +- options (reused)
+      +- translate-c cached 66ms MaxRSS:30M
+

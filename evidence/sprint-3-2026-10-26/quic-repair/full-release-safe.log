@@ -1,0 +1,126 @@
+test
++- run test w
+[rr] conn 0: answered request 1 (15 bytes -> 15 bytes)
+[rr] conn 0: answered request 2 (7 bytes -> 7 bytes)
+[rr] conn 0: closed after 2 request(s)
+[rr] conn 0: answered request 1 (15 bytes -> 15 bytes)
+[rr] conn 0: closed after 1 request(s)
+[rr] conn 0: answered request 1 (14 bytes -> 14 bytes)
+[rr] conn 0: closed after 1 request(s)
+failed command: ./.zig-cache/o/cb27bd778d664be6eaa489912571652d/test --cache-dir=./.zig-cache --seed=0xa9726c00 --listen=-
+
+Build Summary: 30/30 steps succeeded; 2032/2048 tests passed (16 skipped)
+test success
++- run test 1112 pass (1112 total) 901ms MaxRSS:13M
+|  +- compile test safe native success 27s MaxRSS:1G
+|     +- WriteFile cached
+|     +- compile lib ssl_shim safe native cached 77ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl safe native cached 80ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto safe native cached 86ms MaxRSS:32M
+|     |  +- compile lib crypto safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options cached
+|     +- translate-c cached 58ms MaxRSS:31M
++- run test 308 pass (308 total) 1s MaxRSS:16M
+|  +- compile test safe native success 23s MaxRSS:1G
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 562 pass, 16 skip (578 total) 244ms MaxRSS:9M
+|  +- compile test safe native success 22s MaxRSS:833M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 19 pass (19 total) 168ms MaxRSS:9M
+|  +- compile test safe native success 7s MaxRSS:440M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 9 pass (9 total) 149ms MaxRSS:9M
+|  +- compile test safe native success 10s MaxRSS:396M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 3 pass (3 total) 153ms MaxRSS:9M
+|  +- compile test safe native success 13s MaxRSS:619M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 19 pass (19 total) 241ms MaxRSS:9M
+|  +- compile test safe native success 11s MaxRSS:616M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test cached
+|  +- compile test safe native cached 75ms MaxRSS:31M
++- run test cached
+|  +- compile test safe native cached 74ms MaxRSS:31M
++- run test cached
+   +- compile test safe native cached 53ms MaxRSS:32M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options cached
+      +- options (reused)
+      +- translate-c (reused)
+

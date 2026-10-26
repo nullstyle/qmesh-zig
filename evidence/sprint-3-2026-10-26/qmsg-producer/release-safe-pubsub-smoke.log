@@ -1,0 +1,1 @@
+PUBSUB_WORKLOAD {"attempted":24,"matched":72,"queued":57,"backpressured":15,"dropped":0,"healthy_delivered":48,"slow_delivered":0,"peak_pending_messages":6,"peak_pending_bytes":822,"configured_queue_messages_per_peer":4,"configured_queue_bytes_per_peer":16384,"cold_handshake_us":14378,"warm_elapsed_us":11968,"reconnected":true}

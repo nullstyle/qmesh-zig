@@ -1,0 +1,10 @@
+LINUX_RUNTIME {"compiler": {"path": "/opt/zig/zig", "version": "0.17.0", "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"}, "host": "Linux 7.2.12-orbstack-00394-gbecdd6130068 aarch64", "source_hashes": {"quic-zig": "2cf7e4f33ba678b24165767b53a0bc41208232d1386d22968a64843e3c723316", "qmsg": "4564992ec56914dad08a28404806b754f887d8c3980dde3044d62defff6708bf", "qmesh-zig": "d9dc3a186416f512193c1c84f3fff791d73b10870338a79651aad1ca3f7e8e7e"}}
+[selected-composition] /opt/zig/zig build test -Doptimize=Debug -j2 --cache-dir /evidence/selected-debug/build-cache/composition --summary all -Dlocal-quic=true
+[selected-composition] exit=0 Build Summary: 11/11 steps succeeded; 2/2 tests passed; /evidence/selected-debug/selected-composition.log
+[selected-sprint2] /opt/zig/zig build test-sprint2 -Doptimize=Debug -j2 --cache-dir /evidence/selected-debug/build-cache/composition --summary all -Dlocal-quic=true
+[selected-sprint2] exit=0 Build Summary: 11/11 steps succeeded; 1/1 tests passed; /evidence/selected-debug/selected-sprint2.log
+[selected-sprint3] /opt/zig/zig build test-sprint3 -Doptimize=Debug -j2 --cache-dir /evidence/selected-debug/build-cache/composition --summary all -Dlocal-quic=true
+[selected-sprint3] exit=0 Build Summary: 11/11 steps succeeded; 2/2 tests passed; /evidence/selected-debug/selected-sprint3.log
+[selected-qmsg] /opt/zig/zig build test-qmsg -Doptimize=Debug -j2 --cache-dir /evidence/selected-debug/build-cache/composition --summary all -Dlocal-quic=true
+[selected-qmsg] exit=0 Build Summary: 15/15 steps succeeded; 894/894 tests passed; /evidence/selected-debug/selected-qmsg.log
+Evidence: /evidence/selected-debug/report.json

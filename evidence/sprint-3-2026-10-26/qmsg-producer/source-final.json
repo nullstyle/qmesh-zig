@@ -1,0 +1,14 @@
+{
+  "path": "/Users/nullstyle/prj/zig/qmsg",
+  "commit": "941eef6b65deb250d2e5ee56637523be9eec5527",
+  "status": "M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/QUIC_PUBSUB.md\n M docs/SPRINT.md\n M src/app.zig\n M src/node.zig\n M src/protocol/pubsub.zig\n M src/root.zig\n?? docs/SPRINT_3_RELIABLE_PUBSUB.md\n?? examples/quic_pubsub_localhost.zig\n?? examples/reliable_pubsub_workload.zig\n?? src/reliable_pubsub_test.zig",
+  "tree_sha256": "4564992ec56914dad08a28404806b754f887d8c3980dde3044d62defff6708bf",
+  "file_count": 77,
+  "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+  "dependency_pins": {
+    "quic": {
+      "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+      "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+    }
+  }
+}

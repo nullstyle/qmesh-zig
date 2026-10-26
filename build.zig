@@ -166,6 +166,29 @@ pub fn build(b: *std.Build) !void {
 
     const test_step = b.step("test", "Run qmesh tests (unit + sim + quic boundary)");
 
+    // Example state and deterministic recovery stay transport/message independent.
+    const snapshot_state_mod = b.createModule(.{
+        .root_source_file = b.path("examples/snapshot_state.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    const snapshot_state_tests = b.addTest(.{ .root_module = snapshot_state_mod });
+    test_step.dependOn(&b.addRunArtifact(snapshot_state_tests).step);
+    const recovery_tests_mod = b.createModule(.{
+        .root_source_file = b.path("tests/snapshot_recovery_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    recovery_tests_mod.addImport("qmesh", qmesh_mod);
+    recovery_tests_mod.addImport("qmesh_sim", qmesh_sim_mod);
+    recovery_tests_mod.addImport("snapshot_state", snapshot_state_mod);
+    const recovery_tests = b.addTest(.{ .root_module = recovery_tests_mod });
+    const recovery_run = b.addRunArtifact(recovery_tests);
+    const recovery_step = b.step("recovery-test", "Test bounded snapshots and deterministic missed-hint recovery");
+    recovery_step.dependOn(&recovery_run.step);
+    recovery_step.dependOn(&b.addRunArtifact(snapshot_state_tests).step);
+    test_step.dependOn(&recovery_run.step);
+
     const messaging_tests = b.addTest(.{ .root_module = messaging_mod });
     test_step.dependOn(&b.addRunArtifact(messaging_tests).step);
 

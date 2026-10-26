@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-26T20:20:40.513382+00:00",
+  "passed": true,
+  "source_frozen": true,
+  "source_unchanged_since_pre_final_capture": true,
+  "source": {
+    "path": "/Users/nullstyle/prj/zig/qmsg",
+    "commit": "941eef6b65deb250d2e5ee56637523be9eec5527",
+    "status": "M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/QUIC_PUBSUB.md\n M docs/SPRINT.md\n M src/app.zig\n M src/node.zig\n M src/protocol/pubsub.zig\n M src/root.zig\n?? docs/SPRINT_3_RELIABLE_PUBSUB.md\n?? examples/quic_pubsub_localhost.zig\n?? examples/reliable_pubsub_workload.zig\n?? src/reliable_pubsub_test.zig",
+    "tree_sha256": "4564992ec56914dad08a28404806b754f887d8c3980dde3044d62defff6708bf",
+    "file_count": 77,
+    "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+    "dependency_pins": {
+      "quic": {
+        "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+        "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+      }
+    }
+  },
+  "branch": "codex/sprint-3-reliable-pubsub",
+  "compiler": {
+    "version": "0.17.0",
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "host": "macOS arm64"
+  },
+  "gates": {
+    "debug": {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "zig",
+        "build",
+        "test",
+        "examples",
+        "capnp-test",
+        "-Dcapnp=true",
+        "-j2",
+        "--summary",
+        "all"
+      ],
+      "returncode": 0,
+      "duration_seconds": 29.059890541,
+      "build_steps": 41,
+      "fresh_executed_passed": 706,
+      "fresh_failed": 0,
+      "skipped": 0,
+      "unchanged_cached_test_cases": 191,
+      "unchanged_cached_test_artifacts": 2,
+      "suite_total_including_cached": 897,
+      "root": 350,
+      "quic_runtime": 188,
+      "node_pair": 356,
+      "optional_codec": 3,
+      "examples_total": 11,
+      "example_install_statuses": {
+        "quic-pubsub-localhost": "success",
+        "inproc-reqrep": "success",
+        "embedded-inproc-node": "success",
+        "embedded-quic-attach": "success",
+        "app-ergonomics": "success",
+        "auth-paseto": "success",
+        "quic-runtime-reqrep": "success",
+        "quic-socket-hooks": "success",
+        "quic-app-dispatch": "success",
+        "quic-node-localhost": "success",
+        "quic-owned-reqrep": "success"
+      },
+      "log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/debug-final-v2.log",
+        "sha256": "e0ff69de1b8e3dcf0435733c885589022c4fcd7f0a77a8e6c30d41adc3db489e"
+      }
+    },
+    "release-safe": {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "zig",
+        "build",
+        "test",
+        "examples",
+        "capnp-test",
+        "-Dcapnp=true",
+        "-Doptimize=ReleaseSafe",
+        "-j2",
+        "--summary",
+        "all"
+      ],
+      "returncode": 0,
+      "duration_seconds": 396.034467541,
+      "build_steps": 41,
+      "fresh_executed_passed": 894,
+      "fresh_failed": 0,
+      "skipped": 0,
+      "unchanged_cached_test_cases": 3,
+      "unchanged_cached_test_artifacts": 1,
+      "suite_total_including_cached": 897,
+      "root": 350,
+      "quic_runtime": 188,
+      "node_pair": 356,
+      "optional_codec": 3,
+      "examples_total": 11,
+      "example_install_statuses": {
+        "quic-pubsub-localhost": "success",
+        "inproc-reqrep": "success",
+        "embedded-inproc-node": "success",
+        "embedded-quic-attach": "success",
+        "app-ergonomics": "success",
+        "auth-paseto": "success",
+        "quic-runtime-reqrep": "success",
+        "quic-socket-hooks": "success",
+        "quic-app-dispatch": "success",
+        "quic-node-localhost": "success",
+        "quic-owned-reqrep": "success"
+      },
+      "log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/release-safe-final.log",
+        "sha256": "ea03d5e5cd25893f827dab93d10a1746cea915c6c9d83af4370c25121dcfb291"
+      }
+    }
+  },
+  "smokes": {
+    "debug": {
+      "pubsub": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/debug-pubsub-smoke.log",
+          "sha256": "f7275d13f8a1a7f7670f02b47b27664cb9dca5973e0b0e0642883b99ce695c2c"
+        },
+        "report": {
+          "attempted": 24,
+          "matched": 72,
+          "queued": 57,
+          "backpressured": 15,
+          "dropped": 0,
+          "healthy_delivered": 48,
+          "slow_delivered": 0,
+          "peak_pending_messages": 6,
+          "peak_pending_bytes": 822,
+          "configured_queue_messages_per_peer": 4,
+          "configured_queue_bytes_per_peer": 16384,
+          "cold_handshake_us": 47676,
+          "warm_elapsed_us": 70854,
+          "reconnected": true
+        }
+      },
+      "owned": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/debug-owned-smoke.log",
+          "sha256": "bc274e64285ca0bfe1897daefbfca75d70546706c827be30ab50c075fc55ec61"
+        }
+      },
+      "node-app": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/debug-node-app-smoke.log",
+          "sha256": "e8b8fa4ea34de0de5330b7749fe27cd4661c7e709d18ba390e498d9f85be2867"
+        }
+      },
+      "runtime": {
+        "exit_code": 0,
+        "live_udp": false,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/debug-runtime-smoke.log",
+          "sha256": "612a17e2e172442ba743d3e2fb3f03a834771375a0e73fb5a4960c4379b4778f"
+        }
+      },
+      "app-dispatch": {
+        "exit_code": 0,
+        "live_udp": false,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/debug-app-dispatch-smoke.log",
+          "sha256": "d470e819ee84d798eb4f4debd5f2952270348f82807442bffeaf631cf01e7cff"
+        }
+      }
+    },
+    "release-safe": {
+      "pubsub": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/release-safe-pubsub-smoke.log",
+          "sha256": "c3b81d1cc5070d8f24b9421da12538666e89a8d1eb3973352b34721c4b7df597"
+        },
+        "report": {
+          "attempted": 24,
+          "matched": 72,
+          "queued": 57,
+          "backpressured": 15,
+          "dropped": 0,
+          "healthy_delivered": 48,
+          "slow_delivered": 0,
+          "peak_pending_messages": 6,
+          "peak_pending_bytes": 822,
+          "configured_queue_messages_per_peer": 4,
+          "configured_queue_bytes_per_peer": 16384,
+          "cold_handshake_us": 14378,
+          "warm_elapsed_us": 11968,
+          "reconnected": true
+        }
+      },
+      "owned": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/release-safe-owned-smoke.log",
+          "sha256": "bc274e64285ca0bfe1897daefbfca75d70546706c827be30ab50c075fc55ec61"
+        }
+      },
+      "node-app": {
+        "exit_code": 0,
+        "live_udp": true,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/release-safe-node-app-smoke.log",
+          "sha256": "e8b8fa4ea34de0de5330b7749fe27cd4661c7e709d18ba390e498d9f85be2867"
+        }
+      },
+      "runtime": {
+        "exit_code": 0,
+        "live_udp": false,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/release-safe-runtime-smoke.log",
+          "sha256": "612a17e2e172442ba743d3e2fb3f03a834771375a0e73fb5a4960c4379b4778f"
+        }
+      },
+      "app-dispatch": {
+        "exit_code": 0,
+        "live_udp": false,
+        "log": {
+          "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/release-safe-app-dispatch-smoke.log",
+          "sha256": "d470e819ee84d798eb4f4debd5f2952270348f82807442bffeaf631cf01e7cff"
+        }
+      }
+    }
+  },
+  "regressions": {
+    "source_filter_admission": {
+      "red": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/source-red.log",
+        "sha256": "0b3452d2a220b847ab709fb66050b074daf6df5399f5a250123346ff1b7d7dfb"
+      },
+      "green": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/source-green.log",
+        "sha256": "a247aa7a0f3ab238693c7e1fc98886968296b416fb8e2922a430b05fe6ae5d4c"
+      }
+    },
+    "closing_foreign_timer": {
+      "red": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/closing-wake-red.log",
+        "sha256": "b1a24ba4506c3bbdad5d011dc2fac7a324b85d8c48e0df729adf37bf7cbf3462"
+      },
+      "green": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/closing-wake-green.log",
+        "sha256": "4f2976bd3fc7ec3e93e964155bbb10ebd489fafadc5997d4c4cf977244f13e21"
+      },
+      "green_fresh_passed": 14,
+      "green_unchanged_cached_cases": 1
+    },
+    "remote_filter_cap": {
+      "log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/filter-cap-unit.log",
+        "sha256": "0fd4df346adb7a4816d530836b99e2e9579ef59bcc536a81ac6415e95ae5255f"
+      },
+      "fresh_passed": 15
+    },
+    "authenticated_both_udp_topologies": {
+      "log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/unit-live.log",
+        "sha256": "912b7b12a3a884a0ff6e9e8e8541c9d2280f86e8e557597d6059b3a9e59e6810"
+      },
+      "fresh_passed": 20
+    },
+    "intermediate_full_debug": {
+      "log": {
+        "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-3-evidence/debug-final.log",
+        "sha256": "60e4c093806df398577e338e0eeb32c25e8f80eaa6c3fec5c92df6d119cf957d"
+      },
+      "note": "892 passing test executions while final closing-wake regression/guard were being added; final v2 Debug and final ReleaseSafe above qualify settled source."
+    }
+  },
+  "public_interfaces": [
+    "Node.publishQuicReliable(OutgoingMessage)!ReliablePublishResult{matched,queued,backpressured,dropped}",
+    "Node.publicationStats() PublicationStats",
+    "NodeOptions.quic_inbound=.publications; existing subscribeQuic/unsubscribeQuic desired set",
+    "NodeOptions.quic_reliable_publications local per-session count/byte limits",
+    "Optional dispatchQuicPublication callback; App maps reliable publications to SUB route",
+    "Registry.containsFilter exact-filter query for per-peer Node admission limit"
+  ],
+  "review": [
+    "Root review of bounded FIFO/admission/GOAWAY and reverse topology: no outstanding qmsg findings.",
+    "Independent qmesh agent read-only ownership/FIFO/close/timer/filter-cap/App/live workload review: no actionable findings.",
+    "Remote filter overflow follows the existing EmbeddedDispatch per-peer protocol-error containment path.",
+    "A closing foreign session cannot keep publication_wake producing an immediate timer."
+  ],
+  "committed": false,
+  "published": false,
+  "public_pins_changed": false,
+  "wire_changed": false,
+  "limitations": [
+    "Local macOS arm64 only; hosted CI not run.",
+    "Own gates use public QUIC v0.37.2; selected/native/archive combined integration is recorded separately by root.",
+    "Queued publication is preadmission; policy/close may shed it. Each admitted publication uses an independent reliable stream, with no cross-stream order or application delivery acknowledgment.",
+    "No durable replay, exactly-once delivery, new typed patterns, live CREDIT or push/pull."
+  ]
+}

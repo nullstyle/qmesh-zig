@@ -1,0 +1,977 @@
+{
+  "schema_version": 1,
+  "started_utc": "2026-10-26T20:25:39.837880+00:00",
+  "passed": true,
+  "scope": "host-local public IPv4 UDP workloads; three alternating samples per lane; builds excluded",
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "cpu_count": 18,
+  "samples_per_lane": 3,
+  "source_digest_algorithm": "sha256 of canonical JSON path-to-file-sha256 map",
+  "workspace": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-3-stack-dev/tests/composition",
+  "builds": [
+    {
+      "lane": "native",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "install-workloads",
+        "-Doptimize=ReleaseSafe",
+        "-Dlocal-quic=false",
+        "-j2",
+        "--prefix",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native",
+        "--summary",
+        "all"
+      ],
+      "log": "native-build.log",
+      "binaries": {
+        "pubsub": {
+          "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native/bin/qmsg-pubsub-workload",
+          "sha256": "bb3740ddb2cebdd70a043556b3bdce1dfa8e4ba2bed0c3b6df2db3e8cff690a7",
+          "bytes": 3448184
+        },
+        "recovery": {
+          "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native/bin/qmesh-snapshot-recovery",
+          "sha256": "b962bb9457139068ffe1a74127b3d0613583d430b09f61d10c9dfe0983d506aa",
+          "bytes": 3597064
+        }
+      },
+      "returncode": 0,
+      "timed_out": false,
+      "inputs_after_build": {
+        "qmsg": {
+          "path": "/Users/nullstyle/prj/zig/qmsg",
+          "file_count": 77,
+          "files_sha256": "45ac52ce9ae863c8ff6849ab6f0d416093c5c5459f73d03c904097e629eea437",
+          "commit": "941eef6b65deb250d2e5ee56637523be9eec5527",
+          "status": "M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/QUIC_PUBSUB.md\n M docs/SPRINT.md\n M src/app.zig\n M src/node.zig\n M src/protocol/pubsub.zig\n M src/root.zig\n?? docs/SPRINT_3_RELIABLE_PUBSUB.md\n?? examples/quic_pubsub_localhost.zig\n?? examples/reliable_pubsub_workload.zig\n?? src/reliable_pubsub_test.zig"
+        },
+        "qmesh": {
+          "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+          "file_count": 282,
+          "files_sha256": "87461dbee7b1367f1131c103129f69c511b5a45942b93ddd0d8761bc65e00b73",
+          "commit": "35b4e914e5457157649bbc07c367b569382f1851",
+          "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-3-composition.md\n?? docs/sprint-3-recovery.md\n?? examples/recovery-pki/\n?? examples/snapshot_recovery.zig\n?? examples/snapshot_state.zig\n?? tests/snapshot_recovery_test.zig\n?? tests/sprint3_composition_test.zig"
+        },
+        "quic": {
+          "path": "/Users/nullstyle/prj/zig/quic-zig",
+          "file_count": 305,
+          "files_sha256": "bd19cc6368e69813bc5c10413a01212a1a2459be09707e56faac893eb259da09",
+          "commit": "c74110a94667dd155068b862cb7a966aadbe7697",
+          "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n M src/Connection/_tests_flow.zig\n M src/Connection/flow.zig\n M tests/e2e/rest_cache_table.zig\n?? docs/SPRINT_3_APPLICATION_PROFILES.md\n?? docs/SPRINT_3_APPLICATION_WORKLOADS.md\n?? tools/application-profile.zig\n?? tools/profile-applications.py\n?? tools/profile-composition.py"
+        },
+        "workspace": {
+          "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-3-stack-dev/tests/composition",
+          "file_count": 31,
+          "files_sha256": "84853696c34e3f653fe958c6f894b4cf9f4103c35cfdc2fb47dbe064c5cedc3b"
+        },
+        "compiler": {
+          "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+          "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+          "version": "0.17.0"
+        }
+      },
+      "sources_unchanged": true
+    },
+    {
+      "lane": "selected",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "install-workloads",
+        "-Doptimize=ReleaseSafe",
+        "-Dlocal-quic=true",
+        "-j2",
+        "--prefix",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected",
+        "--summary",
+        "all"
+      ],
+      "log": "selected-build.log",
+      "binaries": {
+        "pubsub": {
+          "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected/bin/qmsg-pubsub-workload",
+          "sha256": "ded4f2b930f5bea29a88cb8080cdf53bd721c91642bc7e9977f853d273ce19d6",
+          "bytes": 3467560
+        },
+        "recovery": {
+          "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected/bin/qmesh-snapshot-recovery",
+          "sha256": "b9859e04d81c217e255a461dcc9b55573e3ffeb901e35f0de08c5fa6edb9ae1a",
+          "bytes": 3616616
+        }
+      },
+      "returncode": 0,
+      "timed_out": false,
+      "inputs_after_build": {
+        "qmsg": {
+          "path": "/Users/nullstyle/prj/zig/qmsg",
+          "file_count": 77,
+          "files_sha256": "45ac52ce9ae863c8ff6849ab6f0d416093c5c5459f73d03c904097e629eea437",
+          "commit": "941eef6b65deb250d2e5ee56637523be9eec5527",
+          "status": "M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/QUIC_PUBSUB.md\n M docs/SPRINT.md\n M src/app.zig\n M src/node.zig\n M src/protocol/pubsub.zig\n M src/root.zig\n?? docs/SPRINT_3_RELIABLE_PUBSUB.md\n?? examples/quic_pubsub_localhost.zig\n?? examples/reliable_pubsub_workload.zig\n?? src/reliable_pubsub_test.zig"
+        },
+        "qmesh": {
+          "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+          "file_count": 282,
+          "files_sha256": "87461dbee7b1367f1131c103129f69c511b5a45942b93ddd0d8761bc65e00b73",
+          "commit": "35b4e914e5457157649bbc07c367b569382f1851",
+          "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-3-composition.md\n?? docs/sprint-3-recovery.md\n?? examples/recovery-pki/\n?? examples/snapshot_recovery.zig\n?? examples/snapshot_state.zig\n?? tests/snapshot_recovery_test.zig\n?? tests/sprint3_composition_test.zig"
+        },
+        "quic": {
+          "path": "/Users/nullstyle/prj/zig/quic-zig",
+          "file_count": 305,
+          "files_sha256": "bd19cc6368e69813bc5c10413a01212a1a2459be09707e56faac893eb259da09",
+          "commit": "c74110a94667dd155068b862cb7a966aadbe7697",
+          "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n M src/Connection/_tests_flow.zig\n M src/Connection/flow.zig\n M tests/e2e/rest_cache_table.zig\n?? docs/SPRINT_3_APPLICATION_PROFILES.md\n?? docs/SPRINT_3_APPLICATION_WORKLOADS.md\n?? tools/application-profile.zig\n?? tools/profile-applications.py\n?? tools/profile-composition.py"
+        },
+        "workspace": {
+          "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-3-stack-dev/tests/composition",
+          "file_count": 31,
+          "files_sha256": "84853696c34e3f653fe958c6f894b4cf9f4103c35cfdc2fb47dbe064c5cedc3b"
+        },
+        "compiler": {
+          "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+          "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+          "version": "0.17.0"
+        }
+      },
+      "sources_unchanged": true
+    }
+  ],
+  "samples": [
+    {
+      "workload_name": "pubsub",
+      "lane": "native",
+      "sample": 1,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native/bin/qmsg-pubsub-workload",
+        "--publications",
+        "24",
+        "--payload-bytes",
+        "128",
+        "--timeout-ms",
+        "10000"
+      ],
+      "environment_overrides": {
+        "QMSG_RUN_LIVE_UDP": "1"
+      },
+      "log": "pubsub-native-1.log",
+      "binary_sha256": "bb3740ddb2cebdd70a043556b3bdce1dfa8e4ba2bed0c3b6df2db3e8cff690a7",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.17641804181039333,
+      "process_user_seconds": 0.004676,
+      "process_system_seconds": 0.008634,
+      "process_cpu_seconds": 0.013309999999999999,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "attempted": 24,
+        "matched": 72,
+        "queued": 57,
+        "backpressured": 15,
+        "dropped": 0,
+        "healthy_delivered": 48,
+        "slow_delivered": 0,
+        "peak_pending_messages": 6,
+        "peak_pending_bytes": 822,
+        "configured_queue_messages_per_peer": 4,
+        "configured_queue_bytes_per_peer": 16384,
+        "cold_handshake_us": 4545,
+        "warm_elapsed_us": 2347,
+        "reconnected": true
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "attempted": true,
+        "source_filter_and_fanout": true,
+        "healthy_delivery": true,
+        "paused_peer_isolation": true,
+        "admission_accounting": true,
+        "default_block_policy": true,
+        "queue_configuration": true,
+        "bounded_queue": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "pubsub",
+      "lane": "selected",
+      "sample": 1,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected/bin/qmsg-pubsub-workload",
+        "--publications",
+        "24",
+        "--payload-bytes",
+        "128",
+        "--timeout-ms",
+        "10000"
+      ],
+      "environment_overrides": {
+        "QMSG_RUN_LIVE_UDP": "1"
+      },
+      "log": "pubsub-selected-1.log",
+      "binary_sha256": "ded4f2b930f5bea29a88cb8080cdf53bd721c91642bc7e9977f853d273ce19d6",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.18358433316461742,
+      "process_user_seconds": 0.004987999999999999,
+      "process_system_seconds": 0.009641,
+      "process_cpu_seconds": 0.014629,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "attempted": 24,
+        "matched": 72,
+        "queued": 57,
+        "backpressured": 15,
+        "dropped": 0,
+        "healthy_delivered": 48,
+        "slow_delivered": 0,
+        "peak_pending_messages": 6,
+        "peak_pending_bytes": 822,
+        "configured_queue_messages_per_peer": 4,
+        "configured_queue_bytes_per_peer": 16384,
+        "cold_handshake_us": 7461,
+        "warm_elapsed_us": 3554,
+        "reconnected": true
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "attempted": true,
+        "source_filter_and_fanout": true,
+        "healthy_delivery": true,
+        "paused_peer_isolation": true,
+        "admission_accounting": true,
+        "default_block_policy": true,
+        "queue_configuration": true,
+        "bounded_queue": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "recovery",
+      "lane": "native",
+      "sample": 1,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native/bin/qmesh-snapshot-recovery"
+      ],
+      "environment_overrides": {},
+      "log": "recovery-native-1.log",
+      "binary_sha256": "b962bb9457139068ffe1a74127b3d0613583d430b09f61d10c9dfe0983d506aa",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.6794025420676917,
+      "process_user_seconds": 0.005804999999999999,
+      "process_system_seconds": 0.00992,
+      "process_cpu_seconds": 0.015725,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 508197
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "state_convergence": true,
+        "gossip_only_stale": true,
+        "all_hints_evicted": true,
+        "no_late_hint": true,
+        "bounded_real_timeouts": true,
+        "terminal_accounting": true,
+        "fixed_snapshot": true,
+        "bounded_pending": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "recovery",
+      "lane": "selected",
+      "sample": 1,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected/bin/qmesh-snapshot-recovery"
+      ],
+      "environment_overrides": {},
+      "log": "recovery-selected-1.log",
+      "binary_sha256": "b9859e04d81c217e255a461dcc9b55573e3ffeb901e35f0de08c5fa6edb9ae1a",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.6805316670797765,
+      "process_user_seconds": 0.005712,
+      "process_system_seconds": 0.009668,
+      "process_cpu_seconds": 0.01538,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 509072
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "state_convergence": true,
+        "gossip_only_stale": true,
+        "all_hints_evicted": true,
+        "no_late_hint": true,
+        "bounded_real_timeouts": true,
+        "terminal_accounting": true,
+        "fixed_snapshot": true,
+        "bounded_pending": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "pubsub",
+      "lane": "selected",
+      "sample": 2,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected/bin/qmsg-pubsub-workload",
+        "--publications",
+        "24",
+        "--payload-bytes",
+        "128",
+        "--timeout-ms",
+        "10000"
+      ],
+      "environment_overrides": {
+        "QMSG_RUN_LIVE_UDP": "1"
+      },
+      "log": "pubsub-selected-2.log",
+      "binary_sha256": "ded4f2b930f5bea29a88cb8080cdf53bd721c91642bc7e9977f853d273ce19d6",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.018356500193476677,
+      "process_user_seconds": 0.004705,
+      "process_system_seconds": 0.007383,
+      "process_cpu_seconds": 0.012088,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "attempted": 24,
+        "matched": 72,
+        "queued": 57,
+        "backpressured": 15,
+        "dropped": 0,
+        "healthy_delivered": 48,
+        "slow_delivered": 0,
+        "peak_pending_messages": 6,
+        "peak_pending_bytes": 822,
+        "configured_queue_messages_per_peer": 4,
+        "configured_queue_bytes_per_peer": 16384,
+        "cold_handshake_us": 5677,
+        "warm_elapsed_us": 3657,
+        "reconnected": true
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "attempted": true,
+        "source_filter_and_fanout": true,
+        "healthy_delivery": true,
+        "paused_peer_isolation": true,
+        "admission_accounting": true,
+        "default_block_policy": true,
+        "queue_configuration": true,
+        "bounded_queue": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "pubsub",
+      "lane": "native",
+      "sample": 2,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native/bin/qmsg-pubsub-workload",
+        "--publications",
+        "24",
+        "--payload-bytes",
+        "128",
+        "--timeout-ms",
+        "10000"
+      ],
+      "environment_overrides": {
+        "QMSG_RUN_LIVE_UDP": "1"
+      },
+      "log": "pubsub-native-2.log",
+      "binary_sha256": "bb3740ddb2cebdd70a043556b3bdce1dfa8e4ba2bed0c3b6df2db3e8cff690a7",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.017842750065028667,
+      "process_user_seconds": 0.00507,
+      "process_system_seconds": 0.008133999999999999,
+      "process_cpu_seconds": 0.013203999999999999,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "attempted": 24,
+        "matched": 72,
+        "queued": 57,
+        "backpressured": 15,
+        "dropped": 0,
+        "healthy_delivered": 48,
+        "slow_delivered": 0,
+        "peak_pending_messages": 6,
+        "peak_pending_bytes": 822,
+        "configured_queue_messages_per_peer": 4,
+        "configured_queue_bytes_per_peer": 16384,
+        "cold_handshake_us": 4314,
+        "warm_elapsed_us": 3082,
+        "reconnected": true
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "attempted": true,
+        "source_filter_and_fanout": true,
+        "healthy_delivery": true,
+        "paused_peer_isolation": true,
+        "admission_accounting": true,
+        "default_block_policy": true,
+        "queue_configuration": true,
+        "bounded_queue": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "recovery",
+      "lane": "selected",
+      "sample": 2,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected/bin/qmesh-snapshot-recovery"
+      ],
+      "environment_overrides": {},
+      "log": "recovery-selected-2.log",
+      "binary_sha256": "b9859e04d81c217e255a461dcc9b55573e3ffeb901e35f0de08c5fa6edb9ae1a",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.517594208009541,
+      "process_user_seconds": 0.005291,
+      "process_system_seconds": 0.007903,
+      "process_cpu_seconds": 0.013194,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 506811
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "state_convergence": true,
+        "gossip_only_stale": true,
+        "all_hints_evicted": true,
+        "no_late_hint": true,
+        "bounded_real_timeouts": true,
+        "terminal_accounting": true,
+        "fixed_snapshot": true,
+        "bounded_pending": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "recovery",
+      "lane": "native",
+      "sample": 2,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native/bin/qmesh-snapshot-recovery"
+      ],
+      "environment_overrides": {},
+      "log": "recovery-native-2.log",
+      "binary_sha256": "b962bb9457139068ffe1a74127b3d0613583d430b09f61d10c9dfe0983d506aa",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.518493500072509,
+      "process_user_seconds": 0.0053939999999999995,
+      "process_system_seconds": 0.008279,
+      "process_cpu_seconds": 0.013673,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 507702
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "state_convergence": true,
+        "gossip_only_stale": true,
+        "all_hints_evicted": true,
+        "no_late_hint": true,
+        "bounded_real_timeouts": true,
+        "terminal_accounting": true,
+        "fixed_snapshot": true,
+        "bounded_pending": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "pubsub",
+      "lane": "native",
+      "sample": 3,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native/bin/qmsg-pubsub-workload",
+        "--publications",
+        "24",
+        "--payload-bytes",
+        "128",
+        "--timeout-ms",
+        "10000"
+      ],
+      "environment_overrides": {
+        "QMSG_RUN_LIVE_UDP": "1"
+      },
+      "log": "pubsub-native-3.log",
+      "binary_sha256": "bb3740ddb2cebdd70a043556b3bdce1dfa8e4ba2bed0c3b6df2db3e8cff690a7",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.024814457865431905,
+      "process_user_seconds": 0.005149,
+      "process_system_seconds": 0.009038,
+      "process_cpu_seconds": 0.014186999999999998,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "attempted": 24,
+        "matched": 72,
+        "queued": 57,
+        "backpressured": 15,
+        "dropped": 0,
+        "healthy_delivered": 48,
+        "slow_delivered": 0,
+        "peak_pending_messages": 6,
+        "peak_pending_bytes": 822,
+        "configured_queue_messages_per_peer": 4,
+        "configured_queue_bytes_per_peer": 16384,
+        "cold_handshake_us": 5605,
+        "warm_elapsed_us": 5120,
+        "reconnected": true
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "attempted": true,
+        "source_filter_and_fanout": true,
+        "healthy_delivery": true,
+        "paused_peer_isolation": true,
+        "admission_accounting": true,
+        "default_block_policy": true,
+        "queue_configuration": true,
+        "bounded_queue": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "pubsub",
+      "lane": "selected",
+      "sample": 3,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected/bin/qmsg-pubsub-workload",
+        "--publications",
+        "24",
+        "--payload-bytes",
+        "128",
+        "--timeout-ms",
+        "10000"
+      ],
+      "environment_overrides": {
+        "QMSG_RUN_LIVE_UDP": "1"
+      },
+      "log": "pubsub-selected-3.log",
+      "binary_sha256": "ded4f2b930f5bea29a88cb8080cdf53bd721c91642bc7e9977f853d273ce19d6",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.023178625153377652,
+      "process_user_seconds": 0.005326,
+      "process_system_seconds": 0.008959,
+      "process_cpu_seconds": 0.014284999999999999,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "attempted": 24,
+        "matched": 72,
+        "queued": 57,
+        "backpressured": 15,
+        "dropped": 0,
+        "healthy_delivered": 48,
+        "slow_delivered": 0,
+        "peak_pending_messages": 6,
+        "peak_pending_bytes": 822,
+        "configured_queue_messages_per_peer": 4,
+        "configured_queue_bytes_per_peer": 16384,
+        "cold_handshake_us": 4567,
+        "warm_elapsed_us": 6535,
+        "reconnected": true
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "attempted": true,
+        "source_filter_and_fanout": true,
+        "healthy_delivery": true,
+        "paused_peer_isolation": true,
+        "admission_accounting": true,
+        "default_block_policy": true,
+        "queue_configuration": true,
+        "bounded_queue": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "recovery",
+      "lane": "native",
+      "sample": 3,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-native/bin/qmesh-snapshot-recovery"
+      ],
+      "environment_overrides": {},
+      "log": "recovery-native-3.log",
+      "binary_sha256": "b962bb9457139068ffe1a74127b3d0613583d430b09f61d10c9dfe0983d506aa",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.5186163750477135,
+      "process_user_seconds": 0.005451999999999999,
+      "process_system_seconds": 0.007548999999999999,
+      "process_cpu_seconds": 0.013000999999999999,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 508610
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "state_convergence": true,
+        "gossip_only_stale": true,
+        "all_hints_evicted": true,
+        "no_late_hint": true,
+        "bounded_real_timeouts": true,
+        "terminal_accounting": true,
+        "fixed_snapshot": true,
+        "bounded_pending": true,
+        "application_timing": true
+      }
+    },
+    {
+      "workload_name": "recovery",
+      "lane": "selected",
+      "sample": 3,
+      "command": [
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/composition-final/install-selected/bin/qmesh-snapshot-recovery"
+      ],
+      "environment_overrides": {},
+      "log": "recovery-selected-3.log",
+      "binary_sha256": "b9859e04d81c217e255a461dcc9b55573e3ffeb901e35f0de08c5fa6edb9ae1a",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "watchdog_seconds": 30,
+      "process_wall_seconds": 0.5169957920443267,
+      "process_user_seconds": 0.004941,
+      "process_system_seconds": 0.006892,
+      "process_cpu_seconds": 0.011833,
+      "process_peak_rss_raw": 9715712,
+      "process_peak_rss_unit": "bytes",
+      "process_peak_rss_bytes": 9715712,
+      "binary_unchanged": true,
+      "json_records": 1,
+      "workload": {
+        "converged": true,
+        "authority_revision": 40,
+        "replica_revision": 40,
+        "gossip_only_revision": 0,
+        "hints_published": 40,
+        "noise_published": 40,
+        "hints_evicted": 40,
+        "hints_delivered_after_heal": 0,
+        "snapshot_attempts": 6,
+        "snapshot_timeouts": 5,
+        "snapshots_applied": 1,
+        "snapshot_bytes": 81,
+        "peak_pending_requests": 1,
+        "peak_pool_entries": 1,
+        "elapsed_us": 505114
+      },
+      "correctness_checks": {
+        "application_completed": true,
+        "state_convergence": true,
+        "gossip_only_stale": true,
+        "all_hints_evicted": true,
+        "no_late_hint": true,
+        "bounded_real_timeouts": true,
+        "terminal_accounting": true,
+        "fixed_snapshot": true,
+        "bounded_pending": true,
+        "application_timing": true
+      }
+    }
+  ],
+  "module_options": {
+    "target": "native",
+    "optimize": "ReleaseSafe",
+    "release": true,
+    "sanitize-c": "trap"
+  },
+  "sources_unchanged": true,
+  "workload_options": {
+    "pubsub_publications": 24,
+    "pubsub_payload_bytes": 128,
+    "pubsub_timeout_ms": 10000,
+    "recovery": "source defaults"
+  },
+  "sources_before": {
+    "qmsg": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "file_count": 77,
+      "files_sha256": "45ac52ce9ae863c8ff6849ab6f0d416093c5c5459f73d03c904097e629eea437",
+      "commit": "941eef6b65deb250d2e5ee56637523be9eec5527",
+      "status": "M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/QUIC_PUBSUB.md\n M docs/SPRINT.md\n M src/app.zig\n M src/node.zig\n M src/protocol/pubsub.zig\n M src/root.zig\n?? docs/SPRINT_3_RELIABLE_PUBSUB.md\n?? examples/quic_pubsub_localhost.zig\n?? examples/reliable_pubsub_workload.zig\n?? src/reliable_pubsub_test.zig"
+    },
+    "qmesh": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "file_count": 282,
+      "files_sha256": "87461dbee7b1367f1131c103129f69c511b5a45942b93ddd0d8761bc65e00b73",
+      "commit": "35b4e914e5457157649bbc07c367b569382f1851",
+      "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-3-composition.md\n?? docs/sprint-3-recovery.md\n?? examples/recovery-pki/\n?? examples/snapshot_recovery.zig\n?? examples/snapshot_state.zig\n?? tests/snapshot_recovery_test.zig\n?? tests/sprint3_composition_test.zig"
+    },
+    "quic": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig",
+      "file_count": 305,
+      "files_sha256": "bd19cc6368e69813bc5c10413a01212a1a2459be09707e56faac893eb259da09",
+      "commit": "c74110a94667dd155068b862cb7a966aadbe7697",
+      "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n M src/Connection/_tests_flow.zig\n M src/Connection/flow.zig\n M tests/e2e/rest_cache_table.zig\n?? docs/SPRINT_3_APPLICATION_PROFILES.md\n?? docs/SPRINT_3_APPLICATION_WORKLOADS.md\n?? tools/application-profile.zig\n?? tools/profile-applications.py\n?? tools/profile-composition.py"
+    },
+    "workspace": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-3-stack-dev/tests/composition",
+      "file_count": 31,
+      "files_sha256": "84853696c34e3f653fe958c6f894b4cf9f4103c35cfdc2fb47dbe064c5cedc3b"
+    },
+    "compiler": {
+      "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+      "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+      "version": "0.17.0"
+    }
+  },
+  "input_manifest": "provenance/inputs-before.json",
+  "native_quic_pins": {
+    "qmsg": {
+      "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+      "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+    },
+    "qmesh": {
+      "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+      "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+    }
+  },
+  "selected_quic_path": "/Users/nullstyle/prj/zig/quic-zig",
+  "package_cache": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg",
+  "sources_unchanged_after_builds": true,
+  "summary": {
+    "pubsub": {
+      "native": {
+        "samples": 3,
+        "median_process": {
+          "process_wall_seconds": 0.024814457865431905,
+          "process_user_seconds": 0.00507,
+          "process_system_seconds": 0.008634,
+          "process_cpu_seconds": 0.013309999999999999,
+          "process_peak_rss_bytes": 9715712
+        },
+        "median_application": {
+          "cold_handshake_us": 4545,
+          "warm_elapsed_us": 3082
+        }
+      },
+      "selected": {
+        "samples": 3,
+        "median_process": {
+          "process_wall_seconds": 0.023178625153377652,
+          "process_user_seconds": 0.004987999999999999,
+          "process_system_seconds": 0.008959,
+          "process_cpu_seconds": 0.014284999999999999,
+          "process_peak_rss_bytes": 9715712
+        },
+        "median_application": {
+          "cold_handshake_us": 5677,
+          "warm_elapsed_us": 3657
+        }
+      }
+    },
+    "recovery": {
+      "native": {
+        "samples": 3,
+        "median_process": {
+          "process_wall_seconds": 0.5186163750477135,
+          "process_user_seconds": 0.005451999999999999,
+          "process_system_seconds": 0.008279,
+          "process_cpu_seconds": 0.013673,
+          "process_peak_rss_bytes": 9715712
+        },
+        "median_application": {
+          "elapsed_us": 508197
+        }
+      },
+      "selected": {
+        "samples": 3,
+        "median_process": {
+          "process_wall_seconds": 0.517594208009541,
+          "process_user_seconds": 0.005291,
+          "process_system_seconds": 0.007903,
+          "process_cpu_seconds": 0.013194,
+          "process_peak_rss_bytes": 9715712
+        },
+        "median_application": {
+          "elapsed_us": 506811
+        }
+      }
+    }
+  },
+  "measurements_passed": true,
+  "sources_after": {
+    "qmsg": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "file_count": 77,
+      "files_sha256": "45ac52ce9ae863c8ff6849ab6f0d416093c5c5459f73d03c904097e629eea437",
+      "commit": "941eef6b65deb250d2e5ee56637523be9eec5527",
+      "status": "M CHANGELOG.md\n M README.md\n M ROADMAP.md\n M build.zig\n M docs/QUIC_PUBSUB.md\n M docs/SPRINT.md\n M src/app.zig\n M src/node.zig\n M src/protocol/pubsub.zig\n M src/root.zig\n?? docs/SPRINT_3_RELIABLE_PUBSUB.md\n?? examples/quic_pubsub_localhost.zig\n?? examples/reliable_pubsub_workload.zig\n?? src/reliable_pubsub_test.zig"
+    },
+    "qmesh": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "file_count": 282,
+      "files_sha256": "87461dbee7b1367f1131c103129f69c511b5a45942b93ddd0d8761bc65e00b73",
+      "commit": "35b4e914e5457157649bbc07c367b569382f1851",
+      "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-3-composition.md\n?? docs/sprint-3-recovery.md\n?? examples/recovery-pki/\n?? examples/snapshot_recovery.zig\n?? examples/snapshot_state.zig\n?? tests/snapshot_recovery_test.zig\n?? tests/sprint3_composition_test.zig"
+    },
+    "quic": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig",
+      "file_count": 305,
+      "files_sha256": "bd19cc6368e69813bc5c10413a01212a1a2459be09707e56faac893eb259da09",
+      "commit": "c74110a94667dd155068b862cb7a966aadbe7697",
+      "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n M src/Connection/_tests_flow.zig\n M src/Connection/flow.zig\n M tests/e2e/rest_cache_table.zig\n?? docs/SPRINT_3_APPLICATION_PROFILES.md\n?? docs/SPRINT_3_APPLICATION_WORKLOADS.md\n?? tools/application-profile.zig\n?? tools/profile-applications.py\n?? tools/profile-composition.py"
+    },
+    "workspace": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-3-stack-dev/tests/composition",
+      "file_count": 31,
+      "files_sha256": "84853696c34e3f653fe958c6f894b4cf9f4103c35cfdc2fb47dbe064c5cedc3b"
+    },
+    "compiler": {
+      "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+      "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+      "version": "0.17.0"
+    }
+  },
+  "sources_unchanged_at_finish": true,
+  "finished_utc": "2026-10-26T20:28:40.761939+00:00"
+}

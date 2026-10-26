@@ -178,3 +178,9 @@ methods, borrowed readiness handles, and the owner clock; it runs in addition
 to the existing pool/restart scenarios. See
 [`sprint-2-composition.md`](sprint-2-composition.md) for commands, scope, and
 the final source-identified evidence.
+
+For missed-announcement recovery, see the bounded
+[`snapshot_recovery.zig` example](../examples/snapshot_recovery.zig) and
+[`sprint-3-recovery.md`](sprint-3-recovery.md). Periodic application snapshots
+repair state after the finite gossip payload window expires; configured
+endpoint resolution is sufficient and no new discovery protocol is required.

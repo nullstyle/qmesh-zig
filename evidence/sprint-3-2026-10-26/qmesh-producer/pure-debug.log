@@ -1,0 +1,109 @@
+recovery-test
++- run test 0 pass, 1 fail (1 total)
+error: 'snapshot_recovery_test.test.partition beyond all retained hints converges only through snapshot reconciliation' failed:
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:34:9: 0x10437bf2f in sendReliable (test)
+               try t.send(to, bytes, true);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:43:60: 0x10437be03 in send (test)
+               if (!t.world.sessions.establishedPair(t.idx, dst)) return error.NoSession;
+                                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/sim/node.zig:30:9: 0x10437bfb7 in sendDatagram (test)
+               try t.send(to, bytes, false);
+               ^
+       (25 additional stack frames skipped due to buffer size limitations...)
+failed command: ./.zig-cache/o/9d0bd3c07a0240ff4b16bade68053a2f/test --cache-dir=./.zig-cache --seed=0x94e7db04 --listen=-
+
+Build Summary: 3/5 steps succeeded (1 failed); 0/1 tests passed (1 failed)
+recovery-test transitive failure
++- run test 0 pass, 1 fail (1 total)
+|  +- compile test debug native cached 55ms MaxRSS:31M
++- run test cached
+   +- compile test debug native cached 55ms MaxRSS:31M
+

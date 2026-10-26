@@ -1,0 +1,478 @@
+{
+  "input": "samples.xml",
+  "usable_running_ms": 1248.0,
+  "stackless_running_rows": 1,
+  "nonrunning_rows": 0,
+  "leaf": [
+    {
+      "name": "__sendmsg",
+      "ms": 490.0,
+      "share": 0.3926282051282051
+    },
+    {
+      "name": "__recvmsg",
+      "ms": 172.0,
+      "share": 0.13782051282051283
+    },
+    {
+      "name": "hash_map.Custom(u64,*Connection.Stream,hash_map.AutoContext(u64),80).getIndex__func_853",
+      "ms": 77.0,
+      "share": 0.06169871794871795
+    },
+    {
+      "name": "poll",
+      "ms": 70.0,
+      "share": 0.05608974358974359
+    },
+    {
+      "name": "_platform_memset",
+      "ms": 57.0,
+      "share": 0.04567307692307692
+    },
+    {
+      "name": "_platform_memmove",
+      "ms": 17.0,
+      "share": 0.013621794871794872
+    },
+    {
+      "name": "_xzm_free_main",
+      "ms": 15.0,
+      "share": 0.01201923076923077
+    },
+    {
+      "name": "_xzm_xzone_malloc_tiny",
+      "ms": 15.0,
+      "share": 0.01201923076923077
+    },
+    {
+      "name": "Connection.send.pollLevelOnPath",
+      "ms": 12.0,
+      "share": 0.009615384615384616
+    },
+    {
+      "name": "mach_absolute_time",
+      "ms": 8.0,
+      "share": 0.00641025641025641
+    },
+    {
+      "name": "zbssl_aes_gcm_enc_kernel_eor3",
+      "ms": 8.0,
+      "share": 0.00641025641025641
+    },
+    {
+      "name": "hash_map.Custom(u64,transport.quic_streams.ReliableMessageSender,hash_map.AutoContext(u64),80).Iterator.next",
+      "ms": 8.0,
+      "share": 0.00641025641025641
+    },
+    {
+      "name": "mem.copyForwards__func_58",
+      "ms": 7.0,
+      "share": 0.005608974358974359
+    },
+    {
+      "name": "zbssl_aes_gcm_dec_kernel_eor3",
+      "ms": 6.0,
+      "share": 0.004807692307692308
+    },
+    {
+      "name": "hash_map.Custom(u64,transport.quic_streams.ReliableMessageReceiver,hash_map.AutoContext(u64),80).Iterator.next",
+      "ms": 6.0,
+      "share": 0.004807692307692308
+    },
+    {
+      "name": "transport.quic_session_runtime.QuicSessionRuntime.pumpReliableReceivers__func_77",
+      "ms": 6.0,
+      "share": 0.004807692307692308
+    },
+    {
+      "name": "hash_map.Custom(u64,*Connection.Stream,hash_map.AutoContext(u64),80).getOrPutAssumeCapacityAdapted__func_994",
+      "ms": 6.0,
+      "share": 0.004807692307692308
+    },
+    {
+      "name": "app.root.StreamTable(transport.quic_app_client.ClientDispatch(node.Node).App.StreamState).get",
+      "ms": 6.0,
+      "share": 0.004807692307692308
+    },
+    {
+      "name": "Connection.tickFull",
+      "ms": 5.0,
+      "share": 0.004006410256410256
+    },
+    {
+      "name": "Io.net.Socket.receiveTimeout",
+      "ms": 5.0,
+      "share": 0.004006410256410256
+    },
+    {
+      "name": "frame.decode.decode",
+      "ms": 4.0,
+      "share": 0.003205128205128205
+    },
+    {
+      "name": "Connection.send.pollDatagram",
+      "ms": 4.0,
+      "share": 0.003205128205128205
+    },
+    {
+      "name": "array_list.Aligned(*Server.Slot,null).ensureTotalCapacity",
+      "ms": 4.0,
+      "share": 0.003205128205128205
+    },
+    {
+      "name": "hash_map.Custom(u64,transport.quic_streams.ReliableMessageReceiver,hash_map.AutoContext(u64),80).getOrPutAssumeCapacityAdapted__func_1108",
+      "ms": 4.0,
+      "share": 0.003205128205128205
+    },
+    {
+      "name": "conn.SentPacketTracker.lowerBound",
+      "ms": 4.0,
+      "share": 0.003205128205128205
+    },
+    {
+      "name": "transport.quic_streams.ReliableMessageReceiver.pump__func_79",
+      "ms": 4.0,
+      "share": 0.003205128205128205
+    },
+    {
+      "name": "node.Node.sweepQuicPending",
+      "ms": 4.0,
+      "share": 0.003205128205128205
+    },
+    {
+      "name": "<deduplicated_symbol>",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "Connection.recv_dispatch.handleWithEcn",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "conn.RecvStream.recv",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "subject.isValid",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "zbssl_CRYPTO_memcmp",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "Connection.touch",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "mem.Allocator.dupe__func_65",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "transport.quic_session_runtime.QuicSessionRuntime.queuedSendBytes",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "Connection.streams.materializeStream",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "node.Node.poll",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "hash_map.Custom(u64,transport.quic_streams.ReliableMessageSender,hash_map.AutoContext(u64),80).getOrPutAssumeCapacityAdapted__func_1217",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "conn.SendStream.InFlightMap.findLogicalIndex",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    },
+    {
+      "name": "Connection.loss.dispatchAckedControlFrames",
+      "ms": 3.0,
+      "share": 0.002403846153846154
+    }
+  ],
+  "inclusive": [
+    {
+      "name": "start",
+      "ms": 1248.0,
+      "share": 1.0
+    },
+    {
+      "name": "start.callMain",
+      "ms": 1242.0,
+      "share": 0.9951923076923077
+    },
+    {
+      "name": "start.callMainWithArgs",
+      "ms": 1242.0,
+      "share": 0.9951923076923077
+    },
+    {
+      "name": "main.main",
+      "ms": 1242.0,
+      "share": 0.9951923076923077
+    },
+    {
+      "name": "main",
+      "ms": 1242.0,
+      "share": 0.9951923076923077
+    },
+    {
+      "name": "main.phase",
+      "ms": 1240.0,
+      "share": 0.9935897435897436
+    },
+    {
+      "name": "node.Node.tick",
+      "ms": 1172.0,
+      "share": 0.9391025641025641
+    },
+    {
+      "name": "Io.operateTimeout",
+      "ms": 747.0,
+      "share": 0.5985576923076923
+    },
+    {
+      "name": "Io.Batch.awaitConcurrent",
+      "ms": 746.0,
+      "share": 0.5977564102564102
+    },
+    {
+      "name": "Io.Threaded.batchAwaitConcurrent",
+      "ms": 678.0,
+      "share": 0.5432692307692307
+    },
+    {
+      "name": "quic_socket.Socket(.req).pump",
+      "ms": 657.0,
+      "share": 0.5264423076923077
+    },
+    {
+      "name": "node.Node.tickQuicClients",
+      "ms": 654.0,
+      "share": 0.5240384615384616
+    },
+    {
+      "name": "node.Node.tickQuicListeners",
+      "ms": 515.0,
+      "share": 0.4126602564102564
+    },
+    {
+      "name": "quic_socket.Socket(.rep).pump",
+      "ms": 515.0,
+      "share": 0.4126602564102564
+    },
+    {
+      "name": "Io.net.Socket.sendTimeout",
+      "ms": 497.0,
+      "share": 0.39823717948717946
+    },
+    {
+      "name": "transport.quic_udp.trySend",
+      "ms": 497.0,
+      "share": 0.39823717948717946
+    },
+    {
+      "name": "__sendmsg",
+      "ms": 490.0,
+      "share": 0.3926282051282051
+    },
+    {
+      "name": "transport.quic_udp.Client.drainAndSendOne",
+      "ms": 293.0,
+      "share": 0.23477564102564102
+    },
+    {
+      "name": "transport.quic_udp.sendNext__func_745",
+      "ms": 293.0,
+      "share": 0.23477564102564102
+    },
+    {
+      "name": "node.Node.drainQuicEndpoint__func_99",
+      "ms": 293.0,
+      "share": 0.23477564102564102
+    },
+    {
+      "name": "transport.quic_udp.sendNext__func_1062",
+      "ms": 266.0,
+      "share": 0.21314102564102563
+    },
+    {
+      "name": "transport.quic_udp.Listener.drainAndSendOne",
+      "ms": 266.0,
+      "share": 0.21314102564102563
+    },
+    {
+      "name": "node.Node.drainQuicEndpoint__func_92",
+      "ms": 266.0,
+      "share": 0.21314102564102563
+    },
+    {
+      "name": "transport.quic_udp.recvUdpOne",
+      "ms": 258.0,
+      "share": 0.20673076923076922
+    },
+    {
+      "name": "Io.net.Socket.receiveTimeout",
+      "ms": 257.0,
+      "share": 0.20592948717948717
+    },
+    {
+      "name": "transport.quic_embedded.EmbeddedDispatch(node.Node).pumpSeat",
+      "ms": 214.0,
+      "share": 0.17147435897435898
+    },
+    {
+      "name": "transport.quic_app_client.ClientDispatch(node.Node).service",
+      "ms": 183.0,
+      "share": 0.1466346153846154
+    },
+    {
+      "name": "node.Node.pumpClientSession",
+      "ms": 183.0,
+      "share": 0.1466346153846154
+    },
+    {
+      "name": "__recvmsg",
+      "ms": 175.0,
+      "share": 0.14022435897435898
+    },
+    {
+      "name": "transport.quic_session_runtime.QuicSessionRuntime.pump__func_49",
+      "ms": 174.0,
+      "share": 0.13942307692307693
+    },
+    {
+      "name": "transport.quic_udp.Client.recvAndFeedOne",
+      "ms": 169.0,
+      "share": 0.13541666666666666
+    },
+    {
+      "name": "node.Node.feedQuicEndpoint__func_93",
+      "ms": 169.0,
+      "share": 0.13541666666666666
+    },
+    {
+      "name": "node.Node.feedQuicEndpoint__func_48",
+      "ms": 166.0,
+      "share": 0.1330128205128205
+    },
+    {
+      "name": "transport.quic_udp.Listener.recvAndFeedOne",
+      "ms": 166.0,
+      "share": 0.1330128205128205
+    },
+    {
+      "name": "transport.quic_udp.Client.recvOne",
+      "ms": 137.0,
+      "share": 0.10977564102564102
+    },
+    {
+      "name": "transport.quic_udp.Listener.recvOne",
+      "ms": 121.0,
+      "share": 0.09695512820512821
+    },
+    {
+      "name": "transport.quic_session_runtime.QuicSessionRuntime.pumpReliableReceivers__func_77",
+      "ms": 92.0,
+      "share": 0.07371794871794872
+    },
+    {
+      "name": "app.root.ConnectionDriver(transport.quic_app_client.ClientDispatch(node.Node).App).service",
+      "ms": 85.0,
+      "share": 0.06810897435897435
+    },
+    {
+      "name": "app.root.ConnectionDriver(transport.quic_app_client.ClientDispatch(node.Node).App).serviceInner",
+      "ms": 85.0,
+      "share": 0.06810897435897435
+    },
+    {
+      "name": "app.root.pumpConnection__func_98",
+      "ms": 85.0,
+      "share": 0.06810897435897435
+    },
+    {
+      "name": "app.root.pumpStream__func_901",
+      "ms": 83.0,
+      "share": 0.06650641025641026
+    },
+    {
+      "name": "hash_map.Custom(u64,*Connection.Stream,hash_map.AutoContext(u64),80).getIndex__func_853",
+      "ms": 80.0,
+      "share": 0.0641025641025641
+    },
+    {
+      "name": "transport.quic_app_server.ServerDispatch(node.Node).service",
+      "ms": 78.0,
+      "share": 0.0625
+    },
+    {
+      "name": "transport.quic_embedded.EmbeddedDispatch(node.Node).prepareSeat",
+      "ms": 74.0,
+      "share": 0.05929487179487179
+    },
+    {
+      "name": "Connection.recv_dispatch.handleWithEcn",
+      "ms": 72.0,
+      "share": 0.057692307692307696
+    },
+    {
+      "name": "poll",
+      "ms": 70.0,
+      "share": 0.05608974358974359
+    },
+    {
+      "name": "app.root.Driver(transport.quic_app_server.ServerDispatch(node.Node).App).service",
+      "ms": 69.0,
+      "share": 0.055288461538461536
+    },
+    {
+      "name": "app.root.pumpConnection__func_1113",
+      "ms": 69.0,
+      "share": 0.055288461538461536
+    },
+    {
+      "name": "app.root.Driver(transport.quic_app_server.ServerDispatch(node.Node).App).serviceSlot",
+      "ms": 69.0,
+      "share": 0.055288461538461536
+    },
+    {
+      "name": "Connection.recv_dispatch.handleOnePacket",
+      "ms": 68.0,
+      "share": 0.05448717948717949
+    }
+  ],
+  "overlapping_stack_groups": {
+    "allocator": {
+      "ms": 68.0,
+      "share": 0.05448717948717949
+    },
+    "protocol": {
+      "ms": 270.0,
+      "share": 0.21634615384615385
+    },
+    "socket_syscalls": {
+      "ms": 666.0,
+      "share": 0.5336538461538461
+    },
+    "readiness": {
+      "ms": 143.0,
+      "share": 0.11458333333333333
+    }
+  }
+}

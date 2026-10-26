@@ -1,0 +1,9 @@
+benchmark-reports/sprint-3-2026-10-26/recovery-repro/workspace/tests/composition/build.zig.zon:8:29: error: expected path relative to build root; found absolute path
+        .qmesh = .{ .path = "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmesh-zig" },
+                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+benchmark-reports/sprint-3-2026-10-26/recovery-repro/workspace/tests/composition/build.zig.zon:12:28: error: expected path relative to build root; found absolute path
+        .qmsg = .{ .path = "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/qmsg" },
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+benchmark-reports/sprint-3-2026-10-26/recovery-repro/workspace/tests/composition/build.zig.zon:13:28: error: expected path relative to build root; found absolute path
+        .quic = .{ .path = "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/sources/quic-zig" },
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

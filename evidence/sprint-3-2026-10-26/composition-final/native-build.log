@@ -1,0 +1,32 @@
+Build Summary: 13/13 steps succeeded
+install-workloads success
++- install qmsg-pubsub-workload success
+|  +- compile exe qmsg-pubsub-workload safe native success 56s MaxRSS:736M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim safe native success 978ms MaxRSS:116M
+|     +- WriteFile cached
+|     +- compile lib ssl safe native success 9s MaxRSS:201M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto safe native success 1m MaxRSS:453M
+|     |  +- compile lib crypto safe native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto safe native (reused)
+|     +- compile lib ssl_shim safe native (reused)
+|     +- compile lib ssl safe native (+3 more reused dependencies)
+|     +- compile lib crypto safe native (reused)
+|     +- options success
+|     +- translate-c success 568ms MaxRSS:49M
++- install qmesh-snapshot-recovery success
+   +- compile exe qmesh-snapshot-recovery safe native success 1m MaxRSS:789M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+
