@@ -1,0 +1,113 @@
+{
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "test-sprint4",
+    "install-public-faults",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 12.52941325,
+  "dependency_mode": "fixed selected QUIC source via shared parent module",
+  "sources_before": {
+    "qmsg": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+      "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+      "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+      "file_count": 81,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "quic": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig",
+      "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+      "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+      "file_count": 306,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    }
+  },
+  "final_candidate_archive": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-sprint4-final-candidate.tar.gz",
+    "sha256": "0cb202a6a4efae6f2e28354ce90bb0869397069521c64c8503c4b26d611d2bcb"
+  },
+  "environment": {
+    "ZIG_LOCAL_PKG_DIR": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg"
+  },
+  "binary": {
+    "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+    "sha256": "54563a9e6485c85a25198a32f9afa595e3fb522163e302269b178d1af3257928"
+  },
+  "runs": [
+    {
+      "variant": "default",
+      "command": [
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults"
+      ],
+      "returncode": 0
+    },
+    {
+      "variant": "variant",
+      "command": [
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+        "--seed",
+        "0x42",
+        "--payload-bytes",
+        "256",
+        "--stream-window",
+        "2",
+        "--deadline-ms",
+        "150"
+      ],
+      "returncode": 0
+    }
+  ],
+  "sources_after": {
+    "qmsg": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+      "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+      "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+      "file_count": 81,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "quic": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig",
+      "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+      "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+      "file_count": 306,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    }
+  },
+  "sources_unchanged": true
+}

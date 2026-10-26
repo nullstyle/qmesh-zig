@@ -1,0 +1,165 @@
+{
+  "virtual_by_platform_mode": {
+    "mac_debug": {
+      "89392317417476": {
+        "plan_fingerprint": 5798157002642304137,
+        "virtual_fingerprint": 13710557882615482210,
+        "delivery_fingerprint": 14310816108796414171,
+        "final_state_hash": 2536831994452932632,
+        "final_revision": 48,
+        "payloads_evicted": 45,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      },
+      "1906180131": {
+        "plan_fingerprint": 11369284295203479160,
+        "virtual_fingerprint": 9256635314749955518,
+        "delivery_fingerprint": 9636796480522733161,
+        "final_state_hash": 7760908212968884946,
+        "final_revision": 50,
+        "payloads_evicted": 47,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      },
+      "18364758544493064720": {
+        "plan_fingerprint": 9970682682725517323,
+        "virtual_fingerprint": 16431195423913102937,
+        "delivery_fingerprint": 2782965942345948217,
+        "final_state_hash": 17013979639743574244,
+        "final_revision": 44,
+        "payloads_evicted": 41,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      }
+    },
+    "mac_safe": {
+      "89392317417476": {
+        "plan_fingerprint": 5798157002642304137,
+        "virtual_fingerprint": 13710557882615482210,
+        "delivery_fingerprint": 14310816108796414171,
+        "final_state_hash": 2536831994452932632,
+        "final_revision": 48,
+        "payloads_evicted": 45,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      },
+      "1906180131": {
+        "plan_fingerprint": 11369284295203479160,
+        "virtual_fingerprint": 9256635314749955518,
+        "delivery_fingerprint": 9636796480522733161,
+        "final_state_hash": 7760908212968884946,
+        "final_revision": 50,
+        "payloads_evicted": 47,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      },
+      "18364758544493064720": {
+        "plan_fingerprint": 9970682682725517323,
+        "virtual_fingerprint": 16431195423913102937,
+        "delivery_fingerprint": 2782965942345948217,
+        "final_state_hash": 17013979639743574244,
+        "final_revision": 44,
+        "payloads_evicted": 41,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      }
+    },
+    "linux_debug": {
+      "89392317417476": {
+        "plan_fingerprint": 5798157002642304137,
+        "virtual_fingerprint": 13710557882615482210,
+        "delivery_fingerprint": 14310816108796414171,
+        "final_state_hash": 2536831994452932632,
+        "final_revision": 48,
+        "payloads_evicted": 45,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      },
+      "1906180131": {
+        "plan_fingerprint": 11369284295203479160,
+        "virtual_fingerprint": 9256635314749955518,
+        "delivery_fingerprint": 9636796480522733161,
+        "final_state_hash": 7760908212968884946,
+        "final_revision": 50,
+        "payloads_evicted": 47,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      },
+      "18364758544493064720": {
+        "plan_fingerprint": 9970682682725517323,
+        "virtual_fingerprint": 16431195423913102937,
+        "delivery_fingerprint": 2782965942345948217,
+        "final_state_hash": 17013979639743574244,
+        "final_revision": 44,
+        "payloads_evicted": 41,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      }
+    },
+    "linux_safe": {
+      "89392317417476": {
+        "plan_fingerprint": 5798157002642304137,
+        "virtual_fingerprint": 13710557882615482210,
+        "delivery_fingerprint": 14310816108796414171,
+        "final_state_hash": 2536831994452932632,
+        "final_revision": 48,
+        "payloads_evicted": 45,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      },
+      "1906180131": {
+        "plan_fingerprint": 11369284295203479160,
+        "virtual_fingerprint": 9256635314749955518,
+        "delivery_fingerprint": 9636796480522733161,
+        "final_state_hash": 7760908212968884946,
+        "final_revision": 50,
+        "payloads_evicted": 47,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      },
+      "18364758544493064720": {
+        "plan_fingerprint": 9970682682725517323,
+        "virtual_fingerprint": 16431195423913102937,
+        "delivery_fingerprint": 2782965942345948217,
+        "final_state_hash": 17013979639743574244,
+        "final_revision": 44,
+        "payloads_evicted": 41,
+        "endpoint_changes": 1,
+        "route_closes": 3
+      }
+    }
+  },
+  "all_virtual_equal": true,
+  "live_plan_state_matches_virtual": [
+    {
+      "mode": "Debug",
+      "seed": 89392317417476,
+      "plan_and_state_match": true
+    },
+    {
+      "mode": "Debug",
+      "seed": 1906180131,
+      "plan_and_state_match": true
+    },
+    {
+      "mode": "Debug",
+      "seed": 18364758544493064720,
+      "plan_and_state_match": true
+    },
+    {
+      "mode": "ReleaseSafe",
+      "seed": 89392317417476,
+      "plan_and_state_match": true
+    },
+    {
+      "mode": "ReleaseSafe",
+      "seed": 1906180131,
+      "plan_and_state_match": true
+    },
+    {
+      "mode": "ReleaseSafe",
+      "seed": 18364758544493064720,
+      "plan_and_state_match": true
+    }
+  ]
+}

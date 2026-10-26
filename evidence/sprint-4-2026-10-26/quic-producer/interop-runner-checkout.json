@@ -1,0 +1,31 @@
+{
+  "name": "interop-runner-checkout",
+  "started_utc": "2026-10-26T20:49:05.353949+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "command": [
+    "git",
+    "-C",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-interop-runner",
+    "checkout",
+    "--detach",
+    "1d6f6554ac8e3b7c4cca0e3d40fd69f661420673"
+  ],
+  "timeout_seconds": 300,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "interop-runner-checkout.log",
+  "passed": true,
+  "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+  "finished_utc": "2026-10-26T20:49:06.160464+00:00",
+  "elapsed_seconds": 0.7827821248210967,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "27af8dec9c8b0379236f5fb867e3839b6da7f509825884f1d7f347149911ed95",
+  "build_summaries": []
+}

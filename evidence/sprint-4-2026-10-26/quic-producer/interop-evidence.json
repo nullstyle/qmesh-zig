@@ -1,0 +1,46 @@
+{
+  "scope": "Fresh local QNS build and four strict pinned foreign-peer cells, preserving runtime provenance separately from final documentation-only packaging",
+  "candidate_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "source_snapshot_tree_sha256": "2cf7e4f33ba678b24165767b53a0bc41208232d1386d22968a64843e3c723316",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "staged_runtime_files_match": true,
+  "endpoint_image": {
+    "tag": "quic-zig-qns:sprint4-43c2390",
+    "id": "sha256:9cc59e1f397f178600d7cbe6c508667d303ee564edce6dffccc076792ab3720e",
+    "platform": "linux/arm64",
+    "binary_sha256": "ff39a087500bacf94d3aa1b29c227ba497d026f79a42c8ead7a3ebc73fde8c7f",
+    "build_command": "zig build qns-endpoint -Drelease -Dcpu=baseline"
+  },
+  "peer_image": {
+    "pin": "martenseemann/quic-go-interop@sha256:37db4402341f81981ffba01a6fa532d378f165a6fa8dd2b902f33549383d0077",
+    "id": "sha256:b33f3f47d30b87cb3698594ac315d6d4ec905b2b8bcdef3a05be892ba29b64ce",
+    "platform": "linux/amd64"
+  },
+  "runner": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-interop-runner",
+    "commit": "1d6f6554ac8e3b7c4cca0e3d40fd69f661420673",
+    "status": "",
+    "tree_sha256": "ca4aab090704eafb2290128717d57b19a658b4749251e9a4eb0e08af16bab692",
+    "file_count": 40
+  },
+  "checks": [
+    {
+      "role": "client",
+      "gate": "interop-client.json",
+      "result": "benchmark-reports/sprint-4-2026-10-26/interop-client-result.json",
+      "result_sha256": "80378a20e048d98c2829e839d92659d1a55124bb64839055cb2fcd67753e06db",
+      "evidence": "interop evidence: pairs=1 cells=2 succeeded=2 failed=0 known_failed=0 unsupported=0 skipped=0 flaky_passed=0 flaky_failed=0",
+      "passed": true
+    },
+    {
+      "role": "server",
+      "gate": "interop-server.json",
+      "result": "benchmark-reports/sprint-4-2026-10-26/interop-server-result.json",
+      "result_sha256": "81900e92184d3859cd1a939a010ffb2375e3e1ec2607d8b795bb0bf5c880dc69",
+      "evidence": "interop evidence: pairs=1 cells=2 succeeded=2 failed=0 known_failed=0 unsupported=0 skipped=0 flaky_passed=0 flaky_failed=0",
+      "passed": true
+    }
+  ],
+  "all_four_cells_passed": true,
+  "limits": "Linux arm64 candidate endpoint and Linux amd64 peer under local Docker; not hosted CI or physical-network performance"
+}

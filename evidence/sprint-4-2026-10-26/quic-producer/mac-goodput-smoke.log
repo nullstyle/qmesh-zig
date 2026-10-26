@@ -1,0 +1,22 @@
+[client] handshake established; uploading 16 MiB
+goodput-smoke: PASS (16 MiB uploaded + FIN-acked over 127.0.0.1:64020 in 916 ms -> 17.4 MB/s; informational, not asserted)
+[server] conn 0: sank 16777216 bytes (fin drained: true)
+Build Summary: 11/11 steps succeeded
+run-goodput-smoke success
++- run exe goodput-smoke success 1s
+   +- compile exe goodput-smoke debug native success 14s MaxRSS:502M
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native cached 80ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl debug native cached 119ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto debug native cached 152ms MaxRSS:32M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options cached
+      +- translate-c cached 77ms MaxRSS:31M
+

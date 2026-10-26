@@ -1,0 +1,11 @@
+quic e2e benchmarks (fairness, 1 samples, cc=bbr, hystart=on, safe)
+---------------------------------------------------------------
+fairness_10mbit_2f_cubic: jain 1.0000, util 0.971, peakq 99769 us, qdrop 50 — [cubic 4.84 Mbps 49.8%] [cubic 4.87 Mbps 50.2%]
+fairness_10mbit_2f_bbr: jain 0.9996, util 0.971, peakq 40280 us, qdrop 0 — [bbr 4.76 Mbps 49.0%] [bbr 4.95 Mbps 51.0%]
+fairness_10mbit_4f_bbr: jain 0.9960, util 0.971, peakq 92200 us, qdrop 0 — [bbr 2.27 Mbps 23.3%] [bbr 2.30 Mbps 23.7%] [bbr 2.50 Mbps 25.8%] [bbr 2.64 Mbps 27.2%]
+fairness_10mbit_2f_bbr_stagger5s: jain 0.9999, util 0.971, peakq 55384 us, qdrop 0 — [bbr 4.90 Mbps 50.5%] [bbr 4.81 Mbps 49.5%]
+fairness_10mbit_2f_mixed: jain 0.8914, util 0.971, peakq 99906 us, qdrop 54 — [bbr 3.16 Mbps 32.5%] [cubic 6.55 Mbps 67.5%]
+fairness_10mbit_2f_mixed_shallow25ms: jain 0.9691, util 0.971, peakq 24997 us, qdrop 478 — [bbr 5.72 Mbps 58.9%] [cubic 3.99 Mbps 41.1%]
+---------------------------------------------------------------
+wrote e2e benchmark JSON report: /Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/fairness-released-report.json
+done.

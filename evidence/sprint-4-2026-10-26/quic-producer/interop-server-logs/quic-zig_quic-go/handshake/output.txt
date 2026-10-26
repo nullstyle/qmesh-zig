@@ -1,0 +1,80 @@
+2026-10-26 12:53:01,272 Generated random file: full-pink-speaker of size: 1024
+2026-10-26 12:53:01,273 Requests: ['https://server4:443/full-pink-speaker']
+2026-10-26 12:53:01,418 
+2026-10-26 12:53:01,425 Command: WAITFORSERVER=server:443 CERTS=/tmp/certs_jmlz7dp7/ TESTCASE_SERVER=handshake TESTCASE_CLIENT=handshake CLIENT_WWW=/tmp/client_www_hl0z3tjc/ CLIENT_DOWNLOADS=/tmp/client_download_oi4nxhq5/ SERVER_WWW=/tmp/server_www_vx23w4yw/ SERVER_DOWNLOADS=/tmp/server_download_uk3nsy6p/ SERVER_LOGS=/tmp/logs_server_bi8yym7a CLIENT_LOGS=/tmp/logs_client_soonbs3b SCENARIO="simple-p2p --delay=15ms --bandwidth=10Mbps --queue=25" CLIENT=martenseemann/quic-go-interop@sha256:37db4402341f81981ffba01a6fa532d378f165a6fa8dd2b902f33549383d0077 SERVER=quic-zig-qns:sprint4-43c2390 REQUESTS_CLIENT="https://server4:443/full-pink-speaker" REQUESTS_SERVER=""  docker compose --env-file empty.env up --abort-on-container-exit --timeout 10 sim client server 
+2026-10-26 12:53:16,788  Container sim Recreate 
+ Container sim Recreated 
+ Container client Recreate 
+ Container server Recreate 
+ Container server Recreated 
+ client The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested 
+ Container client Recreated 
+Attaching to client, server, sim
+ Container sim Starting 
+sim  | waiting 10s for server:443
+ Container sim Started 
+ Container server Starting 
+ Container client Starting 
+client  | Setting up routes...
+client  | Actual changes:
+ Container client Started 
+client  | tx-checksum-ip-generic: off
+client  | tx-tcp-segmentation: off [not requested]
+client  | tx-tcp-ecn-segmentation: off [not requested]
+client  | tx-tcp-mangleid-segmentation: off [not requested]
+client  | tx-tcp6-segmentation: off [not requested]
+client  | tx-udp-segmentation: off [not requested]
+client  | tx-checksum-sctp: off
+client  | Endpoint's IPv4 address is 193.167.0.100
+server  | Setting up routes...
+server  | Actual changes:
+server  | tx-checksum-ip-generic: off
+server  | tx-tcp-segmentation: off [not requested]
+server  | tx-tcp-ecn-segmentation: off [not requested]
+server  | tx-tcp-mangleid-segmentation: off [not requested]
+server  | tx-tcp6-segmentation: off [not requested]
+server  | tx-udp-segmentation: off [not requested]
+server  | tx-checksum-sctp: off
+server  | Endpoint's IPv4 address is 193.167.100.100
+server  | Endpoint's IPv6 address is fd00:cafe:cafe:100::100
+server  | tuned QNS UDP socket: SO_RCVBUF=8388608 bytes, SO_SNDBUF=8388608 bytes
+server  | quic qns endpoint listening on [::]:443 www=/www retry=false
+client  | Endpoint's IPv6 address is fd00:cafe:cafe::100
+ Container server Started 
+client  | Using commit: 146f1be9ddb84078bfbf7aa582d5a05caa6cc941
+client  | wait-for-it.sh: waiting 10 seconds for sim:57832
+sim     | server:443 is available after 1.502386923s
+sim     | Using scenario: simple-p2p --delay=15ms --bandwidth=10Mbps --queue=25
+sim     | Capturing on 'eth1'
+sim     | Capturing on 'eth0'
+sim     | File: /logs/trace_node_left.pcap
+sim     | File: /logs/trace_node_right.pcap
+client  | wait-for-it.sh: sim:57832 is available after 1 seconds
+client  | Starting QUIC client...
+client  | Client params: 
+client  | Test case: handshake
+client exited with code 0
+ Compose Stopping Aborting on container exit...
+ Container client Stopping 
+ Container server Stopping 
+ Container client Stopped 
+ Container server Stopped 
+ Container sim Stopping 
+server exited with code 137
+sim     | Packets: 1 Packets: 1 Packets: 11 Packets: 17 Packets: 19 Packets: 20 Packets: 21 Packets: 21 Packets: 49 Packets: 32 Packets: 34 Packets: 36 Packets: 37 Packets: 38 Packets: 39 Packets: 41 Packets captured: 49
+sim     | Received signal: 15
+sim     | Packets captured: 41
+sim     | Packets received/dropped on interface 'eth1': 41/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
+sim     | msg="15", Packets received/dropped on interface 'eth0': 49/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
+ Container sim Stopped 
+sim exited with code 143
+
+2026-10-26 12:53:17,260 Container exits: b'\x1b[Kclient exited with code 0' | b'\x1b[Kserver exited with code 137' | b'\x1b[Ksim exited with code 143'
+2026-10-26 12:53:17,260 Using combined client/server key log file.
+2026-10-26 12:53:17,311 
+2026-10-26 12:53:17,312 Using combined client/server key log file.
+2026-10-26 12:53:17,312 Using combined client/server key log file.
+2026-10-26 12:53:17,336 
+2026-10-26 12:53:17,337 Using combined client/server key log file.
+2026-10-26 12:53:17,337 Using selector: KqueueSelector
+2026-10-26 12:53:17,691 Check of downloaded files succeeded.

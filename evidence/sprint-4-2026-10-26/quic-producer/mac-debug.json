@@ -1,0 +1,31 @@
+{
+  "name": "mac-debug",
+  "started_utc": "2026-10-26T20:47:09.300744+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "command": [
+    "zig",
+    "build",
+    "test",
+    "--summary",
+    "all"
+  ],
+  "timeout_seconds": 2700,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "mac-debug.log",
+  "passed": true,
+  "finished_utc": "2026-10-26T20:47:10.341570+00:00",
+  "elapsed_seconds": 1.0248755828943104,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "b56fb6a2cfe7c27ab2e76d14b0a66476911b881197c27d0b7641a5748daecbaf",
+  "build_summaries": [
+    "Build Summary: 37/37 steps succeeded"
+  ]
+}

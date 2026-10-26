@@ -1,0 +1,36 @@
+test-sprint4
++- run test w
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=bootstrap
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=partition
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=expire_hints
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=suspect_gate
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=dead_gate
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=restart_application
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=heal
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=snapshot_repair
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=stale_endpoint
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=wrong_identity
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=moved_endpoint_repair
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=fresh_mesh_owner
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=final_repair
+failed command: /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-safe/build-cache/composition/o/fecf7427caf01fc7e68768aa74e71853/test --cache-dir=/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-safe/build-cache/composition --seed=0xfa9ad6d2 --listen=-
+
+Build Summary: 11/11 steps succeeded; 2/2 tests passed
+test-sprint4 success
++- run test 2 pass (2 total) 6s MaxRSS:12M
+   +- compile test safe native success 20s MaxRSS:811M
+      +- WriteFile cached
+      +- compile lib ssl_shim safe native cached 84ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl safe native cached 63ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto safe native cached 98ms MaxRSS:32M
+      |  +- compile lib crypto safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options cached
+      +- translate-c cached 63ms MaxRSS:31M
+

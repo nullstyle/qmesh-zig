@@ -1,0 +1,19 @@
+Build Summary: 11/11 steps succeeded
+install-chaos success
++- install qmesh-recovery-chaos success
+   +- compile exe qmesh-recovery-chaos safe native success 16s MaxRSS:810M
+      +- WriteFile cached
+      +- compile lib ssl_shim safe native cached 58ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl safe native cached 46ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto safe native cached 70ms MaxRSS:32M
+      |  +- compile lib crypto safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options cached
+      +- translate-c cached 39ms MaxRSS:31M
+

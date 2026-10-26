@@ -1,0 +1,11 @@
+[selected-composition] /opt/zig/zig build test -Doptimize=ReleaseSafe -j2 --cache-dir /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition --summary all -Dlocal-quic=true
+[selected-composition] exit=0 Build Summary: 11/11 steps succeeded; 2/2 tests passed; /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/selected-composition.log
+[selected-sprint2] /opt/zig/zig build test-sprint2 -Doptimize=ReleaseSafe -j2 --cache-dir /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition --summary all -Dlocal-quic=true
+[selected-sprint2] exit=0 Build Summary: 11/11 steps succeeded; 1/1 tests passed; /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/selected-sprint2.log
+[selected-sprint3] /opt/zig/zig build test-sprint3 -Doptimize=ReleaseSafe -j2 --cache-dir /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition --summary all -Dlocal-quic=true
+[selected-sprint3] exit=0 Build Summary: 11/11 steps succeeded; 2/2 tests passed; /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/selected-sprint3.log
+[selected-sprint4] /opt/zig/zig build test-sprint4 -Doptimize=ReleaseSafe -j2 --cache-dir /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition --summary all -Dlocal-quic=true
+[selected-sprint4] exit=0 Build Summary: 11/11 steps succeeded; 2/2 tests passed; /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/selected-sprint4.log
+[selected-qmsg] /opt/zig/zig build test-qmsg -Doptimize=ReleaseSafe -j2 --cache-dir /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition --summary all -Dlocal-quic=true
+[selected-qmsg] exit=0 Build Summary: 15/15 steps succeeded; 894/894 tests passed; /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/selected-qmsg.log
+Evidence: /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/report.json

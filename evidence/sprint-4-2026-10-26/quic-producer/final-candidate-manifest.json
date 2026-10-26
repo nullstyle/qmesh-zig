@@ -1,0 +1,2511 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-26T20:57:53.395217+00:00",
+  "scope": "Unpublished final full-source candidate after Sprint4 documentation freeze; runtime/build source is identical to the heavy-gate input",
+  "identity_algorithm": "exact composition source_identity: SHA256 of sorted u64be path-length/path and u64be content-length/content records",
+  "identity_helper_sha256": "f3ec2183bf140b2fa9482e3afe66dab9225918277858de443f4c389d8f24debc",
+  "source": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig",
+    "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+    "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+    "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+    "file_count": 306,
+    "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+    "dependency_pins": {
+      "boringssl": {
+        "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+        "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+      }
+    }
+  },
+  "snapshot": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/final-source",
+    "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+    "file_count": 306,
+    "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+    "dependency_pins": {
+      "boringssl": {
+        "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+        "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+      }
+    }
+  },
+  "archive": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-sprint4-final-candidate.tar.gz",
+    "sha256": "0cb202a6a4efae6f2e28354ce90bb0869397069521c64c8503c4b26d611d2bcb",
+    "bytes": 2003307,
+    "file_count": 306
+  },
+  "extracted_source": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-source",
+    "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+    "file_count": 306,
+    "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+    "dependency_pins": {
+      "boringssl": {
+        "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+        "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+      }
+    }
+  },
+  "archive_files_equal_worktree": true,
+  "runtime_build_sources": {
+    "tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+    "file_count": 124,
+    "files": {
+      "build.zig": "c0bcebf2420c1a36d993935ef0de9de1a2ccf6296bc05d48bac100dcae16ce89",
+      "build.zig.zon": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "src/Client.zig": "0243f30a210c811d0b6e70115ab7833e49a050987987702c835aa1853aaf8b88",
+      "src/Connection.zig": "c6f04bc236c794bd1d41893abd9d85d4b0a8b77fe4f0424a1538c2bf87dd19f8",
+      "src/Connection/_internal.zig": "813d6aff7d9a7aae78b0d6ac2e7e6bb47f0b679ceb637c655fec5f763c6b5e2d",
+      "src/Connection/_test_util.zig": "d0370394366cde720b024ae257815b3c398fdb44bc3a8e1839baadbcaffdf522",
+      "src/Connection/_tests.zig": "002e1e892ac43f0b0e4044218b1cee5b4a2a6c42d0a4097383ee822b54e13db0",
+      "src/Connection/_tests_ack_frequency.zig": "ad9cbede445e8890ae603a07a06e570eedde8f417843885a307033636a2dddcb",
+      "src/Connection/_tests_cids.zig": "c26e32361cbe71570a94fd5e3fb76c3d668f96f4bfda72380332b92859c0cacc",
+      "src/Connection/_tests_datagram.zig": "9001480de4222f1804b3f515a1ccdba68e881aaefd2536b453c75fd70b66b87b",
+      "src/Connection/_tests_delivery.zig": "4eed1f73e5060a1f9e6396f5fd91c1b0178a434cd6afe0105c189963f8ce2f88",
+      "src/Connection/_tests_flow.zig": "f0b42c86fdf929e7f8da2484ce7f3d5d585998c112f40e00658364b60976c8ed",
+      "src/Connection/_tests_fuzz.zig": "867ef829baa65b7771561063682c252fc8cc0516655979cfbdae14bc477f0837",
+      "src/Connection/_tests_handshake_recovery.zig": "84038a5af1f73db2956c66b75dc7f2372392d4472a1b78db9f5ea645947836fa",
+      "src/Connection/_tests_keys.zig": "8c7c8109a7a4d90305bc7e2bb585e8226fcd4851591d5ca3ba5502aaae7d3e38",
+      "src/Connection/_tests_lifecycle.zig": "0155c53001bd4a322c933abb467ea9fc76d67c8f0352d5b24c54e8ee9abe63c6",
+      "src/Connection/_tests_loss.zig": "7402365e8fbd16253f99bbeb1d01770058ccdb1eb06d14bfe77b613463c61379",
+      "src/Connection/_tests_migration.zig": "a0efc8c806df27d770476f7c7c15af8e84c5039a79af8574cd7c1e7bfcb58d85",
+      "src/Connection/_tests_misc.zig": "743c8318f78c2841bb49e39cd87dd068da73c4899bd03522201f024cc82bf7ec",
+      "src/Connection/_tests_pacing.zig": "2326710bed8a4491c97a5ef17ff0b1d39a0d7ce3543d9ecbfcd2bf29c209eca4",
+      "src/Connection/_tests_paths.zig": "a20c277cee4aebf8c711344211c7a97b545e572c0295699a97b36e165981454d",
+      "src/Connection/_tests_qlog.zig": "686790ff518af34514f27ba419b76633c9635ad1d424932e98364474916e962a",
+      "src/Connection/_tests_recv.zig": "922977e3c08de5cf7de207287d5508034769c18e6dba592fd33d38f7d0c8ae4b",
+      "src/Connection/_tests_send.zig": "c8a1f1a755ad49dd568accc844d9a476b6b256b0171db9920df3525c170593cc",
+      "src/Connection/_tests_streams.zig": "b55f08b5983aec74ed8770fc4f93e504bd321d08ee7148ff7f6a5a398418eb0d",
+      "src/Connection/_tests_version.zig": "754ce869ff8d862c1dbae6892ee42398f6abf23d1ab69411b16259e2596cfaee",
+      "src/Connection/cids.zig": "057b38afec9ff9388750576f098d3f6f85b9ea7d106240d9469ea4b6b93e72eb",
+      "src/Connection/datagram.zig": "fcb8de3cbf8acb72394850c140c0358076df48d288826b465abc8a3b6be86df6",
+      "src/Connection/flow.zig": "5c5a4a83d39fd29b7e130bca5ab33bb913d9dc472441716cc49362d092d2a118",
+      "src/Connection/keys.zig": "f6cff594136922d3c50a55164cd00ec23c54a2f07d9d32d7debc3b09f7795942",
+      "src/Connection/loss.zig": "d806f6d0e641e687f8e1223ad60648de5de84ff46de8162331d970526a5ce868",
+      "src/Connection/migration.zig": "206f1c0adb078c9600e9653db1c56947873745740e7c3965bfe6a17fe76157dd",
+      "src/Connection/path_frame_queue.zig": "13906bea3fa95ea12771692840031ee894dda15db87dd05c8f2c4adf76f9b5a8",
+      "src/Connection/paths.zig": "e894bc9eb1b2439d8550cedd7753b6ca2e4ed5f7c53c1779b571efa7de12c136",
+      "src/Connection/qlog.zig": "171f7b5520b244c2058da59d73d5e3a08a472566ff21c43b1c407adf8c6f68bf",
+      "src/Connection/recv_ack_handlers.zig": "080c0200e70c70c958458477069888a69afd76c6001c6b483900b590982bb4b1",
+      "src/Connection/recv_cid_token_handlers.zig": "0617ce706323f36a4b8634714bc889bb24b61b3cc3ce4c8aef7e6a79bf29dcc8",
+      "src/Connection/recv_data_handlers.zig": "81e872e9d8d82afeedf901f2c70efba6c5da3a80953f8aab6b396464c9d8a795",
+      "src/Connection/recv_dispatch.zig": "8443fd1253b0011b195a148562cc18d56c9038e62b693fb552a59ac52d125e67",
+      "src/Connection/recv_flow_handlers.zig": "83e34ebb1722232bb289c9c3e971c0823f1b4535c12021a361ca62a479d97aaf",
+      "src/Connection/recv_multipath_handlers.zig": "b7e723edb2f7b9f71bbf61c6d568712b479ab8f717b1646a0132ba7b6719b0ed",
+      "src/Connection/recv_packet_handlers.zig": "4d6223cb2f1d46c8f138f5f5e0863ecd40e50baad6989891dec18a06a25a9d24",
+      "src/Connection/recv_stream_control_handlers.zig": "03f2ca286f7cfb2ed4f64d115e159c1f9b4df6462d49290e7b70a8f86df88077",
+      "src/Connection/send.zig": "9987f203d53fc60f85d4a5ff1085737b67ab1ee7180ec5c7acf41da9c0b2f9ce",
+      "src/Connection/stats.zig": "6d7ebf83400b70efb7021e4902e474ec2e4c8c09f5cf57522b43bf89b94ca8a0",
+      "src/Connection/streams.zig": "0bec434b301684e4fd5d55281c1de2e5644780ee276a448b40a93ede7ea3640b",
+      "src/Connection/version.zig": "173aff7b494f49696fa70da2fe448df8874dffaafd5b0eb8f6e1b819c060f10f",
+      "src/Server.zig": "316fe549530067de6661f8eb2f66ad027e294e41316af70f5a51fb2843a15017",
+      "src/Server/Config.zig": "adae9837c46a11874c7b2b9cbca95b4b200f5c11bc54eedb6616da4ec1f806fe",
+      "src/Server/accept.zig": "b3b45e4b6220878e29b5fa4d491a80bceb50efb7fe2355ce64191d607080dca4",
+      "src/Server/dos.zig": "00e74d1903c1267ac49e9c8a6060424d1f8ce15d4ef881d4325d3d1f15505827",
+      "src/Server/observability.zig": "94f861aba59c4520318a6e07cb69d850cead83e7a2c16ae9cb76c7477d3a939d",
+      "src/Server/routing.zig": "c13bc6bf6b122b6725305bff3dd4e5e2f72f2e6256b8425ac22e4d3def3b81a5",
+      "src/Server/tls_lifecycle.zig": "ebc6cd1db95ca2ac8ae67a52c823142682aa44437a5606e6ea5f5ea647e4d406",
+      "src/Server/vneg.zig": "aa968850d3c0053029ebbef21fd4a76eca436d8d7485521169d87f25d860a6cd",
+      "src/Server/wire_peek.zig": "677f050ceb6f7d081755c6921f8a1bdad9041af30722338175764fa0717e0b97",
+      "src/alt_addr/root.zig": "e11bc004bad08e41a01eabeac65440f4356401dd9de749daa269db1fb6c2089a",
+      "src/app/root.zig": "58e983da78aec83182e59563eef37819a12880b4ef065cd75cb9602e0853cf20",
+      "src/conn/AckTracker.zig": "5ea1fcc15a19e3ba6ae67df0069f65940d67e9e87774ada7b60c3101ce6e0147",
+      "src/conn/Pacer.zig": "33009424f1f08a06c33427cec89191fb73c39d042c8a7a861b94d3838ca6d574",
+      "src/conn/PathValidator.zig": "6a9d2d0ae36ef13e8f5230fa41fea5ee1290ed38383d69d351f468b10fb35e8e",
+      "src/conn/PendingFrameQueues.zig": "fa20b70714d9c48aed164bf0d248c47a8ab43bf71284adbfe81d744c159a2fb0",
+      "src/conn/PnSpace.zig": "933dc5e4ca9671d403331b909baa7dc0fd28b056ce3dd535e5cb73042b3a35e7",
+      "src/conn/RecvEndRing.zig": "6d20bf4e403c7ccde7b32d242da357f69c0a11a14ab5d8bf262a5f7174485e2c",
+      "src/conn/RecvStream.zig": "bea20ca232c6faa21aabb4a49252196ee72925a42609988d556711e8099a714f",
+      "src/conn/ReorderWindow.zig": "64939581cf10307121ec2ef96ccc43bf1228d000d3d7e5ee012fe085295b443b",
+      "src/conn/RttEstimator.zig": "003803cbed2bc756ca0b4d3e3c730ceb3571305351e90354504e030b8d6d5ce2",
+      "src/conn/SendStream.zig": "d35f1049efbb42b138c6758816aa3299b74011730f605ccc85f46c1a2f3e7ee0",
+      "src/conn/SentPacketTracker.zig": "fb840013ae04b3c2adb4ec45132c166d3001a65a61dd45669a4ad3106b3689ec",
+      "src/conn/StreamIdSpace.zig": "744ce512fb9fef0a33ded0bc7f1a6da14383cb36754a9f0c2840f43b15b8b5a5",
+      "src/conn/congestion.zig": "183e034bea4c92acb80781d190e04c99e6fc717ec64f2c37e44934d2c4a0e371",
+      "src/conn/congestion/Bbr.zig": "c6c19c347a7c27443e939b98708b7621257deebf5fa7535638027c92e89707a3",
+      "src/conn/congestion/Cubic.zig": "8474d023c237c046e3a5b5f4f6d8701f98a9be57368dced24def2a8542a7e947",
+      "src/conn/delivery_rate.zig": "a42ec0120b7110a7b3603bf1f69a84d69e11c4452bca61c51cd3541473003f13",
+      "src/conn/event_queue.zig": "4eb964a71b382eb59ceec8d05312b244cd29a164a070db937555ccacb74713f1",
+      "src/conn/flow_control.zig": "00a880665f2e4fa30d8b74f666f1eb14fb17a27cc3047848402620e90a9c0197",
+      "src/conn/hystart.zig": "80f0e063bb8ad7bd33bfccd98d39fd0cf87c98ad765d3374d5c452af93c7cd82",
+      "src/conn/lifecycle.zig": "3d886e99edacb692a29be11a6b05888884ed23bffc9b611d36072078fffc77d9",
+      "src/conn/loss_recovery.zig": "f3e683cce858696359d72b5b4934e663338e3bc864b446d61b043e7ea73733dc",
+      "src/conn/new_token.zig": "e0752c9631ae0e3772356e56d64f04e05dc3eae75a0a9d290a2637b4e78cddf5",
+      "src/conn/path.zig": "acdb95a2b0e02d8885420c8297ad0b9afc4cda339cde8cd70fd8907deaf48dc4",
+      "src/conn/range_list.zig": "c27c875e45473e805ce8adbe69263445918bd3daaad3e57221a2d502d4530938",
+      "src/conn/retry_token.zig": "e95e1c8f097a0f878f955a3d3a08d7e5999a8fda6fc1cf760e7a2615151a3b5d",
+      "src/conn/root.zig": "82a425da9043d32c3d3a1af9a24187db0ac6dc68bf06bac552165594c91d078c",
+      "src/conn/stateless_reset.zig": "4e833e797eb40243e9f713884f4ba65ca253136212ddadcfea8daa478cd1715b",
+      "src/conn/token_envelope.zig": "0cd56906a4dbd817db5bd579959668bbf4eab8efbbf1bb1d9787f0e04087a239",
+      "src/frame/ack_range.zig": "2f2ea69c78a6a67e097df620f4391770364e84b2d89fd49ea65aaea78e6cdc53",
+      "src/frame/decode.zig": "57caf49785026b9207b60dfe4b74f1d16379c09f9dff0f57b64ad61caefd2c31",
+      "src/frame/encode.zig": "37fedd0ffaf7f513c0e937e40632f55352b79b23af45ea4bbc7151f96e0bb3f1",
+      "src/frame/root.zig": "3b87907cbdb442a5ed3f2868c591e22f057ad334d99f11723622ff01a7fa533f",
+      "src/frame/types.zig": "d4afcaf183a4403f5b40c435952c6d9683f8d47c2997bdf63ac5822bbfa271cc",
+      "src/lb/LbConfig.zig": "a6a96332f10f698401aaf995ebaf4a5dd6efbd016f487b57a3f90e145ff216ca",
+      "src/lb/NonceCounter.zig": "c043001a224b0547131452f82ec336ed7542e4104e20a944b5036fc6fc31f492",
+      "src/lb/cid.zig": "f6a46ef19c545c448150ec299510193f1573bd83f4ee7bb2c03ce58b9742c3f3",
+      "src/lb/decode.zig": "339be14843187efade62e4773a589a4a84f82b5d1f698c3810862e59af185f00",
+      "src/lb/feistel.zig": "3de592cd3e077dc962666ed4db969d2ad48823c79f2b4dcb7006c26fe99e6416",
+      "src/lb/root.zig": "b9196b6909137aee1893ab5d2b09613c75ee88d4e962f5143c9217422b89ca8f",
+      "src/qlog/root.zig": "13774170b106b9e58ebde3e41fddedbe6442a2abfccf4d78de02fc872813c7c2",
+      "src/qlog/writer.zig": "b151c9a7d0632b489853df2e19c0a64a901c67bd1829af412fa164dfbea350e9",
+      "src/root.zig": "1b1ad6f32d0bde4beebf60efcd9d977cff5a25b459c151710485f33fe4b0cea4",
+      "src/testing/root.zig": "8f09d19f8f949ec0c1a6e8394e09d1320f95d59625bd23d1b3e6571ec1432bdb",
+      "src/tls/AntiReplayTracker.zig": "325ca12334450c35d41f64fac62e736463a69f565fc16903432ecaff637b9c7d",
+      "src/tls/early_data_context.zig": "779ff0b6cce62d9428ec9034f1edfbf9efe7fa6765114c31eca9bad459585719",
+      "src/tls/level.zig": "27775b3ff7fe519bee42c25ca48521ee52d0680aa0db746c97103df55a25486e",
+      "src/tls/pem.zig": "f834584affaf405b18f18a21089d0fb4a9292bc3b968480bf657a193dc1eb8b4",
+      "src/tls/resumption_state.zig": "f19a7d838254f6db46b65fe43525d521242b83dd0b5852d643fec8e50910141e",
+      "src/tls/root.zig": "f07c6acff25501e24cad426dc9de8fd4a4e92e0467845ebda2765a5b7073d356",
+      "src/tls/session_ticket.zig": "6925036cff093b90d11d183ee1bff565f3f6ad8d6775bee771b709004f6cd42e",
+      "src/tls/transport_params.zig": "a8fe2196a381eeb18f1803cd183c7cc6577ebf3ad9e32daf7d02c31372e7bb4e",
+      "src/transport/egress.zig": "fe94ed39dda52d12471bbb30fecae71270e1a00ed29b9fd152305f23f11cb639",
+      "src/transport/root.zig": "097f9645e0911f5132da4fa3a1aa2d6ec52c94be9fa78573e480c6fd4f8921be",
+      "src/transport/socket_opts.zig": "56f2ed88dfde076956bdfc578e58cba2d604b74e889b6c6eb90379cdbb3c0cb4",
+      "src/transport/udp_batch.zig": "21b9952d9b59bdb30999f272f8981e83de490d96992a3038051937f7bd16c338",
+      "src/transport/udp_client.zig": "e03bac54ae491454f7cf78466122cb0dd37456e1ba3847108de95f5382314665",
+      "src/transport/udp_server.zig": "d58b5158f94cb55727f0ab3673cf936b327e001ae701e91c257ca235d2d644d5",
+      "src/wire/header.zig": "477d7bd5cd475465ef3e3b993dd15d431d1e472becee7de4ba34e791e88c15d0",
+      "src/wire/initial.zig": "11803f6a4ff613763d921178c23d6b02df576f34b521e4cf41797a3a205dc232",
+      "src/wire/long_packet.zig": "63cc4852e6a8c3f44af9f1f9fe2625b3b0968a0b90f4b9c0a9bdca537f3cd027",
+      "src/wire/packet_number.zig": "4ec0e7834eeb2b80c9be968c78df2690a944ccf06da2521135c2f3b5898a4983",
+      "src/wire/protection.zig": "441ecf6b857957a0260c57a2bab7ed06a236df3999f6f4e1789bcf3fef26acd1",
+      "src/wire/root.zig": "dae72018b1f205709ffe6171a2d5e5bdba50c3b9d8d4141872b76cf18bc02493",
+      "src/wire/short_packet.zig": "6fe01f0a14fcaf76f625688b701aab85624cc2e5c4b87aff90a0305f5a9fba13",
+      "src/wire/varint.zig": "30069a6d482b19c980bcc1f919102ae3f9eb47c87eb05b7e4371242e400e7ff0",
+      "src/wire/vneg_preparse.zig": "d0e0d9b0b22fc048196344abd197ca01dce065fd412da474608bd1bc664da41c"
+    }
+  },
+  "runtime_matches_initial_gate_input": true,
+  "documentation_only_changes": {
+    "CHANGELOG.md": {
+      "initial": "2a06ff7adfd52c1ee7bcd77e9df9fc9050d06ec25b8e675f8950bff2dcfa0be7",
+      "final": "cfd7f8a2e8a2743e338c7852d883cee7eb8b4c2fbf607e84e606a006a3d23206"
+    },
+    "docs/DOWNSTREAM_INTEGRATION.md": {
+      "initial": "2b54ae547c3c2bb55051f54481ee34a1f8e4b8836326811ae701da4c343db918",
+      "final": "07daa27d3e9613aaf65eaae5c81c8304880716d587c0c0cc878bd1d500ad4ca6"
+    },
+    "docs/SPRINT_4_STACK_QUALIFICATION.md": {
+      "initial": null,
+      "final": "8ceba27f080974fdf256a8375abcdb61d58888fa5fa93ebde2bd52b1f491e218"
+    }
+  },
+  "all_file_sha256": {
+    ".git-blame-ignore-revs": "c7f333180fc7ad90f57ac0c0383a0205429a1964aef42100e72d9c494217c767",
+    ".gitattributes": "1662f053215da3ce584f8e877767033ebe02b7b124bc572ccbaa714915fe7796",
+    ".github/ISSUE_TEMPLATE/bug_report.md": "f78404972ba05787e674f670b1c081e0355d5d02c63bf9ea9ed2657232120a14",
+    ".github/PULL_REQUEST_TEMPLATE.md": "01ba27566afb4f3aad715f7a9e61e7ed569574999e01954379b0fcd7a69bfefa",
+    ".github/dependabot.yml": "446aa926adf35cae6b09ec3c2089db0353a0111f62f9c5128c8a50a2d3e65490",
+    ".github/workflows/benchmark.yml": "3e5c7a4802e50c02c480ddee3dfeb401794a94508c452b45b0b247254995c708",
+    ".github/workflows/fuzz.yml": "fba8dc283eedc27a02b61af71f5745ea89d25e1205928c469e84cecc48f4b33e",
+    ".github/workflows/interop.yml": "48f6a8b212d0c045abe00cc5143eff344ef2a778a03954b25efb9bbcc555791e",
+    ".github/workflows/pin-lint.yml": "995bdf4c016023e171e311b3198e8cc406492e556d797bc61de763e5442dd300",
+    ".github/workflows/qns-image.yml": "657876cb8b84a05dd8e01ead4735373e4aa75c2dc6d04e080f9f17b9fb478404",
+    ".github/workflows/quic-go-interop.yml": "6f07714cc4574f99a28ba845571aa49cafb2bd054a4123e27812c6211966115d",
+    ".github/workflows/rc-fuzz.yml": "287c93f4b3676bcd2133771c437a089dbddd1c7944a1aa6b56d53985e15bed6d",
+    ".github/workflows/test.yml": "2e76d56c3dac4f18a3b00b19bc41cfae387e10862395d213f4e39e509a148d6d",
+    ".gitignore": "4f88a6f4258fa24888174b26efe99c85d5b6c732abf7cc0a75089e9f5c413136",
+    "CHANGELOG.md": "cfd7f8a2e8a2743e338c7852d883cee7eb8b4c2fbf607e84e606a006a3d23206",
+    "CONTRIBUTING.md": "4f9f0c38f0250e15fa8f7f8575ce0b2dc097b8b1ec3e55624a270a71bb873daf",
+    "EMBEDDING.md": "4e96d675638bfdb94803bee542e01300ea8734fa4cf6e9db2f7cfee07e50c060",
+    "LICENSE": "a672436c865b7da388fc770905eb0f485052763092a3962f0578e179d2811c92",
+    "README.md": "aaa27cdc74670c6dea10ad7b36e3ff74848e04e3aeb09354865ec525775e5f3d",
+    "SECURITY.md": "a58e6f68eeea041cbdabdba55e99a9d3aebb4f727e9efaf83d1330cdb1c76403",
+    "baselines/bench/README.md": "011f0f7afe96f2212060ccf59f9381f78f4791c983a21980234056ccfa0b5323",
+    "baselines/bench/m5max-e2e.json": "e90bdde914e7608199b1ceeff4d7237ed975eb26f8070e597be46c8f2b9f4037",
+    "baselines/bench/m5max.json": "89cda577c8e285a5675679e1d23feb9a20774c591eaedbbda819a9b042449132",
+    "bench/README.md": "a7406f0e5048e5c13dbf559fda92054825c4cca0f16fb41f5c903cd963830edc",
+    "bench/connection_datagram.zig": "2cb01ff89ef8c42084f2c6aa1edd34571a56eaeffce6e21561478202c39fc111",
+    "bench/e2e/connections.zig": "0bfc29fa32849e6182b2cde9aa48ac39d0df07327d7f358e6be570b310d46407",
+    "bench/e2e/counting_allocator.zig": "df9fcca5847147855bc771824d1c591bef4cfb6a3c6cdbda692ce07d593246e4",
+    "bench/e2e/fairness.zig": "82a78aa2ff275063485c9c2e7627a4f00bbc2df3697aa2b1a769772790770475",
+    "bench/e2e/harness.zig": "7def0934b2d2711b77cff5e654f9d0a64fb90b3a063e4b2a7d4d4bba5b84522d",
+    "bench/e2e/sim_net.zig": "710a99ae670dd993f2e9f5452889ab7642f18a492eddcc6ec790bdf95a048ab2",
+    "bench/e2e/support/test_cert.pem": "845ddfcd0f3ee17a8fcc656fe3ae355b2b2cba097c9736d1a893dfb9f55b439e",
+    "bench/e2e/support/test_key.pem": "49c598abff999dd2d97dd8d501246bfdc17afd4f1bec315220360fac82c19558",
+    "bench/e2e_main.zig": "df6d08120e4cd9c7c7bf415f9a7ba1f52da5efe03e21e74042e4b36d406fe0f0",
+    "bench/io_backend.zig": "c2880b83515ea9fb93eed41d008e2f4578d9777ed465e2a2b95b37a7e179e7a8",
+    "bench/loss_ack.zig": "8898794f9852e85c8914d12374cf075064d615866aaeb7a3487a1f338ff98e95",
+    "bench/main.zig": "40617612690939fce422131294e5ef7cb6b1270d4b167ec01afa0f1aa93d9800",
+    "bench/packet_crypto.zig": "3a1712b67d988be91b2ad8e3ee4136abc94c383292c742f0f30bf80331c7fa1c",
+    "bench/path_flow.zig": "a8f5797359b7927d9c6021d85d089b914a1d52873312e34a0552a9209be39c42",
+    "bench/report.zig": "baa577e3dec9a70f0d41721ebc51f827b67ef1d5861626850f00a52bd8f41d80",
+    "bench/root.zig": "b7be8d5b98382d7b7250272653647918d477c81ec36a4a661204215d2130154b",
+    "bench/stream_reassembly.zig": "30120a839685e780a0d29131cda8b4fdb6fc8502311e8aa048d42cd1a88a1cf5",
+    "bench/tokens_lb.zig": "83cf446ab3c1fe2032a2555dd0b2a6bee5446f73738f0e7dfe813ae527aeab8e",
+    "bench/transport_params.zig": "a271e818f56e23be8e3ffcea859ce218f1cad166dc7f70dcda1012905dd11b8a",
+    "build.zig": "c0bcebf2420c1a36d993935ef0de9de1a2ccf6296bc05d48bac100dcae16ce89",
+    "build.zig.zon": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+    "design/README.md": "a02e83b0482d6037011c375340da38bd500e0d8f12c29b7d855d3a8a8cc533fa",
+    "design/deno-wasm-integration.md": "ab4d38f8779fa8bc1f52014022139c58b22e435669fe7cea09ed312e490c8f71",
+    "docs/API_STABILITY.md": "ad0d400cc3d5c7f498854786f8a26a6b6dacb273fa7c56cd369e79b441bd60ba",
+    "docs/DOWNSTREAM_INTEGRATION.md": "07daa27d3e9613aaf65eaae5c81c8304880716d587c0c0cc878bd1d500ad4ca6",
+    "docs/ERROR_CODES.md": "002c769b023005a4439ba335439f7d891b0fd8dc0a3917258261d3c417101697",
+    "docs/EVENTED_BACKEND_EVIDENCE.json": "e3c5b57663849a4e3cbac45163c35be9077f8181aa6c6e262113a258448574c9",
+    "docs/EVENTED_BACKEND_SPRINT.md": "9c0af7b812cad7bc64c43a34ba6d7ee7c18a61f649abc6b936585b7ee7a1a0eb",
+    "docs/LINE_RATE_PROFILE.md": "b7402a61bed79380fe2768bc665df4590fa84f3a2b17633febea2040f5b9e4f5",
+    "docs/PACKET_BUILDER_SPRINT.md": "5333ae84423bf333a2f4763293f355812b440503c422eaba3af96d42899a0b2c",
+    "docs/RELEASE_READINESS.md": "5e98c4715eba62798fac76945a845582aeae340467775e9bedb8c2c6f450a995",
+    "docs/SPRINT_1_BASELINE.md": "68fddd8ca2441f1087adff6552b8fe024b118a97a296d820f9c226776bddbed4",
+    "docs/SPRINT_2_CONSUMER_CONTRACTS.md": "400f174f99d0d9a6d5b2d7c59d50673246addc953270351f32129f81fffa5c8c",
+    "docs/SPRINT_3_APPLICATION_PROFILES.md": "4c81b01c500e4a580ee898983dc6a05670887d1df31da1570cf1342c4e96cd8f",
+    "docs/SPRINT_3_APPLICATION_WORKLOADS.md": "a4f6f9d6ca3317f4413eb6a98e1984a257f3803dccecf6151a88da65516fc5cc",
+    "docs/SPRINT_4_STACK_QUALIFICATION.md": "8ceba27f080974fdf256a8375abcdb61d58888fa5fa93ebde2bd52b1f491e218",
+    "docs/STREAM_CLEANUP_SPRINT.md": "f1fe9fe0de2677f3924382c306fdf87ae84ed9c8fd3c1536a0e7d8526600a291",
+    "docs/UDP_IO_SPRINT.md": "8b3e0e5c1370d735fb24b7d52519974177379baa2ed6c2e1fa021a2b3b1b866f",
+    "docs/UNIX_FD_HARDENING.md": "9e39c4fe810ba36216e967e4ed63506b885a1c034f5d9a1c1d95bd49e31f5cee",
+    "docs/UNIX_FD_HARDENING_EVIDENCE.json": "51a8479a745394e482f826b3c78325cd9dc2592fbc16d59bed3c6ea51de553dd",
+    "docs/line-rate-2026-10-10.json": "f82b39f53f385e9e88ca2c2939a4bfd2b1e3bbc18423421c7eac68b9d653d3dd",
+    "docs/packet-builder-2026-10-10.json": "402c7df1f8594155a19be4e40b7ed20e94c29461ed3b284f669b7324a0992869",
+    "docs/stream-cleanup-2026-10-10.json": "d74ba2f45bd62b3132b5ad85743e86cf2128b5ddcf5c8708e1c14c70fb1ba08e",
+    "docs/stream-priority.md": "3786daa628512b604c5b21a7a43a3696b8e4d754fccdc1024287ab74fb0436c6",
+    "docs/udp-io-2026-10-10.json": "e42576ae9eb62aa645d1f18dfc168da4010fa2df61ee08beaaf2847f450d8301",
+    "examples/alt_addr_embedder.zig": "aa6a7f29bba3406f5185e76096d08b18a81aaf0ef067270413c71ed082297eb2",
+    "examples/echo_client.zig": "136806fed1acd1b0ba2d28611d5ed7be187f483f2e9437969eaa7eb19acfa5a0",
+    "examples/echo_common.zig": "d8c30a8e0c66abeb8d4e3f8d1d6f95769225b8c75564f9d31ba3272faadb8210",
+    "examples/echo_server.zig": "6ac541869489dafd90074c01217b5c0aa1aa9ba665a55486cec07f65cd38788f",
+    "examples/echo_server_raw.zig": "89e917ddf008d3a0831b6bb3c7ce0c0a64c6b61657e237ea127da2fe4ab5fc63",
+    "examples/echo_smoke.zig": "fe67cd64819c4553c78e45e4c62fb2f7c7f210bc216629dc78da04b4b6801a9d",
+    "examples/foreign_loop_embedder.zig": "26a296216b23c4c14b32edc683320d24d216d7fdda9be95d5fe4f34e05a4e9e2",
+    "examples/goodput_smoke.zig": "e8a2592f8dc01fda070fc90eea3b8b63786e392db5c13f4a6b8b7164e6bc31b7",
+    "examples/request_response_server.zig": "d30a12e4848d1002be302fb0a0bd890c14f8f4ba1589f1b4f91818f37c84685a",
+    "examples/support/test_cert.pem": "845ddfcd0f3ee17a8fcc656fe3ae355b2b2cba097c9736d1a893dfb9f55b439e",
+    "examples/support/test_key.pem": "49c598abff999dd2d97dd8d501246bfdc17afd4f1bec315220360fac82c19558",
+    "interop/README.md": "575ee8d746d4dbab217a0b02f879508a2396918d9b319dcb789799f786c309af",
+    "interop/qns-tools/Dockerfile": "2236952fca2ff4192f5fc4908b8c3337ad95df6c88b9fadc093cff3872a69035",
+    "interop/qns/Dockerfile": "714d1a729bf549e88780be30f2f32be64a42d07a2c7e9e1b0ec4d48f4577ea74",
+    "interop/qns/run_endpoint.sh": "b81d3e1d939e9379aae56fc484b5f53896b3fcea20ae8947f24fd2c93fbf42de",
+    "interop/qns_endpoint.zig": "85c4378f564495b6bd910e81ecb1bac6e34c6d95bf55bd8a1eab3beae8d0d4a9",
+    "justfile": "8f4439a78641319fbca60fd5276d1291270c87b5b71370741d234b8dca1d931d",
+    "mise.toml": "5ac028e164185bd9ffe0c557d91815d399470fcb6cb3818d577032ac6dc60f46",
+    "src/Client.zig": "0243f30a210c811d0b6e70115ab7833e49a050987987702c835aa1853aaf8b88",
+    "src/Connection.zig": "c6f04bc236c794bd1d41893abd9d85d4b0a8b77fe4f0424a1538c2bf87dd19f8",
+    "src/Connection/_internal.zig": "813d6aff7d9a7aae78b0d6ac2e7e6bb47f0b679ceb637c655fec5f763c6b5e2d",
+    "src/Connection/_test_util.zig": "d0370394366cde720b024ae257815b3c398fdb44bc3a8e1839baadbcaffdf522",
+    "src/Connection/_tests.zig": "002e1e892ac43f0b0e4044218b1cee5b4a2a6c42d0a4097383ee822b54e13db0",
+    "src/Connection/_tests_ack_frequency.zig": "ad9cbede445e8890ae603a07a06e570eedde8f417843885a307033636a2dddcb",
+    "src/Connection/_tests_cids.zig": "c26e32361cbe71570a94fd5e3fb76c3d668f96f4bfda72380332b92859c0cacc",
+    "src/Connection/_tests_datagram.zig": "9001480de4222f1804b3f515a1ccdba68e881aaefd2536b453c75fd70b66b87b",
+    "src/Connection/_tests_delivery.zig": "4eed1f73e5060a1f9e6396f5fd91c1b0178a434cd6afe0105c189963f8ce2f88",
+    "src/Connection/_tests_flow.zig": "f0b42c86fdf929e7f8da2484ce7f3d5d585998c112f40e00658364b60976c8ed",
+    "src/Connection/_tests_fuzz.zig": "867ef829baa65b7771561063682c252fc8cc0516655979cfbdae14bc477f0837",
+    "src/Connection/_tests_handshake_recovery.zig": "84038a5af1f73db2956c66b75dc7f2372392d4472a1b78db9f5ea645947836fa",
+    "src/Connection/_tests_keys.zig": "8c7c8109a7a4d90305bc7e2bb585e8226fcd4851591d5ca3ba5502aaae7d3e38",
+    "src/Connection/_tests_lifecycle.zig": "0155c53001bd4a322c933abb467ea9fc76d67c8f0352d5b24c54e8ee9abe63c6",
+    "src/Connection/_tests_loss.zig": "7402365e8fbd16253f99bbeb1d01770058ccdb1eb06d14bfe77b613463c61379",
+    "src/Connection/_tests_migration.zig": "a0efc8c806df27d770476f7c7c15af8e84c5039a79af8574cd7c1e7bfcb58d85",
+    "src/Connection/_tests_misc.zig": "743c8318f78c2841bb49e39cd87dd068da73c4899bd03522201f024cc82bf7ec",
+    "src/Connection/_tests_pacing.zig": "2326710bed8a4491c97a5ef17ff0b1d39a0d7ce3543d9ecbfcd2bf29c209eca4",
+    "src/Connection/_tests_paths.zig": "a20c277cee4aebf8c711344211c7a97b545e572c0295699a97b36e165981454d",
+    "src/Connection/_tests_qlog.zig": "686790ff518af34514f27ba419b76633c9635ad1d424932e98364474916e962a",
+    "src/Connection/_tests_recv.zig": "922977e3c08de5cf7de207287d5508034769c18e6dba592fd33d38f7d0c8ae4b",
+    "src/Connection/_tests_send.zig": "c8a1f1a755ad49dd568accc844d9a476b6b256b0171db9920df3525c170593cc",
+    "src/Connection/_tests_streams.zig": "b55f08b5983aec74ed8770fc4f93e504bd321d08ee7148ff7f6a5a398418eb0d",
+    "src/Connection/_tests_version.zig": "754ce869ff8d862c1dbae6892ee42398f6abf23d1ab69411b16259e2596cfaee",
+    "src/Connection/cids.zig": "057b38afec9ff9388750576f098d3f6f85b9ea7d106240d9469ea4b6b93e72eb",
+    "src/Connection/datagram.zig": "fcb8de3cbf8acb72394850c140c0358076df48d288826b465abc8a3b6be86df6",
+    "src/Connection/flow.zig": "5c5a4a83d39fd29b7e130bca5ab33bb913d9dc472441716cc49362d092d2a118",
+    "src/Connection/keys.zig": "f6cff594136922d3c50a55164cd00ec23c54a2f07d9d32d7debc3b09f7795942",
+    "src/Connection/loss.zig": "d806f6d0e641e687f8e1223ad60648de5de84ff46de8162331d970526a5ce868",
+    "src/Connection/migration.zig": "206f1c0adb078c9600e9653db1c56947873745740e7c3965bfe6a17fe76157dd",
+    "src/Connection/path_frame_queue.zig": "13906bea3fa95ea12771692840031ee894dda15db87dd05c8f2c4adf76f9b5a8",
+    "src/Connection/paths.zig": "e894bc9eb1b2439d8550cedd7753b6ca2e4ed5f7c53c1779b571efa7de12c136",
+    "src/Connection/qlog.zig": "171f7b5520b244c2058da59d73d5e3a08a472566ff21c43b1c407adf8c6f68bf",
+    "src/Connection/recv_ack_handlers.zig": "080c0200e70c70c958458477069888a69afd76c6001c6b483900b590982bb4b1",
+    "src/Connection/recv_cid_token_handlers.zig": "0617ce706323f36a4b8634714bc889bb24b61b3cc3ce4c8aef7e6a79bf29dcc8",
+    "src/Connection/recv_data_handlers.zig": "81e872e9d8d82afeedf901f2c70efba6c5da3a80953f8aab6b396464c9d8a795",
+    "src/Connection/recv_dispatch.zig": "8443fd1253b0011b195a148562cc18d56c9038e62b693fb552a59ac52d125e67",
+    "src/Connection/recv_flow_handlers.zig": "83e34ebb1722232bb289c9c3e971c0823f1b4535c12021a361ca62a479d97aaf",
+    "src/Connection/recv_multipath_handlers.zig": "b7e723edb2f7b9f71bbf61c6d568712b479ab8f717b1646a0132ba7b6719b0ed",
+    "src/Connection/recv_packet_handlers.zig": "4d6223cb2f1d46c8f138f5f5e0863ecd40e50baad6989891dec18a06a25a9d24",
+    "src/Connection/recv_stream_control_handlers.zig": "03f2ca286f7cfb2ed4f64d115e159c1f9b4df6462d49290e7b70a8f86df88077",
+    "src/Connection/send.zig": "9987f203d53fc60f85d4a5ff1085737b67ab1ee7180ec5c7acf41da9c0b2f9ce",
+    "src/Connection/stats.zig": "6d7ebf83400b70efb7021e4902e474ec2e4c8c09f5cf57522b43bf89b94ca8a0",
+    "src/Connection/streams.zig": "0bec434b301684e4fd5d55281c1de2e5644780ee276a448b40a93ede7ea3640b",
+    "src/Connection/version.zig": "173aff7b494f49696fa70da2fe448df8874dffaafd5b0eb8f6e1b819c060f10f",
+    "src/Server.zig": "316fe549530067de6661f8eb2f66ad027e294e41316af70f5a51fb2843a15017",
+    "src/Server/Config.zig": "adae9837c46a11874c7b2b9cbca95b4b200f5c11bc54eedb6616da4ec1f806fe",
+    "src/Server/accept.zig": "b3b45e4b6220878e29b5fa4d491a80bceb50efb7fe2355ce64191d607080dca4",
+    "src/Server/dos.zig": "00e74d1903c1267ac49e9c8a6060424d1f8ce15d4ef881d4325d3d1f15505827",
+    "src/Server/observability.zig": "94f861aba59c4520318a6e07cb69d850cead83e7a2c16ae9cb76c7477d3a939d",
+    "src/Server/routing.zig": "c13bc6bf6b122b6725305bff3dd4e5e2f72f2e6256b8425ac22e4d3def3b81a5",
+    "src/Server/tls_lifecycle.zig": "ebc6cd1db95ca2ac8ae67a52c823142682aa44437a5606e6ea5f5ea647e4d406",
+    "src/Server/vneg.zig": "aa968850d3c0053029ebbef21fd4a76eca436d8d7485521169d87f25d860a6cd",
+    "src/Server/wire_peek.zig": "677f050ceb6f7d081755c6921f8a1bdad9041af30722338175764fa0717e0b97",
+    "src/alt_addr/root.zig": "e11bc004bad08e41a01eabeac65440f4356401dd9de749daa269db1fb6c2089a",
+    "src/app/root.zig": "58e983da78aec83182e59563eef37819a12880b4ef065cd75cb9602e0853cf20",
+    "src/conn/AckTracker.zig": "5ea1fcc15a19e3ba6ae67df0069f65940d67e9e87774ada7b60c3101ce6e0147",
+    "src/conn/Pacer.zig": "33009424f1f08a06c33427cec89191fb73c39d042c8a7a861b94d3838ca6d574",
+    "src/conn/PathValidator.zig": "6a9d2d0ae36ef13e8f5230fa41fea5ee1290ed38383d69d351f468b10fb35e8e",
+    "src/conn/PendingFrameQueues.zig": "fa20b70714d9c48aed164bf0d248c47a8ab43bf71284adbfe81d744c159a2fb0",
+    "src/conn/PnSpace.zig": "933dc5e4ca9671d403331b909baa7dc0fd28b056ce3dd535e5cb73042b3a35e7",
+    "src/conn/RecvEndRing.zig": "6d20bf4e403c7ccde7b32d242da357f69c0a11a14ab5d8bf262a5f7174485e2c",
+    "src/conn/RecvStream.zig": "bea20ca232c6faa21aabb4a49252196ee72925a42609988d556711e8099a714f",
+    "src/conn/ReorderWindow.zig": "64939581cf10307121ec2ef96ccc43bf1228d000d3d7e5ee012fe085295b443b",
+    "src/conn/RttEstimator.zig": "003803cbed2bc756ca0b4d3e3c730ceb3571305351e90354504e030b8d6d5ce2",
+    "src/conn/SendStream.zig": "d35f1049efbb42b138c6758816aa3299b74011730f605ccc85f46c1a2f3e7ee0",
+    "src/conn/SentPacketTracker.zig": "fb840013ae04b3c2adb4ec45132c166d3001a65a61dd45669a4ad3106b3689ec",
+    "src/conn/StreamIdSpace.zig": "744ce512fb9fef0a33ded0bc7f1a6da14383cb36754a9f0c2840f43b15b8b5a5",
+    "src/conn/congestion.zig": "183e034bea4c92acb80781d190e04c99e6fc717ec64f2c37e44934d2c4a0e371",
+    "src/conn/congestion/Bbr.zig": "c6c19c347a7c27443e939b98708b7621257deebf5fa7535638027c92e89707a3",
+    "src/conn/congestion/Cubic.zig": "8474d023c237c046e3a5b5f4f6d8701f98a9be57368dced24def2a8542a7e947",
+    "src/conn/delivery_rate.zig": "a42ec0120b7110a7b3603bf1f69a84d69e11c4452bca61c51cd3541473003f13",
+    "src/conn/event_queue.zig": "4eb964a71b382eb59ceec8d05312b244cd29a164a070db937555ccacb74713f1",
+    "src/conn/flow_control.zig": "00a880665f2e4fa30d8b74f666f1eb14fb17a27cc3047848402620e90a9c0197",
+    "src/conn/hystart.zig": "80f0e063bb8ad7bd33bfccd98d39fd0cf87c98ad765d3374d5c452af93c7cd82",
+    "src/conn/lifecycle.zig": "3d886e99edacb692a29be11a6b05888884ed23bffc9b611d36072078fffc77d9",
+    "src/conn/loss_recovery.zig": "f3e683cce858696359d72b5b4934e663338e3bc864b446d61b043e7ea73733dc",
+    "src/conn/new_token.zig": "e0752c9631ae0e3772356e56d64f04e05dc3eae75a0a9d290a2637b4e78cddf5",
+    "src/conn/path.zig": "acdb95a2b0e02d8885420c8297ad0b9afc4cda339cde8cd70fd8907deaf48dc4",
+    "src/conn/range_list.zig": "c27c875e45473e805ce8adbe69263445918bd3daaad3e57221a2d502d4530938",
+    "src/conn/retry_token.zig": "e95e1c8f097a0f878f955a3d3a08d7e5999a8fda6fc1cf760e7a2615151a3b5d",
+    "src/conn/root.zig": "82a425da9043d32c3d3a1af9a24187db0ac6dc68bf06bac552165594c91d078c",
+    "src/conn/stateless_reset.zig": "4e833e797eb40243e9f713884f4ba65ca253136212ddadcfea8daa478cd1715b",
+    "src/conn/token_envelope.zig": "0cd56906a4dbd817db5bd579959668bbf4eab8efbbf1bb1d9787f0e04087a239",
+    "src/frame/ack_range.zig": "2f2ea69c78a6a67e097df620f4391770364e84b2d89fd49ea65aaea78e6cdc53",
+    "src/frame/decode.zig": "57caf49785026b9207b60dfe4b74f1d16379c09f9dff0f57b64ad61caefd2c31",
+    "src/frame/encode.zig": "37fedd0ffaf7f513c0e937e40632f55352b79b23af45ea4bbc7151f96e0bb3f1",
+    "src/frame/root.zig": "3b87907cbdb442a5ed3f2868c591e22f057ad334d99f11723622ff01a7fa533f",
+    "src/frame/types.zig": "d4afcaf183a4403f5b40c435952c6d9683f8d47c2997bdf63ac5822bbfa271cc",
+    "src/lb/LbConfig.zig": "a6a96332f10f698401aaf995ebaf4a5dd6efbd016f487b57a3f90e145ff216ca",
+    "src/lb/NonceCounter.zig": "c043001a224b0547131452f82ec336ed7542e4104e20a944b5036fc6fc31f492",
+    "src/lb/cid.zig": "f6a46ef19c545c448150ec299510193f1573bd83f4ee7bb2c03ce58b9742c3f3",
+    "src/lb/decode.zig": "339be14843187efade62e4773a589a4a84f82b5d1f698c3810862e59af185f00",
+    "src/lb/feistel.zig": "3de592cd3e077dc962666ed4db969d2ad48823c79f2b4dcb7006c26fe99e6416",
+    "src/lb/root.zig": "b9196b6909137aee1893ab5d2b09613c75ee88d4e962f5143c9217422b89ca8f",
+    "src/qlog/root.zig": "13774170b106b9e58ebde3e41fddedbe6442a2abfccf4d78de02fc872813c7c2",
+    "src/qlog/writer.zig": "b151c9a7d0632b489853df2e19c0a64a901c67bd1829af412fa164dfbea350e9",
+    "src/root.zig": "1b1ad6f32d0bde4beebf60efcd9d977cff5a25b459c151710485f33fe4b0cea4",
+    "src/testing/root.zig": "8f09d19f8f949ec0c1a6e8394e09d1320f95d59625bd23d1b3e6571ec1432bdb",
+    "src/tls/AntiReplayTracker.zig": "325ca12334450c35d41f64fac62e736463a69f565fc16903432ecaff637b9c7d",
+    "src/tls/early_data_context.zig": "779ff0b6cce62d9428ec9034f1edfbf9efe7fa6765114c31eca9bad459585719",
+    "src/tls/level.zig": "27775b3ff7fe519bee42c25ca48521ee52d0680aa0db746c97103df55a25486e",
+    "src/tls/pem.zig": "f834584affaf405b18f18a21089d0fb4a9292bc3b968480bf657a193dc1eb8b4",
+    "src/tls/resumption_state.zig": "f19a7d838254f6db46b65fe43525d521242b83dd0b5852d643fec8e50910141e",
+    "src/tls/root.zig": "f07c6acff25501e24cad426dc9de8fd4a4e92e0467845ebda2765a5b7073d356",
+    "src/tls/session_ticket.zig": "6925036cff093b90d11d183ee1bff565f3f6ad8d6775bee771b709004f6cd42e",
+    "src/tls/transport_params.zig": "a8fe2196a381eeb18f1803cd183c7cc6577ebf3ad9e32daf7d02c31372e7bb4e",
+    "src/transport/egress.zig": "fe94ed39dda52d12471bbb30fecae71270e1a00ed29b9fd152305f23f11cb639",
+    "src/transport/root.zig": "097f9645e0911f5132da4fa3a1aa2d6ec52c94be9fa78573e480c6fd4f8921be",
+    "src/transport/socket_opts.zig": "56f2ed88dfde076956bdfc578e58cba2d604b74e889b6c6eb90379cdbb3c0cb4",
+    "src/transport/udp_batch.zig": "21b9952d9b59bdb30999f272f8981e83de490d96992a3038051937f7bd16c338",
+    "src/transport/udp_client.zig": "e03bac54ae491454f7cf78466122cb0dd37456e1ba3847108de95f5382314665",
+    "src/transport/udp_server.zig": "d58b5158f94cb55727f0ab3673cf936b327e001ae701e91c257ca235d2d644d5",
+    "src/wire/header.zig": "477d7bd5cd475465ef3e3b993dd15d431d1e472becee7de4ba34e791e88c15d0",
+    "src/wire/initial.zig": "11803f6a4ff613763d921178c23d6b02df576f34b521e4cf41797a3a205dc232",
+    "src/wire/long_packet.zig": "63cc4852e6a8c3f44af9f1f9fe2625b3b0968a0b90f4b9c0a9bdca537f3cd027",
+    "src/wire/packet_number.zig": "4ec0e7834eeb2b80c9be968c78df2690a944ccf06da2521135c2f3b5898a4983",
+    "src/wire/protection.zig": "441ecf6b857957a0260c57a2bab7ed06a236df3999f6f4e1789bcf3fef26acd1",
+    "src/wire/root.zig": "dae72018b1f205709ffe6171a2d5e5bdba50c3b9d8d4141872b76cf18bc02493",
+    "src/wire/short_packet.zig": "6fe01f0a14fcaf76f625688b701aab85624cc2e5c4b87aff90a0305f5a9fba13",
+    "src/wire/varint.zig": "30069a6d482b19c980bcc1f919102ae3f9eb47c87eb05b7e4371242e400e7ff0",
+    "src/wire/vneg_preparse.zig": "d0e0d9b0b22fc048196344abd197ca01dce065fd412da474608bd1bc664da41c",
+    "tests/conformance.zig": "75994a97f2029f217ad9bd93f6564068a7ba871efa266f8fbba7d9ae034d3d20",
+    "tests/conformance/README.md": "a6392b833b056da48b7592e8970148c5eca463d525f3c08f239c1fc95b154bd1",
+    "tests/conformance/_handshake_fixture.zig": "5412d66770e354cc6a257089782156281b481a2057d687d0c2872b89a455d8d8",
+    "tests/conformance/_initial_fixture.zig": "dba56849d7cedf5da756b3750bb10f91568bfb728fa98037669f030a93f65874",
+    "tests/conformance/bbr_draft06.zig": "58050f6693a1240156b9c1a2811297b15b29fe960952cd4047ca9f5458484709",
+    "tests/conformance/draft_cheng_delivery_rate_02.zig": "c0aeab8fbd62fc0c2743e3f7a572a4e7dd18c4e966cac8e10a2f0cc581afdbb0",
+    "tests/conformance/draft_munizaga_alt_addr_00.zig": "d9147f0ddcc4a77b8f4ec9ad242dbf0b34eb4f329671f4607dc213a9e2a95a85",
+    "tests/conformance/quic_lb_draft21.zig": "a1ca6de4c3803d7ee2b137ca7382c6ef8e4239d022906e44f7d26b76ee3ea926",
+    "tests/conformance/rfc8899_dplpmtud.zig": "d3715f53afb8a3266fa5bba35e71101d38e8c9a54c572d9e4831e91b7c9cc106",
+    "tests/conformance/rfc8999_invariants.zig": "bcc0d167103e543474076ef8b7affe1017e24dec3c04275f8b25c1eafac5aa2d",
+    "tests/conformance/rfc9000_ecn.zig": "2570ba4d2ce0a61b90d2fa8e0b5846e49ea2c28d61286fc334a8d5649823976c",
+    "tests/conformance/rfc9000_frames.zig": "671a3baf5db03973264259348aac18e76ddcb8e84d430b015cdf1cbe0ca210d7",
+    "tests/conformance/rfc9000_negotiation_validation.zig": "4800df0d4779e3bd4776a855171c3e1d252b2610a097b243a18e08d6d5accfb4",
+    "tests/conformance/rfc9000_packet_headers.zig": "33b35e3f58806b1a6a94f2a47956b0b5def8313cf8e0b67c1bbfa6d45a9f84e8",
+    "tests/conformance/rfc9000_packetization.zig": "3e75515268e0f4abf70c9f8ebd9237416d97baf85d483b00642ed0a05abb78fc",
+    "tests/conformance/rfc9000_streams_flow.zig": "a94020420ac5a792f68581b7664d8a8eea4ee68216d2df4a17691adf3a840c4d",
+    "tests/conformance/rfc9000_transport_params.zig": "b8c77af45db274214e9477cefdedff87435a28a4c7359e032aa14d723edb139c",
+    "tests/conformance/rfc9000_varint.zig": "a422a8561a9ec6e78b7bb86c53d25e959274f4a5501dbb94a01acb5b030a6bf9",
+    "tests/conformance/rfc9001_tls.zig": "5aeb924f86a8c5092b5ea3216c3d7fa20b887107f46b3f2a5bbc8a2217de5cc6",
+    "tests/conformance/rfc9002_loss_recovery.zig": "a3e86dca40684c9ef6af6ba070940d131bf2e55067337af66c0c7c6b3ebc78d3",
+    "tests/conformance/rfc9002_pacing.zig": "7e4b9361cce422425dcd8297338eb6682f9ed50a30e4ff76c2c96bcf7d0a373d",
+    "tests/conformance/rfc9221_datagram.zig": "6bd4b85c01e5ba7a62d599c13e10bfcbafda8771c6c1d1f6752ea62568c5c3c5",
+    "tests/conformance/rfc9287_grease_quic_bit.zig": "130ff4591ade8b5db7601dba85fb3a055d1ea9497effb5ba2331a732d1514249",
+    "tests/conformance/rfc9368_quic_v2.zig": "948f77f658a31fad3881d538e3c1f7867e1bd13bf78dde93356ff4bac376a78f",
+    "tests/conformance/rfc9406_hystart.zig": "43fd06a4b6c7dd1b42fe662911732a4c821197e785f8253eff858e8184214221",
+    "tests/conformance/rfc9438_cubic.zig": "87568788aa5f3a5ca7cef8f4977e91a505e0b655e1e02b1f6c9b6c8b1ba47eb0",
+    "tests/data/test_cert.pem": "845ddfcd0f3ee17a8fcc656fe3ae355b2b2cba097c9736d1a893dfb9f55b439e",
+    "tests/data/test_cert_huge.pem": "f220510901016992a00ebded73285cb8861b0c388b30f9041c7db8c93cf88477",
+    "tests/data/test_cert_wide.pem": "20e3c4c65de332748e07d674383bc5ffcfcae290b273d952bfe4bd30cacd4aef",
+    "tests/data/test_key.pem": "49c598abff999dd2d97dd8d501246bfdc17afd4f1bec315220360fac82c19558",
+    "tests/data/test_key_huge_cert.pem": "41419087d011d583bb929edd32405ebf631bd52eae940f9264abd38593626d43",
+    "tests/data/test_key_wide_cert.pem": "a8dec626b554e8f3078f2e00e11f09ff3c348fb73d289ef43c4a1162c7f93319",
+    "tests/data/test_untrusted_cert.pem": "201f314218399a67f9286d48ae300219e62a6d53b5450d74ecf577ba4cba7f76",
+    "tests/data/test_untrusted_key.pem": "ab7bdf1215219b92220bbe31c131c555284278a7d809a22d41aba66f5215959f",
+    "tests/e2e/app_driver.zig": "4f3463bd8c9e2bd1a11f97b18d6c697f456f80de82b946e2df2b605475629710",
+    "tests/e2e/budget_reserve.zig": "aebcb00e97dbb853b18d9f490c4d4638b394f053a113731d87e7b01c4c900110",
+    "tests/e2e/client_loop_smoke.zig": "82525249e5aa48d8d640dd6925723bac382f4895929d75102fa3a780bc935091",
+    "tests/e2e/client_smoke.zig": "1e1c8699c6dd5c81dae98782355d6a05b0f2e91f28839c5e40f8c9b8e3feb371",
+    "tests/e2e/coalesced_loss.zig": "9ac030f333d8746c5bdcb2059f841afd39f1f2e5393157082dd74082efb01823",
+    "tests/e2e/common.zig": "aef25aac98bed6f469a9250a95540f08686b31cc91d1211d528555fd13f75938",
+    "tests/e2e/connection_events.zig": "3c56feae00cee05093dc6744dee08ddbc4279420c8feaed70e00bf26898d892a",
+    "tests/e2e/connection_phase.zig": "78d5d06de0179fd9d5e7988d80f61d3a2d43aba3f88ddc531f2c5b13645c4ed6",
+    "tests/e2e/handshake_close.zig": "6d7559d03f445cefae8c5affa0a2c4ada4cd9bb190022ad72cb9db5b619fc330",
+    "tests/e2e/handshake_loss.zig": "6acdd56a80afda7af3a5c6bbd952e5b903f46007f04fb25f2af2883e39737d7e",
+    "tests/e2e/handshake_timeout.zig": "de618f5b95de97d796429b32ec9d8817a07e9d4674a87e7b918dfc54a2bfeab6",
+    "tests/e2e/initial_padding.zig": "dcf8ba970e31d89af565e8910303c4dd8e8a679fab7a40f7340b1a2d0f05db2e",
+    "tests/e2e/internal_surface_smoke.zig": "52bdf4ea8ac06b85d50e5a6155d12043f1b54ee4de9d45687ba7b0e2191e4a2d",
+    "tests/e2e/memory_per_connection.zig": "e61af2557aae4162e560bde776f3c9d1c4ac544811d6765d111bb076aef6657e",
+    "tests/e2e/mock_transport_handshake.zig": "22c13cdbf8935a9e98bc3dab01bbec46ee08c02e38dc522e97f74a59505e8a61",
+    "tests/e2e/mock_transport_packet_keys.zig": "aae6ca4c58938cbdc5e510bb4d2ce646eda6b039a085a316917a50667aa5af7f",
+    "tests/e2e/mock_transport_real_handshake.zig": "8c2787a58c9710c3a22d75d5af5d19566aed8b26137f7a068ded1cb725fbdc97",
+    "tests/e2e/mock_transport_stream_exchange.zig": "71c1b8e2b1c28b47574116fd3a50e9861943ab27af0f547fb1e105d3a5d8be57",
+    "tests/e2e/new_token_smoke.zig": "60654a572b46421a64b15f762bd0a0c4a02f1b98f1059ac8475f11255fb1fbc3",
+    "tests/e2e/path_challenge_flood_smoke.zig": "28383712f9582965417a72b2ee7ade12894b2f889e09e262e73c0fe1aeab4e77",
+    "tests/e2e/peer_close_smoke.zig": "f58179a64c663f84dd20b2bed1ad8b52f784e409be1d68fb9e6d2c65819fd75f",
+    "tests/e2e/peer_identity.zig": "f3b823440c3f215cca6abd7005a2cac9a3f1f3249f9f61cb80ccf1c74687647e",
+    "tests/e2e/public_api_smoke.zig": "94cccd0ca74e3af90e6ece827bafbaf370fff6e4de8743868d49ee936083b8f0",
+    "tests/e2e/quic_v2_handshake.zig": "fcb0fa05e52b0de710ce31419b1af2873050ef2ad0c72dd4eb665d9800d6f469",
+    "tests/e2e/rendezvous_frontend.zig": "852e6b25de86538a021769b32c2f2d93b4dfc343a0defd6b6c26b79455704376",
+    "tests/e2e/rest_cache_table.zig": "7d5e3167c952667057714f6a112487f93c27c15b54b1b12ed9bfa421ef624c2d",
+    "tests/e2e/server_client_handshake.zig": "2e9f2dd56d2824d65c3c4398f6ac4225ca52de905206af3832b0ba1c3715e9ea",
+    "tests/e2e/server_config_ergonomics.zig": "a9363eff607b50486ed6688f70910d1fce5ecc0317ea2ae70a3b124c67a9b359",
+    "tests/e2e/server_lifecycle_hooks.zig": "f6c80d3fca95c2a0f2f0d53cf2faa0373b3853f516f5b5079472aaeb066a1fae",
+    "tests/e2e/server_loop_smoke.zig": "9a386d5ad7d7c21490967ab89b6ef80825f03bdcd4930118d60a7ab6fa0c7579",
+    "tests/e2e/server_loop_thread.zig": "fb464de105658d4d014e8a46b01c9633885950730c38357333258b8cac775a8f",
+    "tests/e2e/server_ready.zig": "32c35f33a6cc7f897964372e9cb31545d241a697509d683fff0348c49ffd50fa",
+    "tests/e2e/server_smoke.zig": "f634bf82810957c43f02e99e598aca658ddb97716cf3316963c6d60cb9d5be2f",
+    "tests/e2e/server_stillborn.zig": "a08858a0b66043251d81158eb98a8adb84352e2e5ad4ad1d7369639e1b045c52",
+    "tests/e2e/session_tickets.zig": "79f73a63840a33b31f2afe48b11336ae2f9c642123df06e0658f9c65d0bb42cc",
+    "tests/e2e/stateless_reset_emitter.zig": "501ca3a30d387bb615f2555ac6fe161d8c76d2a98125120f2957316de2d56bc5",
+    "tests/e2e/stream_end_after_tick.zig": "303bf25bc86c0027b53a7c14bac912b3931c50447517ea873ff7937eb180aa9c",
+    "tests/e2e/stream_gc_at_rest.zig": "a48b6a1105124bf69db789330ba879bc71551b161031d41796d615b00afb2da8",
+    "tests/e2e/stream_window.zig": "f6dd5004149d8777dd6a9ff9092f90d7feb7ea5a87a45a325d800d390b840940",
+    "tests/e2e/testing_loopback.zig": "b354655c32f18418fe5da1881d563eb83fd40a5a44c9a9926c9dd9c4cb8f576e",
+    "tests/e2e/tls_verify_e2e.zig": "5513be66d8128a4478fd0754e2a6c6f8a1fe7b4a9f558f6b7192eda9adc4780f",
+    "tests/e2e/unauthenticated_datagram.zig": "50c91a2dbc4e0e9c09d07dfcb0030eab4268b591cbaf63229d093fe0c0602f29",
+    "tests/e2e/unknown_frames_smoke.zig": "4a2003b6f234b0682c56694bad5fdc6189226c93bd9e3fc617ea5324569f4098",
+    "tests/e2e/vn_spoofed_source_smoke.zig": "316c5e34f6633bd623d7fe5c334453ceee889ebdfef4411729302f69786d0378",
+    "tests/e2e/zero_rtt_mtls_identity.zig": "a1d26f87f3af76db637b81e1644d43a8fb260073d2630881d9b8d7dbd58d33eb",
+    "tests/e2e/zero_rtt_replay_smoke.zig": "8ee3048be02696783824cb4d5f2de520ae7a35db4fa424943574ba1d1a804e9e",
+    "tests/e2e/zero_rtt_wrapper.zig": "6fde92c724bc8bed5ba2b17d346c68d1240f0622e0f1cc74b4f6ef0f7b4ee2c4",
+    "tests/lint_comment_anchors.zig": "970d82b1b5da6b4144206c8fb6a7c81747ee1752750ca01c1ec8440769331106",
+    "tests/root.zig": "f6b25d315a82ba3c180e0a6dfc907e207fc5a411eb859783aa210161571df977",
+    "tools/application-profile.zig": "75b7ce93d386eab240568817ff66f89439c2a3cb4cdd9358baf043b815ef1773",
+    "tools/bench_compare.zig": "c12582905b2c6be81c590ce8b1881c0aad2dd9384ed8a5f761a2723be2bd73ef",
+    "tools/check-zig-pins.sh": "29cefd7ff43f25d88b8ad3d69213d6c88d31dfd2c9a12df4cc4cf53cdd850b8f",
+    "tools/consumer-smoke/build.zig": "49af473910955b1c8673a693d913f5f7b116dad35220afed7f40111ed1de2cbc",
+    "tools/consumer-smoke/build.zig.zon": "80a5866e8d34ccde76bc0172b56c7800188ec52304399ae1b74a32f3855c799d",
+    "tools/consumer-smoke/check-modes.sh": "6dc3f8801012f3b9149223af3320778f54647a644163d62a5ca20c9386a2761c",
+    "tools/consumer-smoke/src/main.zig": "cbee06b1061c2283877748c64a23f7c46c4a7c7f57ee2efb05a94def5ab8328d",
+    "tools/external_interop.zig": "684e0debf45981dde3fc14ee6e13519999c1bb9235266df556299c11bb623e21",
+    "tools/fetch-package-hash.sh": "2847da50ddccc6062a257d718c71849b633401306408ed08c7288576a85bd61e",
+    "tools/fuzz-gate.sh": "dcfb825cb4f78aafa739f7f0d3842d746eb91f1e6269300f72b28207b71e1df7",
+    "tools/gen-test-certs.sh": "1e59705aed1771d03941d71e3711074cfe5fd389954a8cd563d406891c0d9e43",
+    "tools/profile-applications.py": "6fd8bebe583142576cea4228a1ae28342220e5ce789ec4f8a0c56e520345ce0d",
+    "tools/profile-composition.py": "0bb3c75f3020aae8b71e4a8b498682adffc205147a4931b38abc976ea5f6af0d",
+    "tools/release.sh": "411405d2aab42fd2259c209d861e3f79b896f9cf4bbce41f79ce3ac33bf4e240"
+  },
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "package_consumer_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-consumer",
+  "package_validation_method": "SHA256 verified local archive, exact per-file extraction equality, and copied out-of-tree consumer selecting the extracted package by path; no standalone Zig package rehash",
+  "promotion_ready": false,
+  "promotion_hold": "Inherited mixed BBR/CUBIC share difference remains under review; passing machinery floors and qualification gates do not clear this hold",
+  "finished_utc": "2026-10-26T21:00:39.321196+00:00",
+  "branch": "codex/sprint-4-stack-qualification",
+  "local_qualification_complete": true,
+  "required_gate_count": 25,
+  "gates": [
+    {
+      "name": "mac-debug",
+      "started_utc": "2026-10-26T20:47:09.300744+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "zig",
+        "build",
+        "test",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-debug.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:47:10.341570+00:00",
+      "elapsed_seconds": 1.0248755828943104,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "b56fb6a2cfe7c27ab2e76d14b0a66476911b881197c27d0b7641a5748daecbaf",
+      "build_summaries": [
+        "Build Summary: 37/37 steps succeeded"
+      ],
+      "record_sha256": "99fa95ab9339e081e1578f04ff4dc8672b62f829f6e8f375a5ea43e6d85a5d92",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-debug.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f",
+      "execution_note": "Entire graph reused cached successful results after exact runtime/build identity verification; Mac full-C-sanitizer execution is separately fresh."
+    },
+    {
+      "name": "mac-release-safe",
+      "started_utc": "2026-10-26T20:48:11.445208+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "zig",
+        "build",
+        "test",
+        "-Drelease=true",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-release-safe.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:48:12.181877+00:00",
+      "elapsed_seconds": 0.7247929158620536,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "c6303dbac36da88b91370e2cf9cca333adfcc55c4fa549bbbdbef30d3108b767",
+      "build_summaries": [
+        "Build Summary: 30/30 steps succeeded"
+      ],
+      "record_sha256": "31ede02c7922bf238f84724d58fb02e44855a224188378282c2ca481a74b55d5",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-release-safe.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f",
+      "execution_note": "Entire graph reused cached successful results after exact runtime/build identity verification; Mac full-C-sanitizer execution is separately fresh."
+    },
+    {
+      "name": "mac-sanitize-full",
+      "started_utc": "2026-10-26T20:47:09.300708+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "zig",
+        "build",
+        "test",
+        "-Dsanitize-c=full",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-sanitize-full.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:48:15.741281+00:00",
+      "elapsed_seconds": 66.42394100013189,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "24562f768007a5ebcd69dec9ab20c5ccb59a47df1c15afea836fc4a32c618cd0",
+      "build_summaries": [
+        "Build Summary: 37/37 steps succeeded; 2076/2092 tests passed (16 skipped)"
+      ],
+      "record_sha256": "57d6d3a877d8d07ec372dd36b527ea5d3efa7ea4281be62b2fe0c0c43c2eef10",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-sanitize-full.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "mac-build-examples",
+      "started_utc": "2026-10-26T20:48:11.445208+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "zig",
+        "build",
+        "examples",
+        "bench-test",
+        "docs",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-build-examples.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:48:29.188030+00:00",
+      "elapsed_seconds": 17.73084995802492,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "221839afbf0347a225e9103ed730e289c0ccdc10f4ad86a16c84080d46d5871e",
+      "build_summaries": [
+        "Build Summary: 35/35 steps succeeded"
+      ],
+      "record_sha256": "2d7c4ce035fe7d62e03dbaabfdeb06a8e64ecacd835680a7f1d9ff443e836168",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-build-examples.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "mac-echo-smoke",
+      "started_utc": "2026-10-26T20:48:30.330021+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "zig",
+        "build",
+        "run-echo-smoke",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-echo-smoke.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:48:34.009280+00:00",
+      "elapsed_seconds": 3.6685442498419434,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "2eede3db5e1656f4b9c8c3c0332a903b3b4cd5a415822421f52c73ac939f39c1",
+      "build_summaries": [
+        "Build Summary: 11/11 steps succeeded"
+      ],
+      "record_sha256": "70632c996df636a06aff207ebdc1e2a54ae4a282b5376f0f8aba014cf1454d1d",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-echo-smoke.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "mac-goodput-smoke",
+      "started_utc": "2026-10-26T20:50:32.897588+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "zig",
+        "build",
+        "run-goodput-smoke",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-goodput-smoke.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+      "finished_utc": "2026-10-26T20:50:49.061903+00:00",
+      "elapsed_seconds": 16.128471583127975,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "04e5d34e6db8551d11164574e1310cd4a150001110cc13cf34750d261c365840",
+      "build_summaries": [
+        "Build Summary: 11/11 steps succeeded"
+      ],
+      "record_sha256": "2b537459cf971aee11584675945c027e189cf4ef0741a5ca8c1f1593d2e7b644",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-goodput-smoke.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "mac-consumer-debug",
+      "started_utc": "2026-10-26T20:50:18.213683+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/tools/consumer-smoke",
+      "command": [
+        "zig",
+        "build",
+        "run",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-consumer-debug.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+      "finished_utc": "2026-10-26T20:50:27.482680+00:00",
+      "elapsed_seconds": 9.241544166114181,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "449c36e6c544e994e9de5c59b445e2edb56f7497c8e7a4f84430c67079f37364",
+      "build_summaries": [
+        "Build Summary: 11/11 steps succeeded"
+      ],
+      "record_sha256": "9fe7f5641c3aba2bd9b9c152a3d32116eb8dd7341e7f4e5c05c23523af897f0b",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-consumer-debug.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "mac-consumer-safe",
+      "started_utc": "2026-10-26T20:50:18.213916+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/tools/consumer-smoke",
+      "command": [
+        "zig",
+        "build",
+        "run",
+        "-Doptimize=ReleaseSafe",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-consumer-safe.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+      "finished_utc": "2026-10-26T20:50:53.650995+00:00",
+      "elapsed_seconds": 35.40945474989712,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "36550bb81eb02b90413893d5fa57994fcc691b20022663aca6ab1c9f8a04361b",
+      "build_summaries": [
+        "Build Summary: 11/11 steps succeeded"
+      ],
+      "record_sha256": "3291d06641ed5439bd3b9abcb2957376451806a7c47b838ea2fe1876ba39526f",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-consumer-safe.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "mac-consumer-modes",
+      "started_utc": "2026-10-26T20:51:41.514514+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "sh",
+        "tools/consumer-smoke/check-modes.sh"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-consumer-modes.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+      "finished_utc": "2026-10-26T20:51:42.840650+00:00",
+      "elapsed_seconds": 1.3103335408959538,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "4d9ca5b06e5e7323b907aea532bc5ba8300cebd86dac8f71d7d5bdbb1caa0a00",
+      "build_summaries": [],
+      "record_sha256": "450645b992457dcece460a0c20cbd1d0ca07bd44f24458516ef24be5a3c0ef80",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-consumer-modes.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "mac-cross-windows",
+      "started_utc": "2026-10-26T20:48:30.329644+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "just",
+        "check-windows"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-cross-windows.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:48:57.916798+00:00",
+      "elapsed_seconds": 27.576389292022213,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "ff3b7cdf65e3d0929661063f521b66ca5ae54bd7b20e10da511e07cfee51f758",
+      "build_summaries": [
+        "Build Summary: 15/15 steps succeeded"
+      ],
+      "record_sha256": "3b2c3e13c47e5db8e269a1377ec57c3f47d7fd66b1a03881d3ca18b4289764f2",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-cross-windows.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f",
+      "execution_note": "Compile-only; expected foreign-binary execution errors are accepted by the existing recipe. No native Windows or x86-Linux test execution."
+    },
+    {
+      "name": "mac-cross-x86",
+      "started_utc": "2026-10-26T20:48:30.330533+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "just",
+        "check-x86"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-cross-x86.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:49:09.283034+00:00",
+      "elapsed_seconds": 38.94215575000271,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "903a7eb0d456b97067f58ba91cb5aa7b5a110e236315bac626a6128c9921b8af",
+      "build_summaries": [
+        "Build Summary: 15/15 steps succeeded"
+      ],
+      "record_sha256": "7f36bac9a99b0c223b5a5753f66603672c36c42fb4d2dcbab6eefbbdba4a7fd5",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-cross-x86.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f",
+      "execution_note": "Compile-only; expected foreign-binary execution errors are accepted by the existing recipe. No native Windows or x86-Linux test execution."
+    },
+    {
+      "name": "linux-debug",
+      "started_utc": "2026-10-26T20:47:09.300711+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--entrypoint",
+        "sh",
+        "-v",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source:/workspace",
+        "-w",
+        "/workspace",
+        "-e",
+        "ZIG_LOCAL_PKG_DIR=/src/quic-zig/zig-pkg",
+        "-e",
+        "COPYFILE_DISABLE=1",
+        "quic-zig-sprint1-builder:local",
+        "-c",
+        "set -eu; uname -srm; zig version; sha256sum /opt/zig/zig; zig build test -j2 --summary all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/opt/zig/zig",
+        "version": "0.17.0",
+        "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "linux-debug.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:48:22.365093+00:00",
+      "elapsed_seconds": 73.04769124998711,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "64b696545f80230e1df4f3ed3fbb700f411d34324aed61798caa4f8624e09d60",
+      "build_summaries": [
+        "Build Summary: 37/37 steps succeeded; 2091/2107 tests passed (16 skipped)"
+      ],
+      "orchestrator_compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "execution_platform": "Linux arm64 container on OrbStack",
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source",
+      "metadata_correction": "Early runner recorded the host-orchestrator compiler; execution compiler is corrected from the Linux pre-command identity printed in the raw log. Original orchestrator record is retained.",
+      "record_sha256": "9e72c89a33b6787614cd9c05e6f1f34d9fee57f1071850c3fb85224e1ce4d245",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-debug.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "linux-release-safe",
+      "started_utc": "2026-10-26T20:50:18.232988+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--entrypoint",
+        "sh",
+        "-v",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source:/workspace",
+        "-w",
+        "/workspace",
+        "-e",
+        "ZIG_LOCAL_PKG_DIR=/src/quic-zig/zig-pkg",
+        "-e",
+        "COPYFILE_DISABLE=1",
+        "quic-zig-sprint1-builder:local",
+        "-c",
+        "set -eu; uname -srm; zig version; sha256sum /opt/zig/zig; zig build test -Drelease -j2 --summary all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/opt/zig/zig",
+        "version": "0.17.0",
+        "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "linux-release-safe.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source",
+      "orchestrator_compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "execution_platform": "Linux arm64 container on OrbStack",
+      "finished_utc": "2026-10-26T20:52:22.353804+00:00",
+      "elapsed_seconds": 124.09739758400247,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "4fe503f89241e02b15e0a5f741639d90accd31741e1363aff2171eb00d7ef4c1",
+      "build_summaries": [
+        "Build Summary: 30/30 steps succeeded; 2047/2063 tests passed (16 skipped)"
+      ],
+      "record_sha256": "f5036512ef451ce9be9b4b77ab688a8065449e142736e15744e3f7e956ee1984",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-release-safe.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "linux-sanitize-full",
+      "started_utc": "2026-10-26T20:50:18.232992+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--entrypoint",
+        "sh",
+        "-v",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source:/workspace",
+        "-w",
+        "/workspace",
+        "-e",
+        "ZIG_LOCAL_PKG_DIR=/src/quic-zig/zig-pkg",
+        "-e",
+        "COPYFILE_DISABLE=1",
+        "quic-zig-sprint1-builder:local",
+        "-c",
+        "set -eu; uname -srm; zig version; sha256sum /opt/zig/zig; zig build test -Dsanitize-c=full -j2 --summary all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/opt/zig/zig",
+        "version": "0.17.0",
+        "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "linux-sanitize-full.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source",
+      "orchestrator_compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "execution_platform": "Linux arm64 container on OrbStack",
+      "finished_utc": "2026-10-26T20:51:41.462571+00:00",
+      "elapsed_seconds": 83.20670891692862,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "34f1c22a93c8ddd7b99628cf210ac7686f840964eb14a56096ec03952f2b7501",
+      "build_summaries": [
+        "Build Summary: 37/37 steps succeeded; 2091/2107 tests passed (16 skipped)"
+      ],
+      "record_sha256": "d23e89e07d3a02dfe528749ec9b822c759ab4fab4702d9f3f3b59583a027f4bf",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-sanitize-full.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "linux-fuzz-50000",
+      "started_utc": "2026-10-26T20:47:09.300698+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--entrypoint",
+        "sh",
+        "-v",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-fuzz-source:/workspace",
+        "-v",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26:/evidence",
+        "-w",
+        "/workspace",
+        "-e",
+        "ZIG_LOCAL_PKG_DIR=/src/quic-zig/zig-pkg",
+        "-e",
+        "COPYFILE_DISABLE=1",
+        "quic-zig-sprint1-builder:local",
+        "-c",
+        "set -eu; uname -srm; /opt/zig/zig version; sha256sum /opt/zig/zig; PATH=/evidence/tools-bin-linux:$PATH tools/fuzz-gate.sh 50000 /evidence/linux-fuzz-runtime.log"
+      ],
+      "timeout_seconds": 3600,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/opt/zig/zig",
+        "version": "0.17.0",
+        "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "linux-fuzz-50000.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:51:58.813434+00:00",
+      "elapsed_seconds": 289.49379062489606,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "3ab179379b2f835d937c7bf504e38225099fb7ff319a937b2911cfe0310604ce",
+      "build_summaries": [],
+      "orchestrator_compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "execution_platform": "Linux arm64 container on OrbStack",
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-fuzz-source",
+      "metadata_correction": "Early runner recorded the host-orchestrator compiler; execution compiler is corrected from the Linux pre-command identity printed in the raw log. Original orchestrator record is retained.",
+      "record_sha256": "36c19fa478a04f47d642e84fe38199de0c0e748ea5f332d72309ca973b80069f",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-fuzz-50000.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "linux-examples-udp-consumer",
+      "started_utc": "2026-10-26T20:57:06.066132+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--entrypoint",
+        "sh",
+        "-v",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source:/workspace",
+        "-w",
+        "/workspace",
+        "-e",
+        "ZIG_LOCAL_PKG_DIR=/src/quic-zig/zig-pkg",
+        "-e",
+        "COPYFILE_DISABLE=1",
+        "quic-zig-sprint1-builder:local",
+        "-c",
+        "set -eu; uname -srm; zig version; sha256sum /opt/zig/zig; zig build examples -j2 --summary all; zig build run-echo-smoke -j2 --summary all; zig build run-goodput-smoke -j2 --summary all; cd tools/consumer-smoke; zig build run -j2 --summary all; zig build run -Doptimize=ReleaseSafe -j2 --summary all; sh check-modes.sh"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/opt/zig/zig",
+        "version": "0.17.0",
+        "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "linux-examples-udp-consumer.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source",
+      "orchestrator_compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "execution_platform": "Linux arm64 container on OrbStack",
+      "finished_utc": "2026-10-26T20:58:20.833667+00:00",
+      "elapsed_seconds": 74.75726991705596,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "add27c59211e25bbdbb11a340bd2d11db32597af3063a8274992739cf075f70f",
+      "build_summaries": [
+        "Build Summary: 21/21 steps succeeded",
+        "Build Summary: 11/11 steps succeeded",
+        "Build Summary: 11/11 steps succeeded",
+        "Build Summary: 11/11 steps succeeded",
+        "Build Summary: 11/11 steps succeeded"
+      ],
+      "record_sha256": "93dccbba259a0d6f62e00fdb0224abb06c9247c492ab9d071f92b3f24b033fbd",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-examples-udp-consumer.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "qns-image-build",
+      "started_utc": "2026-10-26T20:48:11.445213+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/source-initial",
+      "command": [
+        "env",
+        "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+        "zig",
+        "build",
+        "external-interop",
+        "--",
+        "build-image",
+        "--image",
+        "quic-zig-qns:sprint4-43c2390"
+      ],
+      "timeout_seconds": 1800,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "qns-image-build.log",
+      "passed": true,
+      "finished_utc": "2026-10-26T20:50:17.534231+00:00",
+      "elapsed_seconds": 126.0759450418409,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "9bf728863161209e5813973cef77b1ca7945d9e9a005562673b089c6c51fd274",
+      "build_summaries": [],
+      "record_sha256": "9d2096ffda650b24aeacbeb82a9ae76c9f90549ff64ff56e4190307cc0cdbe1c",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/qns-image-build.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "interop-client",
+      "started_utc": "2026-10-26T20:51:14.944785+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/source-initial",
+      "command": [
+        "env",
+        "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+        "zig",
+        "build",
+        "external-interop",
+        "--",
+        "runner",
+        "--role",
+        "client",
+        "--runner-dir",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-interop-runner",
+        "--image",
+        "quic-zig-qns:sprint4-43c2390",
+        "--servers",
+        "quic-go",
+        "--tests",
+        "H,D",
+        "--quic-go-image",
+        "martenseemann/quic-go-interop@sha256:37db4402341f81981ffba01a6fa532d378f165a6fa8dd2b902f33549383d0077",
+        "--strict",
+        "--log-dir",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-client-logs",
+        "--json",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-client-result.json"
+      ],
+      "timeout_seconds": 1800,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "interop-client.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+      "finished_utc": "2026-10-26T20:52:03.803178+00:00",
+      "elapsed_seconds": 48.82222216692753,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "5dfa77d19ada3f15964cfbe991d454985add5cd3492cb565ff293ec53090f41f",
+      "build_summaries": [],
+      "record_sha256": "b5549cb59d6fd934c5e804411eb1e5a46593cba5ac4e61856f72c8644a6f21e1",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-client.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "interop-server",
+      "started_utc": "2026-10-26T20:52:53.385226+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/source-initial",
+      "command": [
+        "env",
+        "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+        "zig",
+        "build",
+        "external-interop",
+        "--",
+        "runner",
+        "--role",
+        "server",
+        "--runner-dir",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-interop-runner",
+        "--image",
+        "quic-zig-qns:sprint4-43c2390",
+        "--clients",
+        "quic-go",
+        "--tests",
+        "H,D",
+        "--quic-go-image",
+        "martenseemann/quic-go-interop@sha256:37db4402341f81981ffba01a6fa532d378f165a6fa8dd2b902f33549383d0077",
+        "--strict",
+        "--log-dir",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-server-logs",
+        "--json",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-server-result.json"
+      ],
+      "timeout_seconds": 1800,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "interop-server.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+      "finished_utc": "2026-10-26T20:53:44.212388+00:00",
+      "elapsed_seconds": 50.81090695783496,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "e7a9dd124a8a71b43791be423b07ea65e6428ceaea5c50657fd1ad002ad59a9a",
+      "build_summaries": [],
+      "record_sha256": "8f4bb6676fa5d603904f310da1d8eb43e1a94c5a83241439f6e7b0b5dfe82126",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-server.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "fairness-current",
+      "started_utc": "2026-10-26T20:50:32.873002+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "zig",
+        "build",
+        "bench-e2e",
+        "--",
+        "--scenario",
+        "fairness",
+        "--samples",
+        "1",
+        "--json",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/fairness-current-report.json"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "fairness-current.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+      "finished_utc": "2026-10-26T20:51:46.534678+00:00",
+      "elapsed_seconds": 73.61209749989212,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "5149b75ee04fd6a2f0190d49c38700fb338c4911542a79defbec503de514f70c",
+      "build_summaries": [],
+      "record_sha256": "63bc5332085c60061e70333bf09bcf8bfed183692d46cbeaa40a397f0bc8b47d",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/fairness-current.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "fairness-released",
+      "started_utc": "2026-10-26T20:50:49.850720+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/released-control",
+      "command": [
+        "env",
+        "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+        "zig",
+        "build",
+        "bench-e2e",
+        "--",
+        "--scenario",
+        "fairness",
+        "--samples",
+        "1",
+        "--json",
+        "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/fairness-released-report.json"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "2aa5bae31b7eab42cf95a654ab9717248d6f2498",
+      "runtime_build_tree_sha256": "616b884d76714b7c8916c4f3a3f6429d7b6da98db523494f45affff2dd0c0607",
+      "log": "fairness-released.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/released-control",
+      "finished_utc": "2026-10-26T20:52:30.880990+00:00",
+      "elapsed_seconds": 100.98406954179518,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "4267515a61f17359be87fd2902e48c9fa19e81a95c4ab65b38c394ec56267c67",
+      "build_summaries": [],
+      "record_sha256": "fa476cd0ff262a49e8c8c3a46d7c1e0cab09c94c5d98da68ba5fcae2177f25be",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/fairness-released.json",
+      "input_source_manifest": "released-control-manifest.json",
+      "input_source_manifest_sha256": "feea7efec961caa0834f4bc8cdf36a9e923bde034563ea55a12f0f7c11c7ca62"
+    },
+    {
+      "name": "mac-pins-format",
+      "started_utc": "2026-10-26T20:52:43.403931+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+      "command": [
+        "sh",
+        "-c",
+        "sh tools/check-zig-pins.sh && zig fmt --check build.zig src tests bench examples tools/bench_compare.zig tools/external_interop.zig tools/consumer-smoke/src tools/consumer-smoke/build.zig tools/application-profile.zig"
+      ],
+      "timeout_seconds": 300,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "mac-pins-format.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+      "finished_utc": "2026-10-26T20:52:43.637136+00:00",
+      "elapsed_seconds": 0.210692249936983,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "1386fba96e604fb050e29253e8968652bbaa084a45840f494a6d035175a75aaf",
+      "build_summaries": [],
+      "record_sha256": "b3f55f572581d0a4883a29df60447dc876a60b2287a66a12726d4ab53e5b3c3d",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/mac-pins-format.json",
+      "input_source_manifest": "initial-candidate-manifest.json",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "package-consumer-debug",
+      "started_utc": "2026-10-26T20:57:53.584626+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-consumer",
+      "command": [
+        "env",
+        "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+        "zig",
+        "build",
+        "run",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "package-consumer-debug.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-source",
+      "finished_utc": "2026-10-26T20:58:19.552233+00:00",
+      "elapsed_seconds": 25.9574817919638,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "6ff8278b3b93375226b65364bbc901c3b57a2ccf5b0ac9cee4825c0906e38f43",
+      "build_summaries": [
+        "Build Summary: 11/11 steps succeeded"
+      ],
+      "record_sha256": "337eb2ee1181b87a93852999f1886f76bef233031dd19d9624052fb4c5241c2f",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-consumer-debug.json",
+      "input_source_manifest": "final frozen source and verified extracted archive",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "package-consumer-safe",
+      "started_utc": "2026-10-26T20:57:53.585418+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-consumer",
+      "command": [
+        "env",
+        "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+        "zig",
+        "build",
+        "run",
+        "-Doptimize=ReleaseSafe",
+        "--summary",
+        "all"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "package-consumer-safe.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-source",
+      "finished_utc": "2026-10-26T20:58:27.810465+00:00",
+      "elapsed_seconds": 34.21537470910698,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "a0db29872bf2918590c867429cb7b65957404b77d5355331f8ce801ab509f357",
+      "build_summaries": [
+        "Build Summary: 11/11 steps succeeded"
+      ],
+      "record_sha256": "8426b78da57c4ded1e3656010eaa6dfdd3d11cd5488ae150a3404aacd316310f",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-consumer-safe.json",
+      "input_source_manifest": "final frozen source and verified extracted archive",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    },
+    {
+      "name": "package-consumer-modes",
+      "started_utc": "2026-10-26T20:57:53.584291+00:00",
+      "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-consumer",
+      "command": [
+        "env",
+        "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+        "sh",
+        "check-modes.sh"
+      ],
+      "timeout_seconds": 2700,
+      "host": "macOS-27.0.1-arm64-arm-64bit",
+      "compiler": {
+        "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+        "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+        "version": "0.17.0"
+      },
+      "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+      "log": "package-consumer-modes.log",
+      "passed": true,
+      "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-source",
+      "finished_utc": "2026-10-26T20:57:58.318945+00:00",
+      "elapsed_seconds": 4.724394582910463,
+      "exit_code": 0,
+      "runtime_unchanged": true,
+      "log_sha256": "4d9ca5b06e5e7323b907aea532bc5ba8300cebd86dac8f71d7d5bdbb1caa0a00",
+      "build_summaries": [],
+      "record_sha256": "ccd24bd9c97291cfd731fa6413000756265cdf59fe5afeb2b7ef2f966f136a7c",
+      "record_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-consumer-modes.json",
+      "input_source_manifest": "final frozen source and verified extracted archive",
+      "input_source_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f"
+    }
+  ],
+  "initial_input_manifest_sha256": "3dbd666a62ff3a807e2471a2df76b3fefa48a56f160f51505cbe6aefd238d90f",
+  "fuzz": {
+    "scope": "Fresh selected fixed-runtime Linux arm64 LLVM coverage-guided run on stock Zig0.17; no macOS-budget extrapolation",
+    "gate": "linux-fuzz-50000.json",
+    "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+    "compiler": {
+      "path": "/opt/zig/zig",
+      "version": "0.17.0",
+      "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+    },
+    "per_site_budget": 50000,
+    "sites": 43,
+    "minimum_execution_floor": 1935000,
+    "covered_pcs": 6008,
+    "coverage": [
+      {
+        "path": "benchmark-reports/sprint-4-2026-10-26/fuzz-coverage/d04c17f24fcba8f0",
+        "n_runs": 2176255,
+        "unique_runs": 13693,
+        "pcs_len": 48236,
+        "sha256": "490e0626409da323fb22bb5895afe212eb726866ac77f19b2b8d055c73d00ff6"
+      }
+    ],
+    "corpus_file_count": 1608,
+    "runtime_source_files_match": true
+  },
+  "interop": {
+    "scope": "Fresh local QNS build and four strict pinned foreign-peer cells, preserving runtime provenance separately from final documentation-only packaging",
+    "candidate_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+    "source_snapshot_tree_sha256": "2cf7e4f33ba678b24165767b53a0bc41208232d1386d22968a64843e3c723316",
+    "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+    "staged_runtime_files_match": true,
+    "endpoint_image": {
+      "tag": "quic-zig-qns:sprint4-43c2390",
+      "id": "sha256:9cc59e1f397f178600d7cbe6c508667d303ee564edce6dffccc076792ab3720e",
+      "platform": "linux/arm64",
+      "binary_sha256": "ff39a087500bacf94d3aa1b29c227ba497d026f79a42c8ead7a3ebc73fde8c7f",
+      "build_command": "zig build qns-endpoint -Drelease -Dcpu=baseline"
+    },
+    "peer_image": {
+      "pin": "martenseemann/quic-go-interop@sha256:37db4402341f81981ffba01a6fa532d378f165a6fa8dd2b902f33549383d0077",
+      "id": "sha256:b33f3f47d30b87cb3698594ac315d6d4ec905b2b8bcdef3a05be892ba29b64ce",
+      "platform": "linux/amd64"
+    },
+    "runner": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-interop-runner",
+      "commit": "1d6f6554ac8e3b7c4cca0e3d40fd69f661420673",
+      "status": "",
+      "tree_sha256": "ca4aab090704eafb2290128717d57b19a658b4749251e9a4eb0e08af16bab692",
+      "file_count": 40
+    },
+    "checks": [
+      {
+        "role": "client",
+        "gate": "interop-client.json",
+        "result": "benchmark-reports/sprint-4-2026-10-26/interop-client-result.json",
+        "result_sha256": "80378a20e048d98c2829e839d92659d1a55124bb64839055cb2fcd67753e06db",
+        "evidence": "interop evidence: pairs=1 cells=2 succeeded=2 failed=0 known_failed=0 unsupported=0 skipped=0 flaky_passed=0 flaky_failed=0",
+        "passed": true
+      },
+      {
+        "role": "server",
+        "gate": "interop-server.json",
+        "result": "benchmark-reports/sprint-4-2026-10-26/interop-server-result.json",
+        "result_sha256": "81900e92184d3859cd1a939a010ffb2375e3e1ec2607d8b795bb0bf5c880dc69",
+        "evidence": "interop evidence: pairs=1 cells=2 succeeded=2 failed=0 known_failed=0 unsupported=0 skipped=0 flaky_passed=0 flaky_failed=0",
+        "passed": true
+      }
+    ],
+    "all_four_cells_passed": true,
+    "limits": "Linux arm64 candidate endpoint and Linux amd64 peer under local Docker; not hosted CI or physical-network performance"
+  },
+  "fairness": {
+    "scope": "fresh deterministic six-cell comparison of fixed candidate43c2390 and verified releasev0.42.2; independent of immutable downstream0.37.2 idle-cache negative",
+    "candidate_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+    "released_commit": "2aa5bae31b7eab42cf95a654ab9717248d6f2498",
+    "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+    "options": {
+      "samples_per_benchmark": 1,
+      "cc_algorithm": "bbr",
+      "cc_hystart_enabled": true,
+      "optimize": "safe",
+      "bench_unsafe_release_fast": false,
+      "zig_version": "0.17.0",
+      "target": {
+        "arch": "aarch64",
+        "os": "macos",
+        "abi": "none",
+        "cpu_model": "apple_m5"
+      }
+    },
+    "harness_source_hashes": {
+      "bench/e2e_main.zig": {
+        "released_sha256": "df6d08120e4cd9c7c7bf415f9a7ba1f52da5efe03e21e74042e4b36d406fe0f0",
+        "candidate_sha256": "df6d08120e4cd9c7c7bf415f9a7ba1f52da5efe03e21e74042e4b36d406fe0f0"
+      },
+      "bench/e2e/fairness.zig": {
+        "released_sha256": "82a78aa2ff275063485c9c2e7627a4f00bbc2df3697aa2b1a769772790770475",
+        "candidate_sha256": "82a78aa2ff275063485c9c2e7627a4f00bbc2df3697aa2b1a769772790770475"
+      },
+      "bench/e2e/sim_net.zig": {
+        "released_sha256": "710a99ae670dd993f2e9f5452889ab7642f18a492eddcc6ec790bdf95a048ab2",
+        "candidate_sha256": "710a99ae670dd993f2e9f5452889ab7642f18a492eddcc6ec790bdf95a048ab2"
+      },
+      "bench/e2e/harness.zig": {
+        "released_sha256": "89cfa956d4543fc461c12094b564ed8859ab969b08c79b8587f61ac7b3ef001f",
+        "candidate_sha256": "7def0934b2d2711b77cff5e654f9d0a64fb90b3a063e4b2a7d4d4bba5b84522d"
+      }
+    },
+    "all_six_match_prior_candidate_observations": true,
+    "all_six_machinery_floors_pass": true,
+    "existing_gate_analysis": {
+      "bench_compare_has_fairness_metric": false,
+      "bench_compare_default_tolerance_percent": 10,
+      "machine_floor_scope": "The executable unit tests validate machinery on a smaller reference case; these explicit checks apply the same broad floors to all six measured cells. They are not promotion acceptance criteria.",
+      "outstanding_reason": "Mixed BBR/CUBIC shares differ from released0.42.2; prior RTT-eligibility and handshake-clamp controls excluded only those hypotheses, and the cause/acceptance of the main-only difference remains unresolved."
+    },
+    "recommendation": "Runtime/consumer contract qualification may pass; retain the promotion hold pending an explicit fairness review or approved numeric acceptance criterion. Do not change controller defaults, loss policy or pins as part of this qualification.",
+    "rows": [
+      {
+        "name": "fairness_10mbit_2f_cubic",
+        "released": {
+          "name": "fairness_10mbit_2f_cubic",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 12095954,
+              "goodput_mbps": 4.8384,
+              "share": 0.4982
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 12183049,
+              "goodput_mbps": 4.8732,
+              "share": 0.5018
+            }
+          ],
+          "jain_index": 1.0,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 43038,
+          "dropped": 50,
+          "queue_dropped": 50,
+          "peak_queue_delay_us": 99769,
+          "seed": 780740
+        },
+        "candidate": {
+          "name": "fairness_10mbit_2f_cubic",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 13256844,
+              "goodput_mbps": 5.3027,
+              "share": 0.546
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 11022153,
+              "goodput_mbps": 4.4089,
+              "share": 0.454
+            }
+          ],
+          "jain_index": 0.9916,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 42822,
+          "dropped": 48,
+          "queue_dropped": 48,
+          "peak_queue_delay_us": 99774,
+          "seed": 780740
+        },
+        "differences": {
+          "flows": {
+            "released": [
+              {
+                "cc": "cubic",
+                "start_us": 0,
+                "measured_bytes": 12095954,
+                "goodput_mbps": 4.8384,
+                "share": 0.4982
+              },
+              {
+                "cc": "cubic",
+                "start_us": 0,
+                "measured_bytes": 12183049,
+                "goodput_mbps": 4.8732,
+                "share": 0.5018
+              }
+            ],
+            "candidate": [
+              {
+                "cc": "cubic",
+                "start_us": 0,
+                "measured_bytes": 13256844,
+                "goodput_mbps": 5.3027,
+                "share": 0.546
+              },
+              {
+                "cc": "cubic",
+                "start_us": 0,
+                "measured_bytes": 11022153,
+                "goodput_mbps": 4.4089,
+                "share": 0.454
+              }
+            ]
+          },
+          "jain_index": {
+            "released": 1.0,
+            "candidate": 0.9916
+          },
+          "enqueued": {
+            "released": 43038,
+            "candidate": 42822
+          },
+          "dropped": {
+            "released": 50,
+            "candidate": 48
+          },
+          "queue_dropped": {
+            "released": 50,
+            "candidate": 48
+          },
+          "peak_queue_delay_us": {
+            "released": 99769,
+            "candidate": 99774
+          }
+        },
+        "matches_prior_held_candidate_values": true,
+        "machinery_floor_checks": {
+          "all_flows_progress": true,
+          "utilization_above_machinery_floor": true,
+          "jain_above_machinery_floor": true
+        }
+      },
+      {
+        "name": "fairness_10mbit_2f_bbr",
+        "released": {
+          "name": "fairness_10mbit_2f_bbr",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 11897741,
+              "goodput_mbps": 4.7591,
+              "share": 0.49
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 12381354,
+              "goodput_mbps": 4.9525,
+              "share": 0.51
+            }
+          ],
+          "jain_index": 0.9996,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 42910,
+          "dropped": 0,
+          "queue_dropped": 0,
+          "peak_queue_delay_us": 40280,
+          "seed": 780740
+        },
+        "candidate": {
+          "name": "fairness_10mbit_2f_bbr",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 11800355,
+              "goodput_mbps": 4.7201,
+              "share": 0.486
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 12478780,
+              "goodput_mbps": 4.9915,
+              "share": 0.514
+            }
+          ],
+          "jain_index": 0.9992,
+          "aggregate_mbps": 9.7117,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 42881,
+          "dropped": 0,
+          "queue_dropped": 0,
+          "peak_queue_delay_us": 40280,
+          "seed": 780740
+        },
+        "differences": {
+          "flows": {
+            "released": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 11897741,
+                "goodput_mbps": 4.7591,
+                "share": 0.49
+              },
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 12381354,
+                "goodput_mbps": 4.9525,
+                "share": 0.51
+              }
+            ],
+            "candidate": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 11800355,
+                "goodput_mbps": 4.7201,
+                "share": 0.486
+              },
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 12478780,
+                "goodput_mbps": 4.9915,
+                "share": 0.514
+              }
+            ]
+          },
+          "jain_index": {
+            "released": 0.9996,
+            "candidate": 0.9992
+          },
+          "aggregate_mbps": {
+            "released": 9.7116,
+            "candidate": 9.7117
+          },
+          "enqueued": {
+            "released": 42910,
+            "candidate": 42881
+          }
+        },
+        "matches_prior_held_candidate_values": true,
+        "machinery_floor_checks": {
+          "all_flows_progress": true,
+          "utilization_above_machinery_floor": true,
+          "jain_above_machinery_floor": true
+        }
+      },
+      {
+        "name": "fairness_10mbit_4f_bbr",
+        "released": {
+          "name": "fairness_10mbit_4f_bbr",
+          "kind": "fairness",
+          "flow_count": 4,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 5668116,
+              "goodput_mbps": 2.2672,
+              "share": 0.2335
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 5746029,
+              "goodput_mbps": 2.2984,
+              "share": 0.2367
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6252554,
+              "goodput_mbps": 2.501,
+              "share": 0.2575
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6612405,
+              "goodput_mbps": 2.645,
+              "share": 0.2723
+            }
+          ],
+          "jain_index": 0.996,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 46565,
+          "dropped": 0,
+          "queue_dropped": 0,
+          "peak_queue_delay_us": 92200,
+          "seed": 780740
+        },
+        "candidate": {
+          "name": "fairness_10mbit_4f_bbr",
+          "kind": "fairness",
+          "flow_count": 4,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 5755198,
+              "goodput_mbps": 2.3021,
+              "share": 0.237
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 5672693,
+              "goodput_mbps": 2.2691,
+              "share": 0.2336
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6096706,
+              "goodput_mbps": 2.4387,
+              "share": 0.2511
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6754510,
+              "goodput_mbps": 2.7018,
+              "share": 0.2782
+            }
+          ],
+          "jain_index": 0.9951,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 46171,
+          "dropped": 0,
+          "queue_dropped": 0,
+          "peak_queue_delay_us": 90303,
+          "seed": 780740
+        },
+        "differences": {
+          "flows": {
+            "released": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 5668116,
+                "goodput_mbps": 2.2672,
+                "share": 0.2335
+              },
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 5746029,
+                "goodput_mbps": 2.2984,
+                "share": 0.2367
+              },
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 6252554,
+                "goodput_mbps": 2.501,
+                "share": 0.2575
+              },
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 6612405,
+                "goodput_mbps": 2.645,
+                "share": 0.2723
+              }
+            ],
+            "candidate": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 5755198,
+                "goodput_mbps": 2.3021,
+                "share": 0.237
+              },
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 5672693,
+                "goodput_mbps": 2.2691,
+                "share": 0.2336
+              },
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 6096706,
+                "goodput_mbps": 2.4387,
+                "share": 0.2511
+              },
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 6754510,
+                "goodput_mbps": 2.7018,
+                "share": 0.2782
+              }
+            ]
+          },
+          "jain_index": {
+            "released": 0.996,
+            "candidate": 0.9951
+          },
+          "enqueued": {
+            "released": 46565,
+            "candidate": 46171
+          },
+          "peak_queue_delay_us": {
+            "released": 92200,
+            "candidate": 90303
+          }
+        },
+        "matches_prior_held_candidate_values": true,
+        "machinery_floor_checks": {
+          "all_flows_progress": true,
+          "utilization_above_machinery_floor": true,
+          "jain_above_machinery_floor": true
+        }
+      },
+      {
+        "name": "fairness_10mbit_2f_bbr_stagger5s",
+        "released": {
+          "name": "fairness_10mbit_2f_bbr_stagger5s",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 12254142,
+              "goodput_mbps": 4.9017,
+              "share": 0.5047
+            },
+            {
+              "cc": "bbr",
+              "start_us": 5000000,
+              "measured_bytes": 12024957,
+              "goodput_mbps": 4.81,
+              "share": 0.4953
+            }
+          ],
+          "jain_index": 0.9999,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 30000000,
+          "enqueued": 52329,
+          "dropped": 0,
+          "queue_dropped": 0,
+          "peak_queue_delay_us": 55384,
+          "seed": 780740
+        },
+        "candidate": {
+          "name": "fairness_10mbit_2f_bbr_stagger5s",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 12384794,
+              "goodput_mbps": 4.9539,
+              "share": 0.5101
+            },
+            {
+              "cc": "bbr",
+              "start_us": 5000000,
+              "measured_bytes": 11894327,
+              "goodput_mbps": 4.7577,
+              "share": 0.4899
+            }
+          ],
+          "jain_index": 0.9996,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 30000000,
+          "enqueued": 52014,
+          "dropped": 0,
+          "queue_dropped": 0,
+          "peak_queue_delay_us": 42162,
+          "seed": 780740
+        },
+        "differences": {
+          "flows": {
+            "released": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 12254142,
+                "goodput_mbps": 4.9017,
+                "share": 0.5047
+              },
+              {
+                "cc": "bbr",
+                "start_us": 5000000,
+                "measured_bytes": 12024957,
+                "goodput_mbps": 4.81,
+                "share": 0.4953
+              }
+            ],
+            "candidate": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 12384794,
+                "goodput_mbps": 4.9539,
+                "share": 0.5101
+              },
+              {
+                "cc": "bbr",
+                "start_us": 5000000,
+                "measured_bytes": 11894327,
+                "goodput_mbps": 4.7577,
+                "share": 0.4899
+              }
+            ]
+          },
+          "jain_index": {
+            "released": 0.9999,
+            "candidate": 0.9996
+          },
+          "enqueued": {
+            "released": 52329,
+            "candidate": 52014
+          },
+          "peak_queue_delay_us": {
+            "released": 55384,
+            "candidate": 42162
+          }
+        },
+        "matches_prior_held_candidate_values": true,
+        "machinery_floor_checks": {
+          "all_flows_progress": true,
+          "utilization_above_machinery_floor": true,
+          "jain_above_machinery_floor": true
+        }
+      },
+      {
+        "name": "fairness_10mbit_2f_mixed",
+        "released": {
+          "name": "fairness_10mbit_2f_mixed",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 7902764,
+              "goodput_mbps": 3.1611,
+              "share": 0.3255
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 16376282,
+              "goodput_mbps": 6.5505,
+              "share": 0.6745
+            }
+          ],
+          "jain_index": 0.8914,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 44440,
+          "dropped": 54,
+          "queue_dropped": 54,
+          "peak_queue_delay_us": 99906,
+          "seed": 780740
+        },
+        "candidate": {
+          "name": "fairness_10mbit_2f_mixed",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6514960,
+              "goodput_mbps": 2.606,
+              "share": 0.2683
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 17764095,
+              "goodput_mbps": 7.1056,
+              "share": 0.7317
+            }
+          ],
+          "jain_index": 0.8233,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 43555,
+          "dropped": 36,
+          "queue_dropped": 36,
+          "peak_queue_delay_us": 99822,
+          "seed": 780740
+        },
+        "differences": {
+          "flows": {
+            "released": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 7902764,
+                "goodput_mbps": 3.1611,
+                "share": 0.3255
+              },
+              {
+                "cc": "cubic",
+                "start_us": 0,
+                "measured_bytes": 16376282,
+                "goodput_mbps": 6.5505,
+                "share": 0.6745
+              }
+            ],
+            "candidate": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 6514960,
+                "goodput_mbps": 2.606,
+                "share": 0.2683
+              },
+              {
+                "cc": "cubic",
+                "start_us": 0,
+                "measured_bytes": 17764095,
+                "goodput_mbps": 7.1056,
+                "share": 0.7317
+              }
+            ]
+          },
+          "jain_index": {
+            "released": 0.8914,
+            "candidate": 0.8233
+          },
+          "enqueued": {
+            "released": 44440,
+            "candidate": 43555
+          },
+          "dropped": {
+            "released": 54,
+            "candidate": 36
+          },
+          "queue_dropped": {
+            "released": 54,
+            "candidate": 36
+          },
+          "peak_queue_delay_us": {
+            "released": 99906,
+            "candidate": 99822
+          }
+        },
+        "matches_prior_held_candidate_values": true,
+        "machinery_floor_checks": {
+          "all_flows_progress": true,
+          "utilization_above_machinery_floor": true,
+          "jain_above_machinery_floor": true
+        }
+      },
+      {
+        "name": "fairness_10mbit_2f_mixed_shallow25ms",
+        "released": {
+          "name": "fairness_10mbit_2f_mixed_shallow25ms",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 14306641,
+              "goodput_mbps": 5.7227,
+              "share": 0.5893
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 9972455,
+              "goodput_mbps": 3.989,
+              "share": 0.4107
+            }
+          ],
+          "jain_index": 0.9691,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 44708,
+          "dropped": 478,
+          "queue_dropped": 478,
+          "peak_queue_delay_us": 24997,
+          "seed": 780740
+        },
+        "candidate": {
+          "name": "fairness_10mbit_2f_mixed_shallow25ms",
+          "kind": "fairness",
+          "flow_count": 2,
+          "flows": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 15630273,
+              "goodput_mbps": 6.2521,
+              "share": 0.6438
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 8648841,
+              "goodput_mbps": 3.4595,
+              "share": 0.3562
+            }
+          ],
+          "jain_index": 0.9236,
+          "aggregate_mbps": 9.7116,
+          "utilization": 0.9712,
+          "measure_window_us": 20000000,
+          "virtual_us": 25000000,
+          "enqueued": 44519,
+          "dropped": 485,
+          "queue_dropped": 485,
+          "peak_queue_delay_us": 24997,
+          "seed": 780740
+        },
+        "differences": {
+          "flows": {
+            "released": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 14306641,
+                "goodput_mbps": 5.7227,
+                "share": 0.5893
+              },
+              {
+                "cc": "cubic",
+                "start_us": 0,
+                "measured_bytes": 9972455,
+                "goodput_mbps": 3.989,
+                "share": 0.4107
+              }
+            ],
+            "candidate": [
+              {
+                "cc": "bbr",
+                "start_us": 0,
+                "measured_bytes": 15630273,
+                "goodput_mbps": 6.2521,
+                "share": 0.6438
+              },
+              {
+                "cc": "cubic",
+                "start_us": 0,
+                "measured_bytes": 8648841,
+                "goodput_mbps": 3.4595,
+                "share": 0.3562
+              }
+            ]
+          },
+          "jain_index": {
+            "released": 0.9691,
+            "candidate": 0.9236
+          },
+          "enqueued": {
+            "released": 44708,
+            "candidate": 44519
+          },
+          "dropped": {
+            "released": 478,
+            "candidate": 485
+          },
+          "queue_dropped": {
+            "released": 478,
+            "candidate": 485
+          }
+        },
+        "matches_prior_held_candidate_values": true,
+        "machinery_floor_checks": {
+          "all_flows_progress": true,
+          "utilization_above_machinery_floor": true,
+          "jain_above_machinery_floor": true
+        }
+      }
+    ],
+    "harness_diff_note": "Only liveRequestStreams changed in harness.zig: an empty-map return and skipping sort for <=1 ID; this helper is used by churn, not runFairnessOnce. Fairness entry point, fairness algorithm and SimNet sources are byte-identical between release and candidate.",
+    "harness_diff": "diff --git a/bench/e2e/harness.zig b/bench/e2e/harness.zig\nindex 6b6d9b4..50f030c 100644\n--- a/bench/e2e/harness.zig\n+++ b/bench/e2e/harness.zig\n@@ -662,6 +662,7 @@ pub const ChurnResult = struct {\n /// on `conn`, lowest first (so the run does not depend on hash-map\n /// iteration order).\n fn liveRequestStreams(conn: *const quic.Connection, out: []u64) []u64 {\n+    if (conn.streams.count() == 0) return out[0..0];\n     var n: usize = 0;\n     var it = conn.streams.iterator();\n     while (it.next()) |entry| {\n@@ -670,7 +671,9 @@ fn liveRequestStreams(conn: *const quic.Connection, out: []u64) []u64 {\n         out[n] = id;\n         n += 1;\n     }\n-    std.mem.sort(u64, out[0..n], {}, std.sort.asc(u64));\n+    if (n > 1) {\n+        std.mem.sort(u64, out[0..n], {}, std.sort.asc(u64));\n+    }\n     return out[0..n];\n }\n \n"
+  },
+  "dependencies": {
+    "boringssl-host": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig/zig-pkg/boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2",
+      "tree_sha256": "5891589c6ec7000c2d1947787b20acc1a77818457a8b55663aa6096aa448c0f4",
+      "file_count": 20
+    },
+    "boringssl-linux": {
+      "path": "/src/quic-zig/zig-pkg/boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2",
+      "tree_sha256": "5891589c6ec7000c2d1947787b20acc1a77818457a8b55663aa6096aa448c0f4",
+      "file_count": 20
+    },
+    "boringssl-upstream-host": {
+      "path": "/Users/nullstyle/prj/zig/quic-zig/zig-pkg/N-V-__8AAIz-yA1qPu2wxEtNpv8DTC2EpGepIdO2F1uU5M9k",
+      "tree_sha256": "e30a4f0a3ea0583758bee687a24934d000c71a0f3b6264d8cd3883be114bf445",
+      "file_count": 8580
+    },
+    "boringssl-upstream-linux": {
+      "path": "/src/quic-zig/zig-pkg/N-V-__8AAIz-yA1qPu2wxEtNpv8DTC2EpGepIdO2F1uU5M9k",
+      "tree_sha256": "e30a4f0a3ea0583758bee687a24934d000c71a0f3b6264d8cd3883be114bf445",
+      "file_count": 8580
+    }
+  },
+  "package_consumer_proof": {
+    "archive_sha256_verified": true,
+    "all_extracted_files_equal_frozen_source": true,
+    "debug_and_release_safe_executed": true,
+    "all_six_mode_guards_passed": true,
+    "canonical_zig_package_hash_verified": false,
+    "public_url_fetch_verified": false,
+    "limit": "Standalone Zig package rehash has a retained earlier hang; it was not rerun or repaired. This SHA/local archive/path-consumer proof is distinct from a canonical package hash or public URL fetch."
+  },
+  "negative_control": {
+    "scope": "Released downstream QUIC0.37.2 inherited idle-cache defect; retained from Sprint3, not rerun or altered in Sprint4",
+    "binary_sha256": "e979038598010e7ad05877ad7c6c70e4c5c40f7acb5d23366eb1ea4e877952dc",
+    "report": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-3-2026-10-26/recovery-repro/native-red.json"
+  },
+  "limits": [
+    "Inherited mixed-fairness promotion review remains held despite all existing automated qualification gates passing.",
+    "Mac native execution, Linux arm64 containers, foreign-target compilation, and Docker QNS interop are separate evidence.",
+    "Native Windows, native Linux x86-64, hosted tier-1 CI and physical-network performance are not established here.",
+    "Canonical Zig package-hash verification and public URL fetching are not completed; no release, push, tag, version or pin move was performed.",
+    "The parent owns the final coordinated qmsg/qmesh composition checkpoint; producer gates alone do not establish that checkpoint."
+  ],
+  "preparation_findings": [
+    {
+      "file": "released-control-preparation-initial-failure.json",
+      "scope": "System Python preparation failure, corrected using mise Python3.12; no runtime test executed in that failed attempt."
+    }
+  ],
+  "evidence_helpers": {
+    "run-gate.py": "b326804f684c7a24d76f3eda075f64037deebd935c7aa1dfa17a72a70303006f",
+    "make-package.py": "2d52c762a0586f15db7b24ec31e8e71a784da2978439b6bc8fdb00c0de32160d",
+    "hash-source.py": "5864fc2fd25b5536a90dacbac6581d3d186144c2fddb110e17514697593ef534",
+    "finalize-evidence.py": "6cbb4679fa367f2f4aa5da4d35e7d68d61cd157c529510640ba3c29998817a4f"
+  }
+}

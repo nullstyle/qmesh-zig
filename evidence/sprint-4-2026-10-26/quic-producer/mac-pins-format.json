@@ -1,0 +1,28 @@
+{
+  "name": "mac-pins-format",
+  "started_utc": "2026-10-26T20:52:43.403931+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "command": [
+    "sh",
+    "-c",
+    "sh tools/check-zig-pins.sh && zig fmt --check build.zig src tests bench examples tools/bench_compare.zig tools/external_interop.zig tools/consumer-smoke/src tools/consumer-smoke/build.zig tools/application-profile.zig"
+  ],
+  "timeout_seconds": 300,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "mac-pins-format.log",
+  "passed": true,
+  "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+  "finished_utc": "2026-10-26T20:52:43.637136+00:00",
+  "elapsed_seconds": 0.210692249936983,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "1386fba96e604fb050e29253e8968652bbaa084a45840f494a6d035175a75aaf",
+  "build_summaries": []
+}

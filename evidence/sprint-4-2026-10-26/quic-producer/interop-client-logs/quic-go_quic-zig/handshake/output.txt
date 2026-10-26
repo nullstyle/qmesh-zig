@@ -1,0 +1,84 @@
+2026-10-26 12:51:20,494 Generated random file: violet-excessive-subway of size: 1024
+2026-10-26 12:51:20,494 Requests: ['https://server4:443/violet-excessive-subway']
+2026-10-26 12:51:20,604 
+2026-10-26 12:51:20,604 Command: WAITFORSERVER=server:443 CERTS=/tmp/certs_r6qkmsxy/ TESTCASE_SERVER=handshake TESTCASE_CLIENT=handshake CLIENT_WWW=/tmp/client_www_648a09hj/ CLIENT_DOWNLOADS=/tmp/client_download_s0oavbri/ SERVER_WWW=/tmp/server_www_rgikr48g/ SERVER_DOWNLOADS=/tmp/server_download_u2qg312p/ SERVER_LOGS=/tmp/logs_server_gr4xdt6p CLIENT_LOGS=/tmp/logs_client_npsbdm41 SCENARIO="simple-p2p --delay=15ms --bandwidth=10Mbps --queue=25" CLIENT=quic-zig-qns:sprint4-43c2390 SERVER=martenseemann/quic-go-interop@sha256:37db4402341f81981ffba01a6fa532d378f165a6fa8dd2b902f33549383d0077 REQUESTS_CLIENT="https://server4:443/violet-excessive-subway" REQUESTS_SERVER=""  docker compose --env-file empty.env up --abort-on-container-exit --timeout 10 sim client server 
+2026-10-26 12:51:35,249  Container sim Recreate 
+ Container sim Recreated 
+ Container client Recreate 
+ Container server Recreate 
+ server The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested 
+ Container server Recreated 
+ Container client Recreated 
+Attaching to client, server, sim
+ Container sim Starting 
+sim  | waiting 10s for server:443
+ Container sim Started 
+ Container client Starting 
+ Container server Starting 
+client  | Setting up routes...
+client  | Actual changes:
+client  | tx-checksum-ip-generic: off
+client  | tx-tcp-segmentation: off [not requested]
+client  | tx-tcp-ecn-segmentation: off [not requested]
+client  | tx-tcp-mangleid-segmentation: off [not requested]
+client  | tx-tcp6-segmentation: off [not requested]
+client  | tx-udp-segmentation: off [not requested]
+client  | tx-checksum-sctp: off
+client  | Endpoint's IPv4 address is 193.167.0.100
+client  | Endpoint's IPv6 address is fd00:cafe:cafe::100
+client  | quic qns client connecting to 193.167.100.100:443 testcase=handshake requests=1
+client  | tuned QNS UDP socket: SO_RCVBUF=8388608 bytes, SO_SNDBUF=8388608 bytes
+client  | [diag-send] t=1000014us len=1200 Init b0=0xc3
+ Container client Started 
+ Container server Started 
+server  | Setting up routes...
+server  | Actual changes:
+server  | tx-checksum-ip-generic: off
+server  | tx-tcp-segmentation: off [not requested]
+server  | tx-tcp-ecn-segmentation: off [not requested]
+server  | tx-tcp-mangleid-segmentation: off [not requested]
+server  | tx-tcp6-segmentation: off [not requested]
+server  | tx-udp-segmentation: off [not requested]
+server  | tx-checksum-sctp: off
+server  | Endpoint's IPv4 address is 193.167.100.100
+server  | Endpoint's IPv6 address is fd00:cafe:cafe:100::100
+server  | Using commit: 146f1be9ddb84078bfbf7aa582d5a05caa6cc941
+server  | Running QUIC server.
+sim     | server:443 is available after 1.004977505s
+sim     | Using scenario: simple-p2p --delay=15ms --bandwidth=10Mbps --queue=25
+sim     | Capturing on 'eth1'
+sim     | Capturing on 'eth0'
+sim     | File: /logs/trace_node_right.pcap
+sim     | File: /logs/trace_node_left.pcap
+client  | [diag-send] t=2003126us len=1200 Init b0=0xc3
+client  | [diag-send] t=2003126us len=1200 Init b0=0xc7
+client  | [diag-send] t=2076897us len=176 Hsk  b0=0xe5
+client  | [diag-send] t=2076897us len=53 1RTT b0=0x43
+client  | [diag-send] t=2076897us len=53 1RTT b0=0x4d
+client  | [diag-send] t=2120435us len=59 1RTT b0=0x49
+client  | downloaded https://server4:443/violet-excessive-subway -> violet-excessive-subway (1024 bytes)
+client  | [diag-send] t=2126477us len=31 1RTT b0=0x4e
+client exited with code 0
+ Compose Stopping Aborting on container exit...
+ Container client Stopping 
+ Container server Stopping 
+ Container client Stopped 
+ Container server Stopped 
+ Container sim Stopping 
+server exited with code 137
+sim     | Packets: 1 Packets: 1 Packets: 9 Packets: 11 Packets: 13 Packets: 19 Packets: 32 Packets: 28 Packets: 40 Packets: 35 Packets: 41 Packets: 36 Packets: 43 Packets: 37 Packets: 44 Packets captured: 37
+sim     | Packets received/dropped on interface 'eth0': 37/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
+sim     | Packets captured: 44
+sim     | Packets received/dropped on interface 'eth1': 44/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
+ Container sim Stopped 
+sim exited with code 143
+
+2026-10-26 12:51:35,607 Container exits: b'\x1b[Kclient exited with code 0' | b'\x1b[Kserver exited with code 137' | b'\x1b[Ksim exited with code 143'
+2026-10-26 12:51:35,607 Using combined client/server key log file.
+2026-10-26 12:51:35,707 
+2026-10-26 12:51:35,708 Using combined client/server key log file.
+2026-10-26 12:51:35,708 Using combined client/server key log file.
+2026-10-26 12:51:35,731 
+2026-10-26 12:51:35,732 Using combined client/server key log file.
+2026-10-26 12:51:35,732 Using selector: KqueueSelector
+2026-10-26 12:51:36,372 Check of downloaded files succeeded.

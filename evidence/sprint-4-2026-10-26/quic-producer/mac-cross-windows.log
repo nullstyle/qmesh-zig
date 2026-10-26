@@ -1,0 +1,25 @@
+Build Summary: 15/15 steps succeeded
+install success
++- install qns-endpoint success
+|  +- compile exe qns-endpoint debug x86_64-windows success 3s MaxRSS:457M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug x86_64-windows cached 48ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl debug x86_64-windows cached 54ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug x86_64-windows cached 97ms MaxRSS:32M
+|     |  +- compile lib crypto debug x86_64-windows (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug x86_64-windows (reused)
+|     +- compile lib ssl_shim debug x86_64-windows (reused)
+|     +- compile lib ssl debug x86_64-windows (+3 more reused dependencies)
+|     +- compile lib crypto debug x86_64-windows (reused)
+|     +- options cached
+|     +- translate-c cached 27ms MaxRSS:30M
++- install quic-zig-external-interop cached
+|  +- compile exe quic-zig-external-interop debug x86_64-windows cached 62ms MaxRSS:31M
++- install quic-zig-bench-compare cached
+   +- compile exe quic-zig-bench-compare debug x86_64-windows cached 40ms MaxRSS:31M
+
+--- test binaries: compile-only ---
+windows cross-compile clean

@@ -1,0 +1,841 @@
+{
+  "scope": "fresh deterministic six-cell comparison of fixed candidate43c2390 and verified releasev0.42.2; independent of immutable downstream0.37.2 idle-cache negative",
+  "candidate_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "released_commit": "2aa5bae31b7eab42cf95a654ab9717248d6f2498",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "options": {
+    "samples_per_benchmark": 1,
+    "cc_algorithm": "bbr",
+    "cc_hystart_enabled": true,
+    "optimize": "safe",
+    "bench_unsafe_release_fast": false,
+    "zig_version": "0.17.0",
+    "target": {
+      "arch": "aarch64",
+      "os": "macos",
+      "abi": "none",
+      "cpu_model": "apple_m5"
+    }
+  },
+  "harness_source_hashes": {
+    "bench/e2e_main.zig": {
+      "released_sha256": "df6d08120e4cd9c7c7bf415f9a7ba1f52da5efe03e21e74042e4b36d406fe0f0",
+      "candidate_sha256": "df6d08120e4cd9c7c7bf415f9a7ba1f52da5efe03e21e74042e4b36d406fe0f0"
+    },
+    "bench/e2e/fairness.zig": {
+      "released_sha256": "82a78aa2ff275063485c9c2e7627a4f00bbc2df3697aa2b1a769772790770475",
+      "candidate_sha256": "82a78aa2ff275063485c9c2e7627a4f00bbc2df3697aa2b1a769772790770475"
+    },
+    "bench/e2e/sim_net.zig": {
+      "released_sha256": "710a99ae670dd993f2e9f5452889ab7642f18a492eddcc6ec790bdf95a048ab2",
+      "candidate_sha256": "710a99ae670dd993f2e9f5452889ab7642f18a492eddcc6ec790bdf95a048ab2"
+    },
+    "bench/e2e/harness.zig": {
+      "released_sha256": "89cfa956d4543fc461c12094b564ed8859ab969b08c79b8587f61ac7b3ef001f",
+      "candidate_sha256": "7def0934b2d2711b77cff5e654f9d0a64fb90b3a063e4b2a7d4d4bba5b84522d"
+    }
+  },
+  "all_six_match_prior_candidate_observations": true,
+  "all_six_machinery_floors_pass": true,
+  "existing_gate_analysis": {
+    "bench_compare_has_fairness_metric": false,
+    "bench_compare_default_tolerance_percent": 10,
+    "machine_floor_scope": "The executable unit tests validate machinery on a smaller reference case; these explicit checks apply the same broad floors to all six measured cells. They are not promotion acceptance criteria.",
+    "outstanding_reason": "Mixed BBR/CUBIC shares differ from released0.42.2; prior RTT-eligibility and handshake-clamp controls excluded only those hypotheses, and the cause/acceptance of the main-only difference remains unresolved."
+  },
+  "recommendation": "Runtime/consumer contract qualification may pass; retain the promotion hold pending an explicit fairness review or approved numeric acceptance criterion. Do not change controller defaults, loss policy or pins as part of this qualification.",
+  "rows": [
+    {
+      "name": "fairness_10mbit_2f_cubic",
+      "released": {
+        "name": "fairness_10mbit_2f_cubic",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "cubic",
+            "start_us": 0,
+            "measured_bytes": 12095954,
+            "goodput_mbps": 4.8384,
+            "share": 0.4982
+          },
+          {
+            "cc": "cubic",
+            "start_us": 0,
+            "measured_bytes": 12183049,
+            "goodput_mbps": 4.8732,
+            "share": 0.5018
+          }
+        ],
+        "jain_index": 1.0,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 43038,
+        "dropped": 50,
+        "queue_dropped": 50,
+        "peak_queue_delay_us": 99769,
+        "seed": 780740
+      },
+      "candidate": {
+        "name": "fairness_10mbit_2f_cubic",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "cubic",
+            "start_us": 0,
+            "measured_bytes": 13256844,
+            "goodput_mbps": 5.3027,
+            "share": 0.546
+          },
+          {
+            "cc": "cubic",
+            "start_us": 0,
+            "measured_bytes": 11022153,
+            "goodput_mbps": 4.4089,
+            "share": 0.454
+          }
+        ],
+        "jain_index": 0.9916,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 42822,
+        "dropped": 48,
+        "queue_dropped": 48,
+        "peak_queue_delay_us": 99774,
+        "seed": 780740
+      },
+      "differences": {
+        "flows": {
+          "released": [
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 12095954,
+              "goodput_mbps": 4.8384,
+              "share": 0.4982
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 12183049,
+              "goodput_mbps": 4.8732,
+              "share": 0.5018
+            }
+          ],
+          "candidate": [
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 13256844,
+              "goodput_mbps": 5.3027,
+              "share": 0.546
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 11022153,
+              "goodput_mbps": 4.4089,
+              "share": 0.454
+            }
+          ]
+        },
+        "jain_index": {
+          "released": 1.0,
+          "candidate": 0.9916
+        },
+        "enqueued": {
+          "released": 43038,
+          "candidate": 42822
+        },
+        "dropped": {
+          "released": 50,
+          "candidate": 48
+        },
+        "queue_dropped": {
+          "released": 50,
+          "candidate": 48
+        },
+        "peak_queue_delay_us": {
+          "released": 99769,
+          "candidate": 99774
+        }
+      },
+      "matches_prior_held_candidate_values": true,
+      "machinery_floor_checks": {
+        "all_flows_progress": true,
+        "utilization_above_machinery_floor": true,
+        "jain_above_machinery_floor": true
+      }
+    },
+    {
+      "name": "fairness_10mbit_2f_bbr",
+      "released": {
+        "name": "fairness_10mbit_2f_bbr",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 11897741,
+            "goodput_mbps": 4.7591,
+            "share": 0.49
+          },
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 12381354,
+            "goodput_mbps": 4.9525,
+            "share": 0.51
+          }
+        ],
+        "jain_index": 0.9996,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 42910,
+        "dropped": 0,
+        "queue_dropped": 0,
+        "peak_queue_delay_us": 40280,
+        "seed": 780740
+      },
+      "candidate": {
+        "name": "fairness_10mbit_2f_bbr",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 11800355,
+            "goodput_mbps": 4.7201,
+            "share": 0.486
+          },
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 12478780,
+            "goodput_mbps": 4.9915,
+            "share": 0.514
+          }
+        ],
+        "jain_index": 0.9992,
+        "aggregate_mbps": 9.7117,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 42881,
+        "dropped": 0,
+        "queue_dropped": 0,
+        "peak_queue_delay_us": 40280,
+        "seed": 780740
+      },
+      "differences": {
+        "flows": {
+          "released": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 11897741,
+              "goodput_mbps": 4.7591,
+              "share": 0.49
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 12381354,
+              "goodput_mbps": 4.9525,
+              "share": 0.51
+            }
+          ],
+          "candidate": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 11800355,
+              "goodput_mbps": 4.7201,
+              "share": 0.486
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 12478780,
+              "goodput_mbps": 4.9915,
+              "share": 0.514
+            }
+          ]
+        },
+        "jain_index": {
+          "released": 0.9996,
+          "candidate": 0.9992
+        },
+        "aggregate_mbps": {
+          "released": 9.7116,
+          "candidate": 9.7117
+        },
+        "enqueued": {
+          "released": 42910,
+          "candidate": 42881
+        }
+      },
+      "matches_prior_held_candidate_values": true,
+      "machinery_floor_checks": {
+        "all_flows_progress": true,
+        "utilization_above_machinery_floor": true,
+        "jain_above_machinery_floor": true
+      }
+    },
+    {
+      "name": "fairness_10mbit_4f_bbr",
+      "released": {
+        "name": "fairness_10mbit_4f_bbr",
+        "kind": "fairness",
+        "flow_count": 4,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 5668116,
+            "goodput_mbps": 2.2672,
+            "share": 0.2335
+          },
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 5746029,
+            "goodput_mbps": 2.2984,
+            "share": 0.2367
+          },
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 6252554,
+            "goodput_mbps": 2.501,
+            "share": 0.2575
+          },
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 6612405,
+            "goodput_mbps": 2.645,
+            "share": 0.2723
+          }
+        ],
+        "jain_index": 0.996,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 46565,
+        "dropped": 0,
+        "queue_dropped": 0,
+        "peak_queue_delay_us": 92200,
+        "seed": 780740
+      },
+      "candidate": {
+        "name": "fairness_10mbit_4f_bbr",
+        "kind": "fairness",
+        "flow_count": 4,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 5755198,
+            "goodput_mbps": 2.3021,
+            "share": 0.237
+          },
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 5672693,
+            "goodput_mbps": 2.2691,
+            "share": 0.2336
+          },
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 6096706,
+            "goodput_mbps": 2.4387,
+            "share": 0.2511
+          },
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 6754510,
+            "goodput_mbps": 2.7018,
+            "share": 0.2782
+          }
+        ],
+        "jain_index": 0.9951,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 46171,
+        "dropped": 0,
+        "queue_dropped": 0,
+        "peak_queue_delay_us": 90303,
+        "seed": 780740
+      },
+      "differences": {
+        "flows": {
+          "released": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 5668116,
+              "goodput_mbps": 2.2672,
+              "share": 0.2335
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 5746029,
+              "goodput_mbps": 2.2984,
+              "share": 0.2367
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6252554,
+              "goodput_mbps": 2.501,
+              "share": 0.2575
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6612405,
+              "goodput_mbps": 2.645,
+              "share": 0.2723
+            }
+          ],
+          "candidate": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 5755198,
+              "goodput_mbps": 2.3021,
+              "share": 0.237
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 5672693,
+              "goodput_mbps": 2.2691,
+              "share": 0.2336
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6096706,
+              "goodput_mbps": 2.4387,
+              "share": 0.2511
+            },
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6754510,
+              "goodput_mbps": 2.7018,
+              "share": 0.2782
+            }
+          ]
+        },
+        "jain_index": {
+          "released": 0.996,
+          "candidate": 0.9951
+        },
+        "enqueued": {
+          "released": 46565,
+          "candidate": 46171
+        },
+        "peak_queue_delay_us": {
+          "released": 92200,
+          "candidate": 90303
+        }
+      },
+      "matches_prior_held_candidate_values": true,
+      "machinery_floor_checks": {
+        "all_flows_progress": true,
+        "utilization_above_machinery_floor": true,
+        "jain_above_machinery_floor": true
+      }
+    },
+    {
+      "name": "fairness_10mbit_2f_bbr_stagger5s",
+      "released": {
+        "name": "fairness_10mbit_2f_bbr_stagger5s",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 12254142,
+            "goodput_mbps": 4.9017,
+            "share": 0.5047
+          },
+          {
+            "cc": "bbr",
+            "start_us": 5000000,
+            "measured_bytes": 12024957,
+            "goodput_mbps": 4.81,
+            "share": 0.4953
+          }
+        ],
+        "jain_index": 0.9999,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 30000000,
+        "enqueued": 52329,
+        "dropped": 0,
+        "queue_dropped": 0,
+        "peak_queue_delay_us": 55384,
+        "seed": 780740
+      },
+      "candidate": {
+        "name": "fairness_10mbit_2f_bbr_stagger5s",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 12384794,
+            "goodput_mbps": 4.9539,
+            "share": 0.5101
+          },
+          {
+            "cc": "bbr",
+            "start_us": 5000000,
+            "measured_bytes": 11894327,
+            "goodput_mbps": 4.7577,
+            "share": 0.4899
+          }
+        ],
+        "jain_index": 0.9996,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 30000000,
+        "enqueued": 52014,
+        "dropped": 0,
+        "queue_dropped": 0,
+        "peak_queue_delay_us": 42162,
+        "seed": 780740
+      },
+      "differences": {
+        "flows": {
+          "released": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 12254142,
+              "goodput_mbps": 4.9017,
+              "share": 0.5047
+            },
+            {
+              "cc": "bbr",
+              "start_us": 5000000,
+              "measured_bytes": 12024957,
+              "goodput_mbps": 4.81,
+              "share": 0.4953
+            }
+          ],
+          "candidate": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 12384794,
+              "goodput_mbps": 4.9539,
+              "share": 0.5101
+            },
+            {
+              "cc": "bbr",
+              "start_us": 5000000,
+              "measured_bytes": 11894327,
+              "goodput_mbps": 4.7577,
+              "share": 0.4899
+            }
+          ]
+        },
+        "jain_index": {
+          "released": 0.9999,
+          "candidate": 0.9996
+        },
+        "enqueued": {
+          "released": 52329,
+          "candidate": 52014
+        },
+        "peak_queue_delay_us": {
+          "released": 55384,
+          "candidate": 42162
+        }
+      },
+      "matches_prior_held_candidate_values": true,
+      "machinery_floor_checks": {
+        "all_flows_progress": true,
+        "utilization_above_machinery_floor": true,
+        "jain_above_machinery_floor": true
+      }
+    },
+    {
+      "name": "fairness_10mbit_2f_mixed",
+      "released": {
+        "name": "fairness_10mbit_2f_mixed",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 7902764,
+            "goodput_mbps": 3.1611,
+            "share": 0.3255
+          },
+          {
+            "cc": "cubic",
+            "start_us": 0,
+            "measured_bytes": 16376282,
+            "goodput_mbps": 6.5505,
+            "share": 0.6745
+          }
+        ],
+        "jain_index": 0.8914,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 44440,
+        "dropped": 54,
+        "queue_dropped": 54,
+        "peak_queue_delay_us": 99906,
+        "seed": 780740
+      },
+      "candidate": {
+        "name": "fairness_10mbit_2f_mixed",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 6514960,
+            "goodput_mbps": 2.606,
+            "share": 0.2683
+          },
+          {
+            "cc": "cubic",
+            "start_us": 0,
+            "measured_bytes": 17764095,
+            "goodput_mbps": 7.1056,
+            "share": 0.7317
+          }
+        ],
+        "jain_index": 0.8233,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 43555,
+        "dropped": 36,
+        "queue_dropped": 36,
+        "peak_queue_delay_us": 99822,
+        "seed": 780740
+      },
+      "differences": {
+        "flows": {
+          "released": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 7902764,
+              "goodput_mbps": 3.1611,
+              "share": 0.3255
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 16376282,
+              "goodput_mbps": 6.5505,
+              "share": 0.6745
+            }
+          ],
+          "candidate": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 6514960,
+              "goodput_mbps": 2.606,
+              "share": 0.2683
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 17764095,
+              "goodput_mbps": 7.1056,
+              "share": 0.7317
+            }
+          ]
+        },
+        "jain_index": {
+          "released": 0.8914,
+          "candidate": 0.8233
+        },
+        "enqueued": {
+          "released": 44440,
+          "candidate": 43555
+        },
+        "dropped": {
+          "released": 54,
+          "candidate": 36
+        },
+        "queue_dropped": {
+          "released": 54,
+          "candidate": 36
+        },
+        "peak_queue_delay_us": {
+          "released": 99906,
+          "candidate": 99822
+        }
+      },
+      "matches_prior_held_candidate_values": true,
+      "machinery_floor_checks": {
+        "all_flows_progress": true,
+        "utilization_above_machinery_floor": true,
+        "jain_above_machinery_floor": true
+      }
+    },
+    {
+      "name": "fairness_10mbit_2f_mixed_shallow25ms",
+      "released": {
+        "name": "fairness_10mbit_2f_mixed_shallow25ms",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 14306641,
+            "goodput_mbps": 5.7227,
+            "share": 0.5893
+          },
+          {
+            "cc": "cubic",
+            "start_us": 0,
+            "measured_bytes": 9972455,
+            "goodput_mbps": 3.989,
+            "share": 0.4107
+          }
+        ],
+        "jain_index": 0.9691,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 44708,
+        "dropped": 478,
+        "queue_dropped": 478,
+        "peak_queue_delay_us": 24997,
+        "seed": 780740
+      },
+      "candidate": {
+        "name": "fairness_10mbit_2f_mixed_shallow25ms",
+        "kind": "fairness",
+        "flow_count": 2,
+        "flows": [
+          {
+            "cc": "bbr",
+            "start_us": 0,
+            "measured_bytes": 15630273,
+            "goodput_mbps": 6.2521,
+            "share": 0.6438
+          },
+          {
+            "cc": "cubic",
+            "start_us": 0,
+            "measured_bytes": 8648841,
+            "goodput_mbps": 3.4595,
+            "share": 0.3562
+          }
+        ],
+        "jain_index": 0.9236,
+        "aggregate_mbps": 9.7116,
+        "utilization": 0.9712,
+        "measure_window_us": 20000000,
+        "virtual_us": 25000000,
+        "enqueued": 44519,
+        "dropped": 485,
+        "queue_dropped": 485,
+        "peak_queue_delay_us": 24997,
+        "seed": 780740
+      },
+      "differences": {
+        "flows": {
+          "released": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 14306641,
+              "goodput_mbps": 5.7227,
+              "share": 0.5893
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 9972455,
+              "goodput_mbps": 3.989,
+              "share": 0.4107
+            }
+          ],
+          "candidate": [
+            {
+              "cc": "bbr",
+              "start_us": 0,
+              "measured_bytes": 15630273,
+              "goodput_mbps": 6.2521,
+              "share": 0.6438
+            },
+            {
+              "cc": "cubic",
+              "start_us": 0,
+              "measured_bytes": 8648841,
+              "goodput_mbps": 3.4595,
+              "share": 0.3562
+            }
+          ]
+        },
+        "jain_index": {
+          "released": 0.9691,
+          "candidate": 0.9236
+        },
+        "enqueued": {
+          "released": 44708,
+          "candidate": 44519
+        },
+        "dropped": {
+          "released": 478,
+          "candidate": 485
+        },
+        "queue_dropped": {
+          "released": 478,
+          "candidate": 485
+        }
+      },
+      "matches_prior_held_candidate_values": true,
+      "machinery_floor_checks": {
+        "all_flows_progress": true,
+        "utilization_above_machinery_floor": true,
+        "jain_above_machinery_floor": true
+      }
+    }
+  ],
+  "harness_diff_note": "Only liveRequestStreams changed in harness.zig: an empty-map return and skipping sort for <=1 ID; this helper is used by churn, not runFairnessOnce. Fairness entry point, fairness algorithm and SimNet sources are byte-identical between release and candidate.",
+  "harness_diff": "diff --git a/bench/e2e/harness.zig b/bench/e2e/harness.zig\nindex 6b6d9b4..50f030c 100644\n--- a/bench/e2e/harness.zig\n+++ b/bench/e2e/harness.zig\n@@ -662,6 +662,7 @@ pub const ChurnResult = struct {\n /// on `conn`, lowest first (so the run does not depend on hash-map\n /// iteration order).\n fn liveRequestStreams(conn: *const quic.Connection, out: []u64) []u64 {\n+    if (conn.streams.count() == 0) return out[0..0];\n     var n: usize = 0;\n     var it = conn.streams.iterator();\n     while (it.next()) |entry| {\n@@ -670,7 +671,9 @@ fn liveRequestStreams(conn: *const quic.Connection, out: []u64) []u64 {\n         out[n] = id;\n         n += 1;\n     }\n-    std.mem.sort(u64, out[0..n], {}, std.sort.asc(u64));\n+    if (n > 1) {\n+        std.mem.sort(u64, out[0..n], {}, std.sort.asc(u64));\n+    }\n     return out[0..n];\n }\n \n"
+}

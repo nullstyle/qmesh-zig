@@ -1,0 +1,37 @@
+{
+  "name": "fairness-released",
+  "started_utc": "2026-10-26T20:50:49.850720+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/released-control",
+  "command": [
+    "env",
+    "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+    "zig",
+    "build",
+    "bench-e2e",
+    "--",
+    "--scenario",
+    "fairness",
+    "--samples",
+    "1",
+    "--json",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/fairness-released-report.json"
+  ],
+  "timeout_seconds": 2700,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "2aa5bae31b7eab42cf95a654ab9717248d6f2498",
+  "runtime_build_tree_sha256": "616b884d76714b7c8916c4f3a3f6429d7b6da98db523494f45affff2dd0c0607",
+  "log": "fairness-released.log",
+  "passed": true,
+  "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/released-control",
+  "finished_utc": "2026-10-26T20:52:30.880990+00:00",
+  "elapsed_seconds": 100.98406954179518,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "4267515a61f17359be87fd2902e48c9fa19e81a95c4ab65b38c394ec56267c67",
+  "build_summaries": []
+}

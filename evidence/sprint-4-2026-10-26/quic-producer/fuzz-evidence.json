@@ -1,0 +1,25 @@
+{
+  "scope": "Fresh selected fixed-runtime Linux arm64 LLVM coverage-guided run on stock Zig0.17; no macOS-budget extrapolation",
+  "gate": "linux-fuzz-50000.json",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "compiler": {
+    "path": "/opt/zig/zig",
+    "version": "0.17.0",
+    "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+  },
+  "per_site_budget": 50000,
+  "sites": 43,
+  "minimum_execution_floor": 1935000,
+  "covered_pcs": 6008,
+  "coverage": [
+    {
+      "path": "benchmark-reports/sprint-4-2026-10-26/fuzz-coverage/d04c17f24fcba8f0",
+      "n_runs": 2176255,
+      "unique_runs": 13693,
+      "pcs_len": 48236,
+      "sha256": "490e0626409da323fb22bb5895afe212eb726866ac77f19b2b8d055c73d00ff6"
+    }
+  ],
+  "corpus_file_count": 1608,
+  "runtime_source_files_match": true
+}

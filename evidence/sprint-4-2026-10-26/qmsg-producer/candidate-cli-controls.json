@@ -1,0 +1,39 @@
+[
+  {
+    "case": "guard",
+    "command": [
+      "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults"
+    ],
+    "live_udp_enabled": false,
+    "returncode": 0,
+    "expected_returncode": 0,
+    "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-guard.log",
+    "passed": true
+  },
+  {
+    "case": "payload-range",
+    "command": [
+      "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+      "--payload-bytes",
+      "513"
+    ],
+    "live_udp_enabled": true,
+    "returncode": 1,
+    "expected_returncode": 1,
+    "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-payload-range.log",
+    "passed": true
+  },
+  {
+    "case": "timeout-range",
+    "command": [
+      "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+      "--timeout-ms",
+      "30001"
+    ],
+    "live_udp_enabled": true,
+    "returncode": 1,
+    "expected_returncode": 1,
+    "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-timeout-range.log",
+    "passed": true
+  }
+]

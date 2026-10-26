@@ -1,0 +1,19 @@
+{
+  "state": "static-review-complete",
+  "reviewer": "/root/quic_idle_cache_fix/linux_launcher_review",
+  "checks": [
+    "correct per-repository branches",
+    "authentic independent shallow clones with frozen file overlays",
+    "exact cached image and SDK identities",
+    "safe.directory before canonical identity",
+    "isolated writable workspace with evidence-only mount",
+    "five nonvacuous check groups in both requested modes",
+    "actual test executable identities",
+    "original and clone source preservation"
+  ],
+  "resolved_review_note": "Timeout always attempts SIGKILL of the prior process group after TERM, even if wrapper exited, before starting another mode.",
+  "source_freeze": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-frozen-inputs.json",
+  "launcher_sha256": "bb48d7a77e9f811321f85d5fc27be6a53fdbdc668e0c03d6341232c0df1f165c",
+  "container_helper_sha256": "4dfbae45184ec59e7178981478cdfd3989c38f9a683be2d016c8b52b02e435cd",
+  "scope": "Read-only static review; subsequent execution authorized separately by root."
+}

@@ -1,0 +1,51 @@
+test-qmsg
++- run test w
+
+[node-pair] dead-peer detection: 2084ms after last contact (negotiated idle timeout 2000ms)
+failed command: /workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition/o/7da7c36f488c9dbe5a749c2cf08cec0c/test --cache-dir=/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition --seed=0x679cec02 --listen=-
+
+Build Summary: 15/15 steps succeeded; 894/894 tests passed
+test-qmsg success
++- run test 350 pass (350 total) 1s MaxRSS:23M
+|  +- compile test debug native success 7s MaxRSS:1G
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native cached 34ms MaxRSS:75M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native cached 27ms MaxRSS:75M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug native cached 29ms MaxRSS:75M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options cached
+|     +- translate-c cached 27ms MaxRSS:74M
++- run test 188 pass (188 total) 66ms MaxRSS:15M
+|  +- compile test debug native success 3s MaxRSS:731M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 356 pass (356 total) 3s MaxRSS:28M
+   +- compile test debug native success 7s MaxRSS:1G
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

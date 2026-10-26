@@ -1,0 +1,24 @@
+{
+  "frozen_utc": "2026-10-26T21:19:31.725175+00:00",
+  "source": {
+    "path": "/Users/nullstyle/prj/zig/qmsg",
+    "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+    "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+    "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+    "file_count": 81,
+    "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+    "dependency_pins": {
+      "quic": {
+        "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+        "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+      }
+    }
+  },
+  "source_frozen": true,
+  "producer_gates_pending": true,
+  "relative_link_files_checked": [
+    "README.md",
+    "docs/SPRINT.md",
+    "docs/SPRINT_4_PUBLIC_FAULTS.md"
+  ]
+}

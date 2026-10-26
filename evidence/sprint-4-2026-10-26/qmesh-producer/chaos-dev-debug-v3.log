@@ -1,0 +1,33 @@
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=bootstrap
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=partition
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=expire_hints
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=suspect_gate
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=dead_gate
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=restart_application
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=heal
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=snapshot_repair
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=stale_endpoint
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=wrong_identity
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=moved_endpoint_repair
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=fresh_mesh_owner
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=final_repair
+MESH_CHAOS_WORKLOAD {"seed":89392317417476,"plan_fingerprint":5798157002642304137,"final_state_hash":2536831994452932632,"logical_actions_completed":13,"converged":true,"authority_revision":48,"replica_revisions":[48,48,48],"snapshot_attempts":105,"snapshot_timeouts":27,"snapshots_applied":10,"snapshot_replies":78,"stale_snapshots_rejected":68,"request_backpressure":12,"request_peer_closures":0,"application_restarts":1,"endpoint_moves":1,"suspect_preserved_routes":1,"suspect_new_dials_paused":1,"dead_route_removals":3,"absent_route_removals":1,"stale_endpoint_rejected":true,"wrong_identity_rejected":true,"hints_evicted":45,"hints_delivered_after_heal":0,"peak_pending_requests_per_replica":1,"peak_pool_entries_per_replica":1,"peak_total_pool_entries":3,"peak_mesh_session_records":6,"peak_mesh_server_slots":6,"elapsed_us":6809364}
+Build Summary: 11/11 steps succeeded
+run-chaos success
++- run exe qmesh-recovery-chaos success 7s
+   +- compile exe qmesh-recovery-chaos debug native success 2s MaxRSS:551M
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native cached 43ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl debug native cached 40ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto debug native cached 53ms MaxRSS:32M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options cached
+      +- translate-c cached 35ms MaxRSS:31M
+

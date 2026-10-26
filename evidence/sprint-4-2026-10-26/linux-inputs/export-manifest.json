@@ -1,0 +1,518 @@
+{
+  "scope": "Cache-free Linux checkpoint report/provenance export",
+  "file_count": 102,
+  "files": {
+    "checkpoint-result.json": {
+      "sha256": "0ac61ac26fb45c3bb4c75e16af8482ba31b2e9a1402e0ad804a65d753c8e7840",
+      "bytes": 21249,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/checkpoint-result.json"
+    },
+    "container-checkpoint.py": {
+      "sha256": "4dfbae45184ec59e7178981478cdfd3989c38f9a683be2d016c8b52b02e435cd",
+      "bytes": 8851,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/container-checkpoint.py"
+    },
+    "docker-launch.log": {
+      "sha256": "0a289ee9da194b46128d9b0c3c7e14daecbe91064dbeffa3d9b408ea5559f81d",
+      "bytes": 11581,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/docker-launch.log"
+    },
+    "final-identities.json": {
+      "sha256": "b9666f2e0d8c88070c960bdf1bc12f8d23ec70e721780b2f03e8d3bfb11730bc",
+      "bytes": 2445,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/final-identities.json"
+    },
+    "frozen-inputs.json": {
+      "sha256": "2dfee82530bd7780ca250ec8d5717fec830ff1b6ded5e160c2faba965d43fb56",
+      "bytes": 2487,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/frozen-inputs.json"
+    },
+    "host-result.json": {
+      "sha256": "a3840b8753ad61264728c13c72e359b45589eaed35901923c7c3945e631cb1cb",
+      "bytes": 2852,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/host-result.json"
+    },
+    "initial-identities.json": {
+      "sha256": "b9666f2e0d8c88070c960bdf1bc12f8d23ec70e721780b2f03e8d3bfb11730bc",
+      "bytes": 2445,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/initial-identities.json"
+    },
+    "launch.json": {
+      "sha256": "9dfd6df1125b193de7a20bbac407a80f41448a8f7b45576532bcf1265b6a67ec",
+      "bytes": 755,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/launch.json"
+    },
+    "linux-checkpoint-container.py": {
+      "sha256": "4dfbae45184ec59e7178981478cdfd3989c38f9a683be2d016c8b52b02e435cd",
+      "bytes": 8851,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/linux-checkpoint-container.py"
+    },
+    "linux-checkpoint-launcher.py": {
+      "sha256": "bb48d7a77e9f811321f85d5fc27be6a53fdbdc668e0c03d6341232c0df1f165c",
+      "bytes": 11087,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/linux-checkpoint-launcher.py"
+    },
+    "linux-checkpoint-static-review.json": {
+      "sha256": "193315c27c9f9d0ef3dc7ff66e0c5047f70cc26e435f426ab42c42e990c45302",
+      "bytes": 1059,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/linux-checkpoint-static-review.json"
+    },
+    "linux-checkpoint-summary.json": {
+      "sha256": "2e0a7a09f9890de05f5f64bb482a4d822a5069175378c18d05c11033255cb56c",
+      "bytes": 5330,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/linux-checkpoint-summary.json"
+    },
+    "plan.json": {
+      "sha256": "f13122ec5f7e6105341bf9a6caefa63517cb85d91a14a50536e5999c71caa7e0",
+      "bytes": 1752,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/plan.json"
+    },
+    "prepared-inputs.json": {
+      "sha256": "7af6b01ee36c0567b60d62f3e305d896407a685fe9bb39d704d175a653b2b73b",
+      "bytes": 114421,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/prepared-inputs.json"
+    },
+    "qmesh-zig-clone.log": {
+      "sha256": "8acc97fe2525d09ff7b33f7b5b6812e8f47c26b8e1019ae4e9d8d648de244fed",
+      "bytes": 142,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/qmesh-zig-clone.log"
+    },
+    "qmsg-clone.log": {
+      "sha256": "e5cb52e7b08bca6784285f0c613dbbe87fc1b614607b92b0dcf426eae4865dc2",
+      "bytes": 137,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/qmsg-clone.log"
+    },
+    "quic-zig-clone.log": {
+      "sha256": "00d8e064e5d795ead99f694b058df9f80bef1e29c6a52d3cfcd7c32473011b78",
+      "bytes": 141,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/quic-zig-clone.log"
+    },
+    "runtime-identity.json": {
+      "sha256": "c451338cd255b8f83df496f5a2c65a53eaa1443c1dbb368d593f8108d28876ca",
+      "bytes": 15850,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/runtime-identity.json"
+    },
+    "selected-debug/fetch-dependencies.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/fetch-dependencies.log"
+    },
+    "selected-debug/report.json": {
+      "sha256": "c23e92ef278f682527f0dd020918c047c5949e0a571b0151269552540ae17b23",
+      "bytes": 10808,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/report.json"
+    },
+    "selected-debug/selected-composition.log": {
+      "sha256": "6f22e3fdddaaff3a11baba0046cfbf35ee83d1512492d55cea67b4f255bd24af",
+      "bytes": 819,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/selected-composition.log"
+    },
+    "selected-debug/selected-qmsg.log": {
+      "sha256": "603f7cf06c8243a8e69675b8c305d65b149a47485d44edc62c0cfca65a50b2d4",
+      "bytes": 2397,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/selected-qmsg.log"
+    },
+    "selected-debug/selected-sprint2.log": {
+      "sha256": "40e4a08e5cf0342973e3e8f02cbd80417f02312d1c84e907737492616531c156",
+      "bytes": 822,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/selected-sprint2.log"
+    },
+    "selected-debug/selected-sprint3.log": {
+      "sha256": "61cf1f713a62125ca1b87928fc9db7caab8ccfdb851cf4d5f712fef0641c4c0d",
+      "bytes": 822,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/selected-sprint3.log"
+    },
+    "selected-debug/selected-sprint4.log": {
+      "sha256": "266ab9f86e5615161d2892502d5f0dae245c62ddf16c7be023db723d1b0403a0",
+      "bytes": 2112,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/selected-sprint4.log"
+    },
+    "selected-debug/workspace/tests/composition/build.zig": {
+      "sha256": "aadc414a699590092c30dfea69a5cdfcf8469c7dcb74a6d02db784d170a2f5ed",
+      "bytes": 9128,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/composition/build.zig"
+    },
+    "selected-debug/workspace/tests/composition/build.zig.zon": {
+      "sha256": "f315de46427b96949fad946f8c2772a4359d801714f66f0301bcce333bb2fc99",
+      "bytes": 589,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/composition/build.zig.zon"
+    },
+    "selected-debug/workspace/tests/composition_test.zig": {
+      "sha256": "809e1935b0a4240cfe8045c7eee6fc216cfabdee747ec08beb7872e960a8c440",
+      "bytes": 10423,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/composition_test.zig"
+    },
+    "selected-debug/workspace/tests/data/ca.key": {
+      "sha256": "fb3b3cfb2f89f90830a3ab65e5687082040e09bebabe6f09276831f95cd1e7b2",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/ca.key"
+    },
+    "selected-debug/workspace/tests/data/ca.pem": {
+      "sha256": "93fb3f02c5d86aa530c79f2545fbccd13013cbaa939e5dbf5ae68e272fd47601",
+      "bytes": 611,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/ca.pem"
+    },
+    "selected-debug/workspace/tests/data/node-a.key": {
+      "sha256": "028893d72f7d64fe21c75de134275d4b67dae6f4e914f27554321ade9b8ff2c3",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-a.key"
+    },
+    "selected-debug/workspace/tests/data/node-a.pem": {
+      "sha256": "449aca3c01c197e6e207d88796d8d99cb3612380c4ea01ddf0bbd3df9ea204b8",
+      "bytes": 688,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-a.pem"
+    },
+    "selected-debug/workspace/tests/data/node-b.key": {
+      "sha256": "655082e8bf4c419c6e640f243cd96c5217d9c5392e28af47b7ad6c3adb34892b",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-b.key"
+    },
+    "selected-debug/workspace/tests/data/node-b.pem": {
+      "sha256": "5ea547de0cda74cdff5da6d2a63cceec492e798201c0786b17f45622ff159f0f",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-b.pem"
+    },
+    "selected-debug/workspace/tests/data/node-c.key": {
+      "sha256": "cd3c84b06610617783394ca6d7e049b81f776ea4f6a2a587e3b65050bec0c001",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-c.key"
+    },
+    "selected-debug/workspace/tests/data/node-c.pem": {
+      "sha256": "58d610fe3620925c14eaae4dc801b07dafc781105a17bb830df546d97996385e",
+      "bytes": 688,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-c.pem"
+    },
+    "selected-debug/workspace/tests/data/node-d.key": {
+      "sha256": "0e7af08f0adfc13b03876a8a04bf6409f9f6174c024b475b3ec12b681287fc7e",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-d.key"
+    },
+    "selected-debug/workspace/tests/data/node-d.pem": {
+      "sha256": "55e42ed36fc122b012b4725d10c1fb0759a5e54641d9e2b45287d311e7e55f18",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-d.pem"
+    },
+    "selected-debug/workspace/tests/data/node-e.key": {
+      "sha256": "1d3a5c6b6754a17e7398902bcdd951e9db5be122fe89c27aa9c7828da2f98ea7",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-e.key"
+    },
+    "selected-debug/workspace/tests/data/node-e.pem": {
+      "sha256": "7ad35cfa52d3f8e5d772e56ed3deb00d17f0ba5e9abd72fdefb80bb9763105fd",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-e.pem"
+    },
+    "selected-debug/workspace/tests/data/node-f.key": {
+      "sha256": "05435a1dddfccd4dfc74763d1dd45b24579305cf4b50139ff36d997e1cc39791",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-f.key"
+    },
+    "selected-debug/workspace/tests/data/node-f.pem": {
+      "sha256": "8905f7bb9ba2812123de2c0a0dc5ec4f0958484718fe4cb7c3b4c2c8878bb2d9",
+      "bytes": 688,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-f.pem"
+    },
+    "selected-debug/workspace/tests/data/node-g.key": {
+      "sha256": "e935437c26ecaba0f70e417db9cc75ff33736c507d8684c6b472a16b15e5c196",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-g.key"
+    },
+    "selected-debug/workspace/tests/data/node-g.pem": {
+      "sha256": "540b268b7a18461a391e414e52afa3aaa0766ba79a9c8520c077feac905a3562",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-g.pem"
+    },
+    "selected-debug/workspace/tests/data/node-h.key": {
+      "sha256": "6a4ba8a368e4eddb0013883bd529f7d4e55eb89d309c1981bc9ee9f6782ef4ae",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-h.key"
+    },
+    "selected-debug/workspace/tests/data/node-h.pem": {
+      "sha256": "3acf00bc32b52d1e1875ae05b7a526f18a0e4a7a2486a8553ff4a8db2760e966",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-h.pem"
+    },
+    "selected-debug/workspace/tests/data/node-i.key": {
+      "sha256": "5da1a8c4c3d7b0d195b332265788959c45ebf568e6aa1448d2cf2fdcc432fa0b",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-i.key"
+    },
+    "selected-debug/workspace/tests/data/node-i.pem": {
+      "sha256": "e1e4c0d9ad6826dfd1c60bcfb80fffb87a3f6c0b47da8925362471ba40362f22",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-i.pem"
+    },
+    "selected-debug/workspace/tests/data/node-j.key": {
+      "sha256": "218a62b92b3be38930fc3d88795a138ad9eafc63b65c0334d9e5469d39c0657e",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-j.key"
+    },
+    "selected-debug/workspace/tests/data/node-j.pem": {
+      "sha256": "a35a66e782e813cff935755f80f4823553b1909f6439046e1c7503cd7f1113f2",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-j.pem"
+    },
+    "selected-debug/workspace/tests/data/node-k.key": {
+      "sha256": "771d6e8b368d39685dc840990195636625add617ae7e6ddf0618671a1949a84f",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-k.key"
+    },
+    "selected-debug/workspace/tests/data/node-k.pem": {
+      "sha256": "dd135597130fe30d3f4d1d497d7a9aa7e409c81df81f9f94495288de01a788f6",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-k.pem"
+    },
+    "selected-debug/workspace/tests/data/node-l.key": {
+      "sha256": "301bf2753e96f16317e4c2257550e5a2c51ffafd0b4e14d73f308df7158b45ca",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-l.key"
+    },
+    "selected-debug/workspace/tests/data/node-l.pem": {
+      "sha256": "73ecc1299414ccfd8f0bc18dfea24b2e7a7c16f63fd9ab49d40c1e28e23fd65c",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/data/node-l.pem"
+    },
+    "selected-debug/workspace/tests/sprint2_composition_test.zig": {
+      "sha256": "4554a55dd8b83c60aff1c4a51083f2f596830dce395ed9bb51008a954ce457a4",
+      "bytes": 10844,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/sprint2_composition_test.zig"
+    },
+    "selected-debug/workspace/tests/sprint3_composition_test.zig": {
+      "sha256": "999ba2843407e1d7b006ce19e3fca5f990a9bf83aa7723c6eff7b45d95b0a33d",
+      "bytes": 1935,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/sprint3_composition_test.zig"
+    },
+    "selected-debug/workspace/tests/sprint4_composition_test.zig": {
+      "sha256": "7a26456cf143a374e65641631254d8dbcdb00ea9e5c2e286ac2b19dbf72921b3",
+      "bytes": 4224,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/workspace/tests/sprint4_composition_test.zig"
+    },
+    "selected-debug/zig-env.txt": {
+      "sha256": "34b8191f352121db7b7684ef8bcca25fff4a51aa915ba2779b4850bf14b566e5",
+      "bytes": 1221,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-debug/zig-env.txt"
+    },
+    "selected-debug-identities.json": {
+      "sha256": "b9666f2e0d8c88070c960bdf1bc12f8d23ec70e721780b2f03e8d3bfb11730bc",
+      "bytes": 2445,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/selected-debug-identities.json"
+    },
+    "selected-debug-launcher.log": {
+      "sha256": "82b4d094019e834738de8189e27efddd102007cccdecd565dc92b08830402b15",
+      "bytes": 2047,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/selected-debug-launcher.log"
+    },
+    "selected-safe/fetch-dependencies.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/fetch-dependencies.log"
+    },
+    "selected-safe/report.json": {
+      "sha256": "48d61dd185f61ae79af61d2342f294e3715c743c08c4ca89f4ecc7e28bedd0d6",
+      "bytes": 10837,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/report.json"
+    },
+    "selected-safe/selected-composition.log": {
+      "sha256": "44f8b73c7b0d35b825cfca167d732eb2f87be6cf1a43e4680e4cf99dc357a1e9",
+      "bytes": 810,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/selected-composition.log"
+    },
+    "selected-safe/selected-qmsg.log": {
+      "sha256": "ad3f84683d1b2242666a610f3bc3a386a9e87049b976b54ba71a72282a074e67",
+      "bytes": 2374,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/selected-qmsg.log"
+    },
+    "selected-safe/selected-sprint2.log": {
+      "sha256": "e542516740c5fbca574b0d9aa0f21ce4c3a5735f7b5120cff4b04a307f643a8f",
+      "bytes": 811,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/selected-sprint2.log"
+    },
+    "selected-safe/selected-sprint3.log": {
+      "sha256": "6b93c33e91c05325cffbddb9c04035aa7a00ebc6a1a776166160ea20a9b1a913",
+      "bytes": 811,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/selected-sprint3.log"
+    },
+    "selected-safe/selected-sprint4.log": {
+      "sha256": "05f4a474feba5bfce24a126c69f1677bd9470a5ac598d497260e434443b97b8c",
+      "bytes": 2100,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/selected-sprint4.log"
+    },
+    "selected-safe/workspace/tests/composition/build.zig": {
+      "sha256": "aadc414a699590092c30dfea69a5cdfcf8469c7dcb74a6d02db784d170a2f5ed",
+      "bytes": 9128,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/composition/build.zig"
+    },
+    "selected-safe/workspace/tests/composition/build.zig.zon": {
+      "sha256": "f315de46427b96949fad946f8c2772a4359d801714f66f0301bcce333bb2fc99",
+      "bytes": 589,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/composition/build.zig.zon"
+    },
+    "selected-safe/workspace/tests/composition_test.zig": {
+      "sha256": "809e1935b0a4240cfe8045c7eee6fc216cfabdee747ec08beb7872e960a8c440",
+      "bytes": 10423,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/composition_test.zig"
+    },
+    "selected-safe/workspace/tests/data/ca.key": {
+      "sha256": "fb3b3cfb2f89f90830a3ab65e5687082040e09bebabe6f09276831f95cd1e7b2",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/ca.key"
+    },
+    "selected-safe/workspace/tests/data/ca.pem": {
+      "sha256": "93fb3f02c5d86aa530c79f2545fbccd13013cbaa939e5dbf5ae68e272fd47601",
+      "bytes": 611,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/ca.pem"
+    },
+    "selected-safe/workspace/tests/data/node-a.key": {
+      "sha256": "028893d72f7d64fe21c75de134275d4b67dae6f4e914f27554321ade9b8ff2c3",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-a.key"
+    },
+    "selected-safe/workspace/tests/data/node-a.pem": {
+      "sha256": "449aca3c01c197e6e207d88796d8d99cb3612380c4ea01ddf0bbd3df9ea204b8",
+      "bytes": 688,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-a.pem"
+    },
+    "selected-safe/workspace/tests/data/node-b.key": {
+      "sha256": "655082e8bf4c419c6e640f243cd96c5217d9c5392e28af47b7ad6c3adb34892b",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-b.key"
+    },
+    "selected-safe/workspace/tests/data/node-b.pem": {
+      "sha256": "5ea547de0cda74cdff5da6d2a63cceec492e798201c0786b17f45622ff159f0f",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-b.pem"
+    },
+    "selected-safe/workspace/tests/data/node-c.key": {
+      "sha256": "cd3c84b06610617783394ca6d7e049b81f776ea4f6a2a587e3b65050bec0c001",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-c.key"
+    },
+    "selected-safe/workspace/tests/data/node-c.pem": {
+      "sha256": "58d610fe3620925c14eaae4dc801b07dafc781105a17bb830df546d97996385e",
+      "bytes": 688,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-c.pem"
+    },
+    "selected-safe/workspace/tests/data/node-d.key": {
+      "sha256": "0e7af08f0adfc13b03876a8a04bf6409f9f6174c024b475b3ec12b681287fc7e",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-d.key"
+    },
+    "selected-safe/workspace/tests/data/node-d.pem": {
+      "sha256": "55e42ed36fc122b012b4725d10c1fb0759a5e54641d9e2b45287d311e7e55f18",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-d.pem"
+    },
+    "selected-safe/workspace/tests/data/node-e.key": {
+      "sha256": "1d3a5c6b6754a17e7398902bcdd951e9db5be122fe89c27aa9c7828da2f98ea7",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-e.key"
+    },
+    "selected-safe/workspace/tests/data/node-e.pem": {
+      "sha256": "7ad35cfa52d3f8e5d772e56ed3deb00d17f0ba5e9abd72fdefb80bb9763105fd",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-e.pem"
+    },
+    "selected-safe/workspace/tests/data/node-f.key": {
+      "sha256": "05435a1dddfccd4dfc74763d1dd45b24579305cf4b50139ff36d997e1cc39791",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-f.key"
+    },
+    "selected-safe/workspace/tests/data/node-f.pem": {
+      "sha256": "8905f7bb9ba2812123de2c0a0dc5ec4f0958484718fe4cb7c3b4c2c8878bb2d9",
+      "bytes": 688,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-f.pem"
+    },
+    "selected-safe/workspace/tests/data/node-g.key": {
+      "sha256": "e935437c26ecaba0f70e417db9cc75ff33736c507d8684c6b472a16b15e5c196",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-g.key"
+    },
+    "selected-safe/workspace/tests/data/node-g.pem": {
+      "sha256": "540b268b7a18461a391e414e52afa3aaa0766ba79a9c8520c077feac905a3562",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-g.pem"
+    },
+    "selected-safe/workspace/tests/data/node-h.key": {
+      "sha256": "6a4ba8a368e4eddb0013883bd529f7d4e55eb89d309c1981bc9ee9f6782ef4ae",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-h.key"
+    },
+    "selected-safe/workspace/tests/data/node-h.pem": {
+      "sha256": "3acf00bc32b52d1e1875ae05b7a526f18a0e4a7a2486a8553ff4a8db2760e966",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-h.pem"
+    },
+    "selected-safe/workspace/tests/data/node-i.key": {
+      "sha256": "5da1a8c4c3d7b0d195b332265788959c45ebf568e6aa1448d2cf2fdcc432fa0b",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-i.key"
+    },
+    "selected-safe/workspace/tests/data/node-i.pem": {
+      "sha256": "e1e4c0d9ad6826dfd1c60bcfb80fffb87a3f6c0b47da8925362471ba40362f22",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-i.pem"
+    },
+    "selected-safe/workspace/tests/data/node-j.key": {
+      "sha256": "218a62b92b3be38930fc3d88795a138ad9eafc63b65c0334d9e5469d39c0657e",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-j.key"
+    },
+    "selected-safe/workspace/tests/data/node-j.pem": {
+      "sha256": "a35a66e782e813cff935755f80f4823553b1909f6439046e1c7503cd7f1113f2",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-j.pem"
+    },
+    "selected-safe/workspace/tests/data/node-k.key": {
+      "sha256": "771d6e8b368d39685dc840990195636625add617ae7e6ddf0618671a1949a84f",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-k.key"
+    },
+    "selected-safe/workspace/tests/data/node-k.pem": {
+      "sha256": "dd135597130fe30d3f4d1d497d7a9aa7e409c81df81f9f94495288de01a788f6",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-k.pem"
+    },
+    "selected-safe/workspace/tests/data/node-l.key": {
+      "sha256": "301bf2753e96f16317e4c2257550e5a2c51ffafd0b4e14d73f308df7158b45ca",
+      "bytes": 227,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-l.key"
+    },
+    "selected-safe/workspace/tests/data/node-l.pem": {
+      "sha256": "73ecc1299414ccfd8f0bc18dfea24b2e7a7c16f63fd9ab49d40c1e28e23fd65c",
+      "bytes": 692,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/data/node-l.pem"
+    },
+    "selected-safe/workspace/tests/sprint2_composition_test.zig": {
+      "sha256": "4554a55dd8b83c60aff1c4a51083f2f596830dce395ed9bb51008a954ce457a4",
+      "bytes": 10844,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/sprint2_composition_test.zig"
+    },
+    "selected-safe/workspace/tests/sprint3_composition_test.zig": {
+      "sha256": "999ba2843407e1d7b006ce19e3fca5f990a9bf83aa7723c6eff7b45d95b0a33d",
+      "bytes": 1935,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/sprint3_composition_test.zig"
+    },
+    "selected-safe/workspace/tests/sprint4_composition_test.zig": {
+      "sha256": "7a26456cf143a374e65641631254d8dbcdb00ea9e5c2e286ac2b19dbf72921b3",
+      "bytes": 4224,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/workspace/tests/sprint4_composition_test.zig"
+    },
+    "selected-safe/zig-env.txt": {
+      "sha256": "34b8191f352121db7b7684ef8bcca25fff4a51aa915ba2779b4850bf14b566e5",
+      "bytes": 1221,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/results/selected-safe/zig-env.txt"
+    },
+    "selected-safe-identities.json": {
+      "sha256": "b9666f2e0d8c88070c960bdf1bc12f8d23ec70e721780b2f03e8d3bfb11730bc",
+      "bytes": 2445,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/selected-safe-identities.json"
+    },
+    "selected-safe-launcher.log": {
+      "sha256": "322a6c7f0c4c2e7de1f0f544aceefb8ff8f5255bd4ce6061d6938bafdb7cd9cf",
+      "bytes": 2066,
+      "producer_path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/selected-safe-launcher.log"
+    }
+  },
+  "source_bundle_retained_at": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final/input-workspace.tar",
+  "source_bundle_sha256": "506dee135ff2f1418077580612a69770db9627491189d1e7843dc9fd94972a7f"
+}

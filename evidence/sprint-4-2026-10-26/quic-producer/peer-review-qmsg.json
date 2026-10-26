@@ -1,0 +1,55 @@
+{
+  "recorded_utc": "2026-10-26T21:11:27.151539+00:00",
+  "scope": "Bounded read-only qmsg fixture/API review; no qmsg or qmesh edits and no additional workload executions by this reviewer",
+  "reviewed_source_files": {
+    "examples/public_fault_workload.zig": "1e9f401ef9f4db42530998166123b3ad026c21a000be5261af5627626a6e883c",
+    "examples/quic_public_faults.zig": "ab988b05932d97059727e174b9d25e116c4e90fb6ddfaa7ea76655f11f816301",
+    "examples/public_fault_workload_test.zig": "ec3df7d87485df40dc53f85d234c8342df017c9a7e178d21ff34646f90e22d0a"
+  },
+  "production_code_defects_identified": [],
+  "known_findings_reread_as_addressed": [
+    {
+      "area": "independent connection loss",
+      "evidence": "examples/public_fault_workload.zig:434-446",
+      "finding": "Latest source initiates only server close, makes healthy peer progress while pumping the victim, requires peer_closed via the public outcome path, and waits for the client session to disappear. The accepted request deadline is5s and the overall owner clock remains bounded."
+    },
+    {
+      "area": "error-path event ownership",
+      "evidence": "examples/public_fault_workload.zig:487-490",
+      "finding": "Unexpected owned final takeOutcome events are now deinitialized before returning the duplicate-outcome fixture error."
+    }
+  ],
+  "remaining_review_notes": [
+    {
+      "area": "wrong-role negative-control strength",
+      "classification": "Fixture qualification caveat; no runtime defect demonstrated",
+      "evidence": "examples/public_fault_workload.zig:411-423",
+      "finding": "The current role-rejection counter accepts any closing/absent third-session status. Initial valid clients and a later reconnect prove general usability, but do not directly exclude third-session or TLS admission failure at the same two-live-client load. A matched valid extra-session readiness control would strengthen the claim. SessionStatus exposes no auth-specific close reason."
+    },
+    {
+      "area": "server-session peak interpretation",
+      "classification": "Measurement scope",
+      "evidence": "examples/public_fault_workload.zig:293-298",
+      "finding": "The observed peak walks IDs received through connected events; connecting/rejected half-open sessions are not included. max_sessions4 still enforces the actual configured cap. Label the value as observed connected sessions when interpreting results."
+    },
+    {
+      "area": "late response evidence",
+      "classification": "Coverage scope",
+      "evidence": "examples/public_fault_workload.zig:350-362",
+      "finding": "Retained late-reply attempts correctly allow immediate public API refusal or later client suppression. Two attempts do not by themselves establish that delayed response bytes reached the wire; do not present this as a controlled late-datagram replay."
+    }
+  ],
+  "positive_observations": [
+    "Owner time is monotonic and shared across explicit pumps; relative request deadlines use the latest owner tick. GOAWAY advances the public owner clock and the next step reads a later clock value.",
+    "All normal server/client/extra event batches and explicit takeOutcome results are deinitialized, including early errors. Deferred replies retain their handles, and the four retained handles must all be released before success.",
+    "The exact Unauthorized error reply and server-side prohibition on denied-request delivery make subject authorization denial nonvacuous. The authenticator is explicitly a deterministic capability fixture, not a token-cryptography test.",
+    "Two accepted requests fill inflight admission; cancellation retains a completion reservation until takeOutcome consumes it. Ordinary event capacity0 is forced while all15 accepted operations must still produce exactly one terminal result.",
+    "Ledger lookup keys opaque request ID and actor separately; colliding wire IDs use actor-specific byte patterns to detect wrong-route replies.",
+    "The admitted graceful request is held before GOAWAY; the peer must receive exact code/reason, refuse new requests, complete the retained reply, and close while the other client keeps progressing.",
+    "The opt-in public-fault-test and selected parent checkpoint execute the workload directly; the guarded CLI exit alone is not sufficient acceptance evidence."
+  ],
+  "limits": [
+    "Source changed during review; the listed hashes identify the latest version reread, not a promise about subsequent owner edits.",
+    "Root/owner runtime results and the final source freeze remain authoritative; this is a static review supplement."
+  ]
+}

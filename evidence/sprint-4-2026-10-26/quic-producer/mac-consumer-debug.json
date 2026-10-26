@@ -1,0 +1,32 @@
+{
+  "name": "mac-consumer-debug",
+  "started_utc": "2026-10-26T20:50:18.213683+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig/tools/consumer-smoke",
+  "command": [
+    "zig",
+    "build",
+    "run",
+    "--summary",
+    "all"
+  ],
+  "timeout_seconds": 2700,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "mac-consumer-debug.log",
+  "passed": true,
+  "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+  "finished_utc": "2026-10-26T20:50:27.482680+00:00",
+  "elapsed_seconds": 9.241544166114181,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "449c36e6c544e994e9de5c59b445e2edb56f7497c8e7a4f84430c67079f37364",
+  "build_summaries": [
+    "Build Summary: 11/11 steps succeeded"
+  ]
+}

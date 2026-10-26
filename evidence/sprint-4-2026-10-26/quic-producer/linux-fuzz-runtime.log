@@ -1,0 +1,20 @@
+test
++- run test w
+[rr] conn 0: answered request 1 (15 bytes -> 15 bytes)
+[rr] conn 0: answered request 2 (7 bytes -> 7 bytes)
+[rr] conn 0: closed after 2 request(s)
+[rr] conn 0: answered request 1 (15 bytes -> 15 bytes)
+[rr] conn 0: closed after 1 request(s)
+[rr] conn 0: answered request 1 (14 bytes -> 14 bytes)
+[rr] conn 0: closed after 1 request(s)
+failed command: ./.zig-cache/o/3defa005a9995ec7088cd5f774523eb9/test --cache-dir=./.zig-cache --seed=0xec1f0938 --listen=-
+
+======= FUZZING REPORT =======
+Step: run test
+Fuzz test: "Connection._tests_fuzz.test.fuzz: Connection.handleCrypto reassembly invariants" (f0a8cb4ff2174cd0)
+Runs: 0 -> 2176255
+Unique runs: 0 -> 13693
+Coverage: 0/48236 -> 6008/48236 (12.46%)
+------------------------------
+Values are accumulated across multiple runs when preserving the cache.
+==============================

@@ -1,0 +1,75 @@
+{
+  "recorded_utc": "2026-10-26T21:04:21.220930+00:00",
+  "scope": "Bounded read-only source review; no qmesh/qmsg edits and no new workload execution by reviewer",
+  "reviewed_source_files": {
+    "examples/seeded_recovery_chaos.zig": "48c23cd3e6afd6d3b62c004b590c0f2b9e46ffe4ab4ddec5613d4df21ae70fd5",
+    "examples/chaos_plan.zig": "4c364c7cebb167c91d08f1650e01993c795b6bcb222b6e3fc5314a825255278d",
+    "tests/sprint4_composition_test.zig": "c3c6f81d6d5e895ffaa7ab0acdd29f9b0add6e2317aa7429f1a5377f1919e2fe"
+  },
+  "actionable_blockers": [],
+  "conclusion": "No actionable correctness blocker found in the reviewed versions. These source observations supplement the producer runtime evidence; they do not replace the final frozen matrix.",
+  "observations": [
+    {
+      "area": "clock and owner pumping",
+      "evidence": [
+        "examples/seeded_recovery_chaos.zig:269-306",
+        "examples/seeded_recovery_chaos.zig:308-329",
+        "src/quic/loop.zig:45-54",
+        "/Users/nullstyle/prj/zig/qmsg/src/quic_socket.zig:87-91"
+      ],
+      "finding": "One process-monotonic Runner clock drives qmsg pumps and pool service/ensure; qmsg deadlines are relative to the last owner pump. Readiness and qmsg/pool/mesh/phase deadlines enter a bounded wait. The deliberately paused server is excluded from waits and all other owners continue stepping."
+    },
+    {
+      "area": "event, handle and teardown ownership",
+      "evidence": [
+        "examples/seeded_recovery_chaos.zig:211-225",
+        "examples/seeded_recovery_chaos.zig:237-265",
+        "examples/seeded_recovery_chaos.zig:417-451"
+      ],
+      "finding": "Both request and completion batches are always deinitialized; borrowed reply handles are used synchronously before batch destruction. Pool teardown precedes client teardown; failed application/mesh owner replacement is protected by live/absent flags. Authoritative fixture state remains in memory, so this does not claim process-crash or storage recovery."
+    },
+    {
+      "area": "nonvacuous membership controls",
+      "evidence": [
+        "examples/seeded_recovery_chaos.zig:481-501",
+        "examples/seeded_recovery_chaos.zig:402-406",
+        "examples/seeded_recovery_chaos.zig:585-599"
+      ],
+      "finding": "Suspect is observed while a preexisting authenticated route remains unchanged; a separate empty pool must refuse new demand without dialing. Dead phase requires all three peers dead, all routes removed, no pending work, and real timeouts. Absence phase starts with an existing route, verifies fresh owner membership lacks the authority, then requires route removal."
+    },
+    {
+      "area": "endpoint and identity controls",
+      "evidence": [
+        "examples/seeded_recovery_chaos.zig:503-545",
+        "examples/seeded_recovery_chaos.zig:547-583",
+        "/Users/nullstyle/prj/zig/qmsg/src/node.zig:2756-2767"
+      ],
+      "finding": "Application restart rebinds the same endpoint; a subsequent server uses a different port while the configured resolver remains stale and each pool must actually fail a dial. The decoy endpoint must first become ready under its real SPKI; wrong-authority-SPKI routes remain unavailable through further actual failures. Corrected resolver configuration must then restore convergence."
+    },
+    {
+      "area": "per-replica outcomes and bounds",
+      "evidence": [
+        "examples/seeded_recovery_chaos.zig:163-167",
+        "examples/seeded_recovery_chaos.zig:229-235",
+        "examples/seeded_recovery_chaos.zig:331-374",
+        "examples/seeded_recovery_chaos.zig:605-611"
+      ],
+      "finding": "Each replica owns one pending request and an opaque-ID terminal history; settle requires the matching pending ID and rejects duplicate terminals. Admission is capped at256 accepted attempts, route pools at one entry per replica/three total, messaging Nodes at one request each, and mesh records/slots at64/32 per runner. Final convergence requires no pending requests and aggregate terminal conservation."
+    },
+    {
+      "area": "determinism boundaries",
+      "evidence": [
+        "examples/chaos_plan.zig:1-3",
+        "examples/chaos_plan.zig:31-66",
+        "tests/seeded_chaos_test.zig:1",
+        "tests/sprint4_composition_test.zig:21-49"
+      ],
+      "finding": "Plan roles/update counts/PRNG seeds and the transport-free virtual fingerprints are deterministic. The real UDP fixture measures13 logical phases; TLS randomness, ephemeral ports, elapsed time and packet/outcome counts are not claimed deterministic. The virtual replay models application/membership policy and snapshot effects; the four-node UDP fixture supplies actual qmsg and identity evidence."
+    }
+  ],
+  "review_limits": [
+    "qmsg public_faults is still being expanded; this review does not approve that changing slice.",
+    "The chaos source changed during review from b82e5329 to48c23cd3 to replace request-ID indexing with an opaque-ID terminal history; the final terminal section was reread and the recorded final hashes were rechecked.",
+    "No claim of native Windows, physical-network behavior, real OS-process failure, disk durability or bit-for-bit UDP replay follows from this source review."
+  ]
+}

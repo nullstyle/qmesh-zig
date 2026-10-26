@@ -1,0 +1,378 @@
+{
+  "started_utc": "20261026T211955.510710Z",
+  "host": "Darwin 27.0.0 arm64",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+    "version": "0.17.0",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523"
+  },
+  "optimize": "Debug",
+  "quic_options": {
+    "target": "native",
+    "release": false,
+    "sanitize-c": "trap"
+  },
+  "sources": {
+    "qmesh": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "commit": "2401ec63540e997aa373c750de642af80e03628d",
+      "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-4-qualification.md\n?? docs/sprint-4-seeded-chaos.md\n?? examples/chaos_plan.zig\n?? examples/recovery-pki/node-c.key\n?? examples/recovery-pki/node-c.pem\n?? examples/recovery-pki/node-d.key\n?? examples/recovery-pki/node-d.pem\n?? examples/seeded_recovery_chaos.zig\n?? tests/seeded_chaos_test.zig\n?? tests/sprint4_composition_test.zig",
+      "tree_sha256": "ec6563ac928708dc5cb63024d2b58f8744a53047a323c8ce0aacff64081a73d0",
+      "file_count": 507,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "qmsg": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+      "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+      "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+      "file_count": 81,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "quic": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/candidate-quic",
+      "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+      "file_count": 306,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    },
+    "qmsg_pinned": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg/qmsg-0.8.5-g3pJMT1MFQBr6yT5WNY9vEFF-JC3k_FSapLit3BAgi_5",
+      "tree_sha256": "df5dac450321c03086bd2f0ada90c79ac8e60ca047fae1967c1a5c01068e6149",
+      "file_count": 61,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      },
+      "package_hash": "qmsg-0.8.5-g3pJMT1MFQBr6yT5WNY9vEFF-JC3k_FSapLit3BAgi_5"
+    },
+    "quic_pinned": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg/quic-0.42.2-DnSYvVJRZQDaf9LFsqj9k1cFzPeYCNwb3HgKBDn8s07g",
+      "tree_sha256": "d952db1bf068fb3383d38e4cf99664ae47856302b830bc682ac925581aee97c7",
+      "file_count": 155,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      },
+      "package_hash": "quic-0.42.2-DnSYvVJRZQDaf9LFsqj9k1cFzPeYCNwb3HgKBDn8s07g"
+    },
+    "quic_native_released": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg/quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-",
+      "tree_sha256": "891db60eb9819b53751fe191b7cd3a3552c5d8948728a0f935e57bd5d1ffd934",
+      "file_count": 144,
+      "manifest_sha256": "fa4a417d227df966f91228a9c3761e38d9628b1285de23474c7d76aee0bbc498",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      },
+      "package_hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+    }
+  },
+  "checks": [
+    {
+      "name": "released-composition",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=false"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 26.178,
+      "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+      "log": "released-composition.log"
+    },
+    {
+      "name": "released-sprint2",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-sprint2",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=false"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 4.214,
+      "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed",
+      "log": "released-sprint2.log"
+    },
+    {
+      "name": "released-sprint3",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-sprint3",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=false"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 3.932,
+      "summary": "Build Summary: 9/11 steps succeeded (1 failed); 1/2 tests passed (1 crashed)",
+      "log": "released-sprint3.log"
+    },
+    {
+      "name": "released-sprint4",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-sprint4",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=false"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 9.122,
+      "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+      "log": "released-sprint4.log"
+    },
+    {
+      "name": "released-qmsg",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-qmsg",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=false"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 21.711,
+      "summary": "Build Summary: 15/15 steps succeeded; 894/894 tests passed",
+      "log": "released-qmsg.log"
+    },
+    {
+      "name": "selected-composition",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=true"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 8.404,
+      "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+      "log": "selected-composition.log"
+    },
+    {
+      "name": "selected-sprint2",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-sprint2",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=true"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 5.1,
+      "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed",
+      "log": "selected-sprint2.log"
+    },
+    {
+      "name": "selected-sprint3",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-sprint3",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=true"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 5.373,
+      "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+      "log": "selected-sprint3.log"
+    },
+    {
+      "name": "selected-sprint4",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-sprint4",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=true"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 11.354,
+      "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+      "log": "selected-sprint4.log"
+    },
+    {
+      "name": "selected-qmsg",
+      "cwd": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition",
+      "command": [
+        "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+        "build",
+        "test-qmsg",
+        "-Doptimize=Debug",
+        "-j2",
+        "--cache-dir",
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition",
+        "--summary",
+        "all",
+        "-Dlocal-quic=true"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 25.961,
+      "summary": "Build Summary: 15/15 steps succeeded; 894/894 tests passed",
+      "log": "selected-qmsg.log"
+    }
+  ],
+  "passed": false,
+  "requested_inputs": {
+    "mode": "both",
+    "qmsg_path": "../qmsg",
+    "quic_path": null,
+    "quic_archive": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-sprint4-final-candidate.tar.gz",
+    "quic_hash": null,
+    "quic_sha256": "0cb202a6a4efae6f2e28354ce90bb0869397069521c64c8503c4b26d611d2bcb",
+    "sprint2": true,
+    "sprint3": true,
+    "sprint4": true
+  },
+  "pinned_inputs": {
+    "qmsg": ".qmsg = .{\n            .url = \"https://github.com/nullstyle/qmsg/archive/1e6960465c1af8f2cfdb8675b01fb00fbea38326.tar.gz\",\n            .hash = \"qmsg-0.8.5-g3pJMT1MFQBr6yT5WNY9vEFF-JC3k_FSapLit3BAgi_5\",\n        },",
+    "quic": ".quic = .{\n            .url = \"https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.42.2.tar.gz\",\n            .hash = \"quic-0.42.2-DnSYvVJRZQDaf9LFsqj9k1cFzPeYCNwb3HgKBDn8s07g\",\n        },"
+  },
+  "candidate_archive": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-sprint4-final-candidate.tar.gz",
+    "sha256": "0cb202a6a4efae6f2e28354ce90bb0869397069521c64c8503c4b26d611d2bcb",
+    "package_hash": null,
+    "verified_by": "sha256"
+  },
+  "composition_manifest_sha256": "08262436338a979e20f74bfd4026722eecd823e292e4c0ae4aba5f582c54fcde",
+  "setup": {
+    "command": [
+      "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+      "build",
+      "--fetch"
+    ],
+    "returncode": 0,
+    "log": "fetch-dependencies.log"
+  },
+  "mode_sources": {
+    "released": "Each upper library's native QUIC URL/hash pin; type-identity assertion must pass",
+    "selected": "Explicit QUIC working tree/archive, or composition package's pinned QUIC input"
+  },
+  "final_sources": {
+    "qmesh": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+      "commit": "2401ec63540e997aa373c750de642af80e03628d",
+      "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-4-qualification.md\n?? docs/sprint-4-seeded-chaos.md\n?? examples/chaos_plan.zig\n?? examples/recovery-pki/node-c.key\n?? examples/recovery-pki/node-c.pem\n?? examples/recovery-pki/node-d.key\n?? examples/recovery-pki/node-d.pem\n?? examples/seeded_recovery_chaos.zig\n?? tests/seeded_chaos_test.zig\n?? tests/sprint4_composition_test.zig",
+      "tree_sha256": "ec6563ac928708dc5cb63024d2b58f8744a53047a323c8ce0aacff64081a73d0",
+      "file_count": 507,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "qmsg": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+      "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+      "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+      "file_count": 81,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "quic": {
+      "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/candidate-quic",
+      "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+      "file_count": 306,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    }
+  },
+  "sources_unchanged": true,
+  "finished_utc": "2026-10-26T21:21:57.576042+00:00"
+}

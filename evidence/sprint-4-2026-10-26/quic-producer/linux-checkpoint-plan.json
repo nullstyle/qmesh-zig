@@ -1,0 +1,54 @@
+{
+  "state": "HELD: plan only; no source clone or container execution",
+  "required_authorization": "Root-provided frozen inputs and explicit run authorization",
+  "branches": {
+    "quic-zig": "codex/sprint-4-stack-qualification",
+    "qmsg": "codex/sprint-4-public-faults",
+    "qmesh-zig": "codex/sprint-4-seeded-chaos"
+  },
+  "required_heads": {
+    "quic-zig": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+    "qmsg": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+    "qmesh-zig": "2401ec63540e997aa373c750de642af80e03628d"
+  },
+  "image": {
+    "tag": "quic-zig-sprint1-builder:local",
+    "id": "sha256:97711185ccd951b04ca293caa83c7b88832ef61c0422439ae82903b7a1f6f969"
+  },
+  "mount_policy": "One ignored evidence directory mounted at /evidence; no original project mounts",
+  "workspace": "/workspace/{quic-zig,qmsg,qmesh-zig} copied inside the container from authentic shallow clones plus frozen file overlays",
+  "git_safe_directories": [
+    "/workspace/quic-zig",
+    "/workspace/qmsg",
+    "/workspace/qmesh-zig"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "COPYFILE_DISABLE": "1",
+    "ZIG_GLOBAL_CACHE_DIR": "/cache/zig-global"
+  },
+  "modes": [
+    "Debug",
+    "ReleaseSafe"
+  ],
+  "flags": [
+    "--sprint2",
+    "--sprint3",
+    "--sprint4",
+    "--mode",
+    "selected",
+    "--qmsg-path",
+    "/workspace/qmsg",
+    "--quic-path",
+    "/workspace/quic-zig",
+    "--jobs",
+    "2"
+  ],
+  "outputs": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-{debug,safe}",
+  "expected_counts_reference_only": {
+    "integration": 7,
+    "qmsg": 894
+  },
+  "count_policy": "Record actual wrapper summaries, including skips/caches; do not infer a pass from expected counts"
+}

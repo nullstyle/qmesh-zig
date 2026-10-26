@@ -1,0 +1,510 @@
+{
+  "started_utc": "2026-10-26T21:21:14.316981+00:00",
+  "platform": "Linux 7.2.12-orbstack-00394-gbecdd6130068 aarch64",
+  "compiler": {
+    "path": "/opt/zig/zig",
+    "version": "0.17.0",
+    "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+  },
+  "safe_directories": [
+    "/workspace/quic-zig",
+    "/workspace/qmsg",
+    "/workspace/qmesh-zig"
+  ],
+  "initial_identities": {
+    "quic-zig": {
+      "path": "/workspace/quic-zig",
+      "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+      "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+      "file_count": 306,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    },
+    "qmsg": {
+      "path": "/workspace/qmsg",
+      "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+      "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+      "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+      "file_count": 81,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "qmesh-zig": {
+      "path": "/workspace/qmesh-zig",
+      "commit": "2401ec63540e997aa373c750de642af80e03628d",
+      "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-4-qualification.md\n?? docs/sprint-4-seeded-chaos.md\n?? examples/chaos_plan.zig\n?? examples/recovery-pki/node-c.key\n?? examples/recovery-pki/node-c.pem\n?? examples/recovery-pki/node-d.key\n?? examples/recovery-pki/node-d.pem\n?? examples/seeded_recovery_chaos.zig\n?? tests/seeded_chaos_test.zig\n?? tests/sprint4_composition_test.zig",
+      "tree_sha256": "ec6563ac928708dc5cb63024d2b58f8744a53047a323c8ce0aacff64081a73d0",
+      "file_count": 507,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    }
+  },
+  "source_bundle_sha256": "506dee135ff2f1418077580612a69770db9627491189d1e7843dc9fd94972a7f",
+  "modes": [
+    {
+      "optimize": "Debug",
+      "command": [
+        "python3",
+        "/workspace/qmesh-zig/tools/check-composition.py",
+        "--sprint2",
+        "--sprint3",
+        "--sprint4",
+        "--mode",
+        "selected",
+        "--qmsg-path",
+        "/workspace/qmsg",
+        "--quic-path",
+        "/workspace/quic-zig",
+        "--jobs",
+        "2",
+        "--optimize",
+        "Debug",
+        "--output-dir",
+        "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 147.991997893987,
+      "checks": [
+        {
+          "name": "selected-composition",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test",
+            "-Doptimize=Debug",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 60.812,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+          "log": "selected-composition.log",
+          "actual_test_counts": {
+            "passed": 2,
+            "total": 2,
+            "skipped": 0
+          },
+          "log_sha256": "6f22e3fdddaaff3a11baba0046cfbf35ee83d1512492d55cea67b4f255bd24af"
+        },
+        {
+          "name": "selected-sprint2",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test-sprint2",
+            "-Doptimize=Debug",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 3.912,
+          "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed",
+          "log": "selected-sprint2.log",
+          "actual_test_counts": {
+            "passed": 1,
+            "total": 1,
+            "skipped": 0
+          },
+          "log_sha256": "40e4a08e5cf0342973e3e8f02cbd80417f02312d1c84e907737492616531c156"
+        },
+        {
+          "name": "selected-sprint3",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test-sprint3",
+            "-Doptimize=Debug",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 3.919,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+          "log": "selected-sprint3.log",
+          "actual_test_counts": {
+            "passed": 2,
+            "total": 2,
+            "skipped": 0
+          },
+          "log_sha256": "61cf1f713a62125ca1b87928fc9db7caab8ccfdb851cf4d5f712fef0641c4c0d"
+        },
+        {
+          "name": "selected-sprint4",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test-sprint4",
+            "-Doptimize=Debug",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 9.31,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+          "log": "selected-sprint4.log",
+          "actual_test_counts": {
+            "passed": 2,
+            "total": 2,
+            "skipped": 0
+          },
+          "log_sha256": "266ab9f86e5615161d2892502d5f0dae245c62ddf16c7be023db723d1b0403a0"
+        },
+        {
+          "name": "selected-qmsg",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test-qmsg",
+            "-Doptimize=Debug",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 15.164,
+          "summary": "Build Summary: 15/15 steps succeeded; 894/894 tests passed",
+          "log": "selected-qmsg.log",
+          "actual_test_counts": {
+            "passed": 894,
+            "total": 894,
+            "skipped": 0
+          },
+          "log_sha256": "603f7cf06c8243a8e69675b8c305d65b149a47485d44edc62c0cfca65a50b2d4"
+        }
+      ],
+      "sources_unchanged": true,
+      "all_five_check_groups_present": true,
+      "nonzero_actual_test_counts": true,
+      "test_executable_identities": [
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition/o/1ac910899f3f182dd3fb3293cecbbe07/test",
+          "sha256": "cf155388f3b82d462785a4b2cd63a75a9bcd93578399e729a9919847bb942c00",
+          "bytes": 32318776
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition/o/186a3b32545369630a34f10ae6478c06/test",
+          "sha256": "a44c69296b0d4aba28752e81b2d417bb68d537b73109077193d91cd1d18654bd",
+          "bytes": 32302616
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition/o/80a69e2e66f97928272fa8e3ad2c33bf/test",
+          "sha256": "f712b8639e0b8b56c1e0c2e12a5afceb77d76b82b23c1d5d6338e0881cb6c165",
+          "bytes": 32345752
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition/o/89e085e40a3e2696f4d86fe1727a78cf/test",
+          "sha256": "1dcb2ee453582899366345d6e8b6b8edba15252167c6a20bcdcd3b6c7e26cfeb",
+          "bytes": 32598416
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition/o/9a35757ff5c290f36bd77d1dbc1704e0/test",
+          "sha256": "8689ca940bb095b4086cab65a47cb85142e8c6ec374b4b09a5a43aed87157193",
+          "bytes": 40141216
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition/o/7da7c36f488c9dbe5a749c2cf08cec0c/test",
+          "sha256": "483603d83c15e39a16b335bb10d4854edfdeb6f79e1f0d5a82ebdd464b06f5dc",
+          "bytes": 40174384
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-debug/build-cache/composition/o/d37264d47ecf7eefe4540edaef4c1b68/test",
+          "sha256": "fcba37ed462a816a7f6d6fcb94cab3a0511bc26063bad7626997a1ba359af861",
+          "bytes": 32908912
+        }
+      ],
+      "passed": true,
+      "expected_counts_reference_only": {
+        "integration": 7,
+        "qmsg": 894
+      }
+    },
+    {
+      "optimize": "ReleaseSafe",
+      "command": [
+        "python3",
+        "/workspace/qmesh-zig/tools/check-composition.py",
+        "--sprint2",
+        "--sprint3",
+        "--sprint4",
+        "--mode",
+        "selected",
+        "--qmsg-path",
+        "/workspace/qmsg",
+        "--quic-path",
+        "/workspace/quic-zig",
+        "--jobs",
+        "2",
+        "--optimize",
+        "ReleaseSafe",
+        "--output-dir",
+        "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 145.0238787700073,
+      "checks": [
+        {
+          "name": "selected-composition",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test",
+            "-Doptimize=ReleaseSafe",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 39.009,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+          "log": "selected-composition.log",
+          "actual_test_counts": {
+            "passed": 2,
+            "total": 2,
+            "skipped": 0
+          },
+          "log_sha256": "44f8b73c7b0d35b825cfca167d732eb2f87be6cf1a43e4680e4cf99dc357a1e9"
+        },
+        {
+          "name": "selected-sprint2",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test-sprint2",
+            "-Doptimize=ReleaseSafe",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 17.753,
+          "summary": "Build Summary: 11/11 steps succeeded; 1/1 tests passed",
+          "log": "selected-sprint2.log",
+          "actual_test_counts": {
+            "passed": 1,
+            "total": 1,
+            "skipped": 0
+          },
+          "log_sha256": "e542516740c5fbca574b0d9aa0f21ce4c3a5735f7b5120cff4b04a307f643a8f"
+        },
+        {
+          "name": "selected-sprint3",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test-sprint3",
+            "-Doptimize=ReleaseSafe",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 20.105,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+          "log": "selected-sprint3.log",
+          "actual_test_counts": {
+            "passed": 2,
+            "total": 2,
+            "skipped": 0
+          },
+          "log_sha256": "6b93c33e91c05325cffbddb9c04035aa7a00ebc6a1a776166160ea20a9b1a913"
+        },
+        {
+          "name": "selected-sprint4",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test-sprint4",
+            "-Doptimize=ReleaseSafe",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 24.485,
+          "summary": "Build Summary: 11/11 steps succeeded; 2/2 tests passed",
+          "log": "selected-sprint4.log",
+          "actual_test_counts": {
+            "passed": 2,
+            "total": 2,
+            "skipped": 0
+          },
+          "log_sha256": "05f4a474feba5bfce24a126c69f1677bd9470a5ac598d497260e434443b97b8c"
+        },
+        {
+          "name": "selected-qmsg",
+          "cwd": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/workspace/tests/composition",
+          "command": [
+            "/opt/zig/zig",
+            "build",
+            "test-qmsg",
+            "-Doptimize=ReleaseSafe",
+            "-j2",
+            "--cache-dir",
+            "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition",
+            "--summary",
+            "all",
+            "-Dlocal-quic=true"
+          ],
+          "returncode": 0,
+          "elapsed_seconds": 43.148,
+          "summary": "Build Summary: 15/15 steps succeeded; 894/894 tests passed",
+          "log": "selected-qmsg.log",
+          "actual_test_counts": {
+            "passed": 894,
+            "total": 894,
+            "skipped": 0
+          },
+          "log_sha256": "ad3f84683d1b2242666a610f3bc3a386a9e87049b976b54ba71a72282a074e67"
+        }
+      ],
+      "sources_unchanged": true,
+      "all_five_check_groups_present": true,
+      "nonzero_actual_test_counts": true,
+      "test_executable_identities": [
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition/o/9ab4019066a357af9cee553e21094649/test",
+          "sha256": "8cdc32dbc14bd82ddd377ec5bf767fc4d7162896c7313b969cd411d4e83fc253",
+          "bytes": 26164392
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition/o/7bffbf060524dfc4d5bc5428b8498e16/test",
+          "sha256": "abaf4d5260c57c2e42ee0e1c41235ea555a87fc3bc18668580c47a6a09ae6174",
+          "bytes": 26330912
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition/o/9dfe94185c70ed2a55c7d7ca1647117d/test",
+          "sha256": "97bcb6a898434a1332b4aa5a4d25c6c4635ad8b39aef3a7d957d6c8a18ada721",
+          "bytes": 26306064
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition/o/66b3735d728a796d52ca8b1d4cced229/test",
+          "sha256": "faafd5ef0d37a35856911b586ecb769043e61fe6a9eb76769846b4aee76d8e1b",
+          "bytes": 26653400
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition/o/0bb56eef19433a32fc509cf67c93d704/test",
+          "sha256": "14aad224b20c99cb9a5ccc7d0c9e4e147bfe4ba7baf117d4c685539a2b798b10",
+          "bytes": 31396992
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition/o/5f1c1927d9cd231365be312b44b529fd/test",
+          "sha256": "228df10d7c8948a9ed8c7bbaaa7c82041690cf18f7ca7f22c17616b1476b3fd8",
+          "bytes": 31427336
+        },
+        {
+          "path": "/workspace/qmesh-zig/.zig-cache/sprint-4-linux-composition/selected-safe/build-cache/composition/o/fee976e631d1794d2fce2554ec437de6/test",
+          "sha256": "fdcb659dc3f2624e4f05363700aa84c5f66e3438d6803f255e266c50296844ed",
+          "bytes": 26995472
+        }
+      ],
+      "passed": true,
+      "expected_counts_reference_only": {
+        "integration": 7,
+        "qmsg": 894
+      }
+    }
+  ],
+  "passed": true,
+  "final_identities": {
+    "quic-zig": {
+      "path": "/workspace/quic-zig",
+      "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+      "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+      "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+      "file_count": 306,
+      "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+      "dependency_pins": {
+        "boringssl": {
+          "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+          "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+        }
+      }
+    },
+    "qmsg": {
+      "path": "/workspace/qmsg",
+      "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+      "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+      "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+      "file_count": 81,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "qmesh-zig": {
+      "path": "/workspace/qmesh-zig",
+      "commit": "2401ec63540e997aa373c750de642af80e03628d",
+      "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-4-qualification.md\n?? docs/sprint-4-seeded-chaos.md\n?? examples/chaos_plan.zig\n?? examples/recovery-pki/node-c.key\n?? examples/recovery-pki/node-c.pem\n?? examples/recovery-pki/node-d.key\n?? examples/recovery-pki/node-d.pem\n?? examples/seeded_recovery_chaos.zig\n?? tests/seeded_chaos_test.zig\n?? tests/sprint4_composition_test.zig",
+      "tree_sha256": "ec6563ac928708dc5cb63024d2b58f8744a53047a323c8ce0aacff64081a73d0",
+      "file_count": 507,
+      "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    }
+  },
+  "sources_unchanged": true,
+  "finished_utc": "2026-10-26T21:26:07.388172+00:00"
+}

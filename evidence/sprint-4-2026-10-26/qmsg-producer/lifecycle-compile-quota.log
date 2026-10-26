@@ -1,0 +1,41 @@
+test-sprint4
++- run test
+   +- compile test debug native 1 errors
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/crypto/sha2.zig:371:123: error: evaluation exceeded 1000 backwards branches
+                v[r.h] = v[r.h] +% (math.rotr(u32, v[r.a], @as(u32, 2)) ^ math.rotr(u32, v[r.a], @as(u32, 13)) ^ math.rotr(u32, v[r.a], @as(u32, 22))) +% ((v[r.a] & (v[r.b] | v[r.c])) | (v[r.b] & v[r.c]));
+                                                                                                                 ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/crypto/sha2.zig:371:123: note: use @setEvalBranchQuota() to raise the branch limit from 1000
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/crypto/sha2.zig:128:24: note: called at comptime here
+                d.round(b[off..][0..64]);
+                ~~~~~~~^~~~~~~~~~~~~~~~~
+/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/crypto/sha2.zig:110:21: note: called at comptime here
+            d.update(b);
+            ~~~~~~~~^~~
+/Users/nullstyle/prj/zig/qmsg/examples/public_fault_workload.zig:12:37: note: called at comptime here
+    std.crypto.hash.sha2.Sha256.hash(tls.cert, &digest, .{});
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+referenced by:
+    public_fault_workload.Report: /Users/nullstyle/prj/zig/qmsg/examples/public_fault_workload.zig:18:43
+    test.Sprint 4 public messaging faults preserve admission and terminal outcomes: /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/sprint4_composition_test.zig:7:37
+error: 1 compilation errors
+failed command: /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig test -Odebug --dep public_faults --dep mesh_chaos -Mroot=../sprint4_composition_test.zig -Odebug --dep qmsg -Mpublic_faults=../../../../../qmsg/examples/public_fault_workload.zig -Odebug --dep qmesh --dep qmesh_quic --dep qmesh_messaging --dep qmsg -Mmesh_chaos=../../../../examples/seeded_recovery_chaos.zig -Odebug --dep paseto --dep quic -Mqmsg=../../../../../qmsg/src/root.zig -Odebug -Mqmesh=../../../../src/root.zig -Odebug --dep qmesh --dep quic -Mqmesh_quic=../../../../src/quic/root.zig -Odebug --dep qmesh -Mqmesh_messaging=../../../../src/composition/root.zig -Odebug -Mpaseto=/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg/paseto-0.4.0-EBI95RcXCADs0jz3tebS1xMaAiT2r3Tpx8HsF5LfpqOS/src/root.zig -fsanitize-c=trap -Odebug --dep boringssl --dep build_options -Mquic=../../../../../quic-zig/src/root.zig .zig-cache/o/57d6c4eb7484bbfb8848978430d90dbd/libssl_shim.a .zig-cache/o/265bd873b66483a65376c385e60e3a04/libssl.a .zig-cache/o/7c8dbe2f4bb3b260537877ee5955d45b/libcrypto.a -fsanitize-c=trap -Odebug -I .zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/o/99643627a011968f089148bb3544ce0e --dep c -Mboringssl=/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg/boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2/src/root.zig -Mbuild_options=.zig-cache/o/f3f39a291232957bcf9e6c9c059d3d6d/options.zig -fsanitize-c=trap -Odebug -Mc=.zig-cache/o/a1738981f177db5129e0b5d7b11cf107/c_imports.zig .zig-cache/o/7c8dbe2f4bb3b260537877ee5955d45b/libcrypto.a -lc++ -lc --cache-dir .zig-cache --global-cache-dir /Users/nullstyle/prj/zig/qmesh-zig/.zig-global-cache --build-root . --name test --zig-lib-dir /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/ --listen=-
+
+Build Summary: 8/11 steps succeeded (1 failed)
+test-sprint4 transitive failure
++- run test transitive failure
+   +- compile test debug native 1 errors
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native cached 39ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl debug native cached 37ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto debug native cached 51ms MaxRSS:32M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options cached
+      +- translate-c cached 32ms MaxRSS:30M
+

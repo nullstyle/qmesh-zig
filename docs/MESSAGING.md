@@ -184,3 +184,10 @@ For missed-announcement recovery, see the bounded
 [`sprint-3-recovery.md`](sprint-3-recovery.md). Periodic application snapshots
 repair state after the finite gossip payload window expires; configured
 endpoint resolution is sufficient and no new discovery protocol is required.
+
+For seeded multi-node faults, see
+[`seeded_recovery_chaos.zig`](../examples/seeded_recovery_chaos.zig) and
+[`sprint-4-seeded-chaos.md`](sprint-4-seeded-chaos.md). Its public request/pool
+scenario combines finite-retention recovery, suspected/dead/absent membership,
+application-owner restart and configured endpoint movement, with separate
+virtual replay and actual UDP evidence.

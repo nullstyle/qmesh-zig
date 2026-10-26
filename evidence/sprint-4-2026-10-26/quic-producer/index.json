@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "local_qualification_complete": true,
+  "source": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig",
+    "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+    "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+    "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+    "file_count": 306,
+    "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+    "dependency_pins": {
+      "boringssl": {
+        "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+        "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+      }
+    }
+  },
+  "archive": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-sprint4-final-candidate.tar.gz",
+    "sha256": "0cb202a6a4efae6f2e28354ce90bb0869397069521c64c8503c4b26d611d2bcb",
+    "bytes": 2003307,
+    "file_count": 306
+  },
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "manifest": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/final-candidate-manifest.json",
+  "manifest_sha256": "17395afe385e26e40c8a91a28464d0e8b7cb989b8d0bc1a857957c6eac382740",
+  "required_gates_passed": 25,
+  "promotion_ready": false,
+  "promotion_hold": "Inherited mixed BBR/CUBIC share difference remains under review; passing machinery floors and qualification gates do not clear this hold",
+  "limits": [
+    "Inherited mixed-fairness promotion review remains held despite all existing automated qualification gates passing.",
+    "Mac native execution, Linux arm64 containers, foreign-target compilation, and Docker QNS interop are separate evidence.",
+    "Native Windows, native Linux x86-64, hosted tier-1 CI and physical-network performance are not established here.",
+    "Canonical Zig package-hash verification and public URL fetching are not completed; no release, push, tag, version or pin move was performed.",
+    "The parent owns the final coordinated qmsg/qmesh composition checkpoint; producer gates alone do not establish that checkpoint."
+  ]
+}

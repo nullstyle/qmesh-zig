@@ -1,0 +1,25 @@
+Build Summary: 15/15 steps succeeded
+install success
++- install qns-endpoint success
+|  +- compile exe qns-endpoint debug x86-linux-musl success 3s MaxRSS:443M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug x86-linux-musl cached 60ms MaxRSS:31M
+|     +- WriteFile cached
+|     +- compile lib ssl debug x86-linux-musl cached 45ms MaxRSS:31M
+|     |  +- WriteFile cached
+|     |  +- compile lib crypto debug x86-linux-musl cached 76ms MaxRSS:32M
+|     |  +- compile lib crypto debug x86-linux-musl (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug x86-linux-musl (reused)
+|     +- compile lib ssl_shim debug x86-linux-musl (reused)
+|     +- compile lib ssl debug x86-linux-musl (+3 more reused dependencies)
+|     +- compile lib crypto debug x86-linux-musl (reused)
+|     +- options cached
+|     +- translate-c cached 24ms MaxRSS:30M
++- install quic-zig-external-interop cached
+|  +- compile exe quic-zig-external-interop debug x86-linux-musl cached 47ms MaxRSS:31M
++- install quic-zig-bench-compare cached
+   +- compile exe quic-zig-bench-compare debug x86-linux-musl cached 62ms MaxRSS:31M
+
+--- test binaries: compile-only ---
+x86-linux-musl cross-compile clean

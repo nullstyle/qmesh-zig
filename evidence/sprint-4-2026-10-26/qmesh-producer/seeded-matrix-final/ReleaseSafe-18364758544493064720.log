@@ -1,0 +1,14 @@
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=bootstrap
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=partition
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=expire_hints
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=suspect_gate
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=dead_gate
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=restart_application
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=heal
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=snapshot_repair
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=stale_endpoint
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=wrong_identity
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=moved_endpoint_repair
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=fresh_mesh_owner
+CHAOS_PHASE seed=18364758544493064720 plan=8a5efb12affe480b action=final_repair
+MESH_CHAOS_WORKLOAD {"seed":18364758544493064720,"plan_fingerprint":9970682682725517323,"final_state_hash":17013979639743574244,"logical_actions_completed":13,"converged":true,"authority_revision":44,"replica_revisions":[44,44,44],"snapshot_attempts":103,"snapshot_timeouts":27,"snapshots_applied":10,"snapshot_replies":76,"stale_snapshots_rejected":66,"request_backpressure":12,"request_peer_closures":0,"application_restarts":1,"endpoint_moves":1,"suspect_preserved_routes":1,"suspect_new_dials_paused":1,"dead_route_removals":5,"absent_route_removals":1,"stale_endpoint_rejected":true,"wrong_identity_rejected":true,"decoy_positive_control_ready":true,"hints_evicted":41,"hints_delivered_after_heal":0,"peak_pending_requests_per_replica":1,"peak_pool_entries_per_replica":1,"peak_total_pool_entries":3,"peak_mesh_session_records":5,"peak_mesh_server_slots":5,"elapsed_us":6189898}

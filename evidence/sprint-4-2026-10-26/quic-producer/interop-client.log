@@ -1,0 +1,10 @@
+tools ok; quic-zig image tag will be quic-zig-qns:sprint4-43c2390
++ uv run --python 3.12 --with-requirements requirements.txt python run.py -s quic-go -c quic-zig -t handshake,transfer -l /Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-client-logs -j /Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-client-result.json -m -i quic-zig
+Saving logs to /Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/interop-client-logs.
+Run took 0:00:47.789993
+Server: quic-go. Client: quic-zig. Running test case: handshake
+Server: quic-go. Client: quic-zig. Running test case: transfer
+|          |        quic-go        |
+| :------: | :-------------------: |
+| quic-zig | ✓(H,DC)<br>?()<br>✕() |
+interop evidence: pairs=1 cells=2 succeeded=2 failed=0 known_failed=0 unsupported=0 skipped=0 flaky_passed=0 flaky_failed=0

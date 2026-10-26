@@ -1,0 +1,80 @@
+test-sprint3
++- run test 1 pass, 1 crash (2 total)
+error: 'sprint3_composition_test.test.Sprint 3 snapshots recover state after every change hint is lost' terminated with signal ABRT with stderr:
+       thread 67979573 panic: reached unreachable code
+       error return context:
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../src/quic/endpoint.zig:433:44: 0x10509c3a3 in sendReliable (test)
+               const s = e.by_peer.get(to) orelse return error.NoSession;
+                                                  ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../src/quic/transport.zig:26:9: 0x10509c52b in sendReliable (test)
+               try t.endpoint.sendReliable(to, bytes);
+               ^
+       
+       stack trace:
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/debug.zig:442:14: 0x104f2a4db in assert (test)
+           if (!ok) unreachable; // assertion failure
+                    ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../zig-pkg/quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-/src/Connection/send.zig:127:29: 0x10515111f in pollDatagram (test)
+                   std.debug.assert(built == null);
+                                   ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../../qmsg/src/transport/quic_runtime.zig:429:50: 0x105114513 in drainOutbound (test)
+               const out = self.client.conn.pollDatagram(dst, now_us) catch |err| return mapQuicError(err);
+                                                        ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../../qmsg/src/transport/quic_udp.zig:213:42: 0x1051142d7 in drainOne (test)
+               return self.runtime.drainOutbound(self.tx_buffer, now_us);
+                                                ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../../qmsg/src/transport/quic_udp.zig:240:43: 0x1051138bf in sendNext__func_1361 (test)
+           const drained = (try endpoint.drainOne(now_us)) orelse return null;
+                                                 ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../../qmsg/src/transport/quic_udp.zig:217:24: 0x1051136df in drainAndSendOne (test)
+               return sendNext(self, now_us);
+                              ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../../qmsg/src/node.zig:2727:45: 0x105089a33 in drainQuicEndpoint__func_1079 (test)
+                   if (try endpoint.drainAndSendOne(now_us) == null) return;
+                                                   ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../../qmsg/src/node.zig:2707:34: 0x10508a373 in tickQuicClients (test)
+                   try drainQuicEndpoint(&client.client, now_us);
+                                        ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../../qmsg/src/node.zig:868:33: 0x10508b20b in tick (test)
+               try self.tickQuicClients(now_us);
+                                       ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../../qmsg/src/quic_socket.zig:90:32: 0x10508b45f in pump (test)
+                   try owned.node.tick(now_us);
+                                      ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../../../../../examples/snapshot_recovery.zig:291:24: 0x10509532b in runScenario (test)
+               try client.pump(now);
+                              ^
+       /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/workspace/tests/composition/../sprint3_composition_test.zig:21:44: 0x105097977 in test.Sprint 3 snapshots recover state after every change hint is lost (test)
+           const report = try recovery.runScenario(std.testing.allocator, std.testing.io, .{});
+                                                  ^
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/compiler/test_runner.zig:143:68: 0x105035e4f in mainServer (test)
+                       const status: TestResults.Status = if (test_fn.func()) |v| s: {
+                                                                          ^
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/compiler/test_runner.zig:72:26: 0x10503645b in main (test)
+               return mainServer(init) catch |err| panic("internal test runner failure: {t}", .{err});
+                                ^
+       /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/start.zig:789:88: 0x1050343a7 in callMain (test)
+           if (fn_info.param_types[0].? == std.process.Init.Minimal) return wrapMain(root.main(.{
+                                                                                              ^
+       ???:?:?: 0x18afa7e7f in start (/usr/lib/dyld)
+failed command: /Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition/o/26039e71d5f16f061a8ec2b95d453b7a/test --cache-dir=/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-composition-debug/build-cache/composition --seed=0x5973f65d --listen=-
+
+Build Summary: 9/11 steps succeeded (1 failed); 1/2 tests passed (1 crashed)
+test-sprint3 transitive failure
++- run test 1 pass, 1 crash (2 total)
+   +- compile test debug native success 2s MaxRSS:552M
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native cached 48ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl debug native cached 49ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto debug native cached 58ms MaxRSS:32M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options cached
+      +- translate-c cached 39ms MaxRSS:30M
+

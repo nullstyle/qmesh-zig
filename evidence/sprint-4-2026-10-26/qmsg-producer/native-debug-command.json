@@ -1,0 +1,22 @@
+{
+  "command": [
+    "mise",
+    "exec",
+    "--",
+    "zig",
+    "build",
+    "test",
+    "examples",
+    "capnp-test",
+    "-Dcapnp=true",
+    "-j2",
+    "--summary",
+    "all"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 77.914984416,
+  "dependency_mode": "unchanged public QUIC v0.37.2 pin",
+  "environment": {
+    "ZIG_LOCAL_PKG_DIR": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg"
+  }
+}

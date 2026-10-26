@@ -93,6 +93,49 @@ pub fn build(b: *std.Build) void {
     install_workloads.dependOn(&b.addInstallArtifact(pubsub_exe, .{}).step);
     install_workloads.dependOn(&b.addInstallArtifact(recovery_exe, .{}).step);
 
+    const public_faults = b.createModule(.{
+        .root_source_file = qmsg.path("examples/public_fault_workload.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    public_faults.addImport("qmsg", qmsg.module("qmsg"));
+    const mesh_chaos = b.createModule(.{
+        .root_source_file = qmesh.path("examples/seeded_recovery_chaos.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    mesh_chaos.addImport("qmesh", qmesh.module("qmesh"));
+    mesh_chaos.addImport("qmesh_quic", qmesh.module("qmesh_quic"));
+    mesh_chaos.addImport("qmesh_messaging", qmesh.module("qmesh_messaging"));
+    mesh_chaos.addImport("qmsg", qmsg.module("qmsg"));
+    const sprint4_mod = b.createModule(.{
+        .root_source_file = b.path("../sprint4_composition_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    sprint4_mod.addImport("public_faults", public_faults);
+    sprint4_mod.addImport("mesh_chaos", mesh_chaos);
+    const sprint4_tests = b.addTest(.{ .root_module = sprint4_mod });
+    b.step("test-sprint4", "Qualify public messaging faults and seeded mesh recovery").dependOn(&b.addRunArtifact(sprint4_tests).step);
+
+    const faults_cli = b.createModule(.{
+        .root_source_file = qmsg.path("examples/quic_public_faults.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    faults_cli.addImport("qmsg", qmsg.module("qmsg"));
+    const faults_exe = b.addExecutable(.{ .name = "qmsg-public-faults", .root_module = faults_cli });
+    const run_faults = b.addRunArtifact(faults_exe);
+    run_faults.addPassthruArgs();
+    b.step("run-public-faults", "Run public messaging failure and shutdown qualification").dependOn(&run_faults.step);
+    b.step("install-public-faults", "Install the public messaging fault qualifier").dependOn(&b.addInstallArtifact(faults_exe, .{}).step);
+
+    const chaos_exe = b.addExecutable(.{ .name = "qmesh-recovery-chaos", .root_module = mesh_chaos });
+    const run_chaos = b.addRunArtifact(chaos_exe);
+    run_chaos.addPassthruArgs();
+    b.step("run-chaos", "Run seeded multi-node application recovery").dependOn(&run_chaos.step);
+    b.step("install-chaos", "Install the seeded recovery qualifier for bounded replay").dependOn(&b.addInstallArtifact(chaos_exe, .{}).step);
+
     const qmsg_tests = b.addTest(.{ .root_module = qmsg.module("qmsg") });
     const qmsg_step = b.step("test-qmsg", "Run qmsg unit, QUIC runtime, and real-UDP pair tests with the selected QUIC implementation");
     qmsg_step.dependOn(&b.addRunArtifact(qmsg_tests).step);

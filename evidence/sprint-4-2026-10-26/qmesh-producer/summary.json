@@ -1,0 +1,73 @@
+{
+  "status": "qmesh_lane_ready_for_parent_matrix",
+  "head": "2401ec63540e997aa373c750de642af80e03628d",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_files_sha256": {
+    "build.zig": "1fa6bb2a6eea4deda4517d789c50b1a6b60583315943c56321edc283ad7f0f73",
+    "examples/chaos_plan.zig": "4c364c7cebb167c91d08f1650e01993c795b6bcb222b6e3fc5314a825255278d",
+    "examples/seeded_recovery_chaos.zig": "48c23cd3e6afd6d3b62c004b590c0f2b9e46ffe4ab4ddec5613d4df21ae70fd5",
+    "tests/seeded_chaos_test.zig": "5a41bf6244adb10c05c2278837cf864ed506b3508bf9e20c2cca3a2c584edca3"
+  },
+  "current_source_identity": {
+    "path": "/Users/nullstyle/prj/zig/qmesh-zig",
+    "commit": "2401ec63540e997aa373c750de642af80e03628d",
+    "status": "M build.zig\n M docs/MESSAGING.md\n M tests/composition/build.zig\n M tools/check-composition.py\n?? docs/sprint-4-qualification.md\n?? docs/sprint-4-seeded-chaos.md\n?? examples/chaos_plan.zig\n?? examples/recovery-pki/node-c.key\n?? examples/recovery-pki/node-c.pem\n?? examples/recovery-pki/node-d.key\n?? examples/recovery-pki/node-d.pem\n?? examples/seeded_recovery_chaos.zig\n?? tests/seeded_chaos_test.zig\n?? tests/sprint4_composition_test.zig",
+    "tree_sha256": "3a502d065fe7c1b111be767d4d2d52e30fb28f147436147d7e706405fde00932",
+    "file_count": 507,
+    "manifest_sha256": "e2485cab1337e465325aae751934f61174d9184cf117f8c5994cb579e38aac4c",
+    "dependency_pins": {
+      "quic": {
+        "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+        "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+      }
+    }
+  },
+  "core_unique_tests": 146,
+  "core_gates": {
+    "mac_debug": {
+      "log": "core-final-debug.log",
+      "steps": "35/35",
+      "executed": 2,
+      "cached": 144,
+      "failures": 0,
+      "skips": 0
+    },
+    "mac_safe": {
+      "log": "core-final-safe.log",
+      "steps": "35/35",
+      "executed": 2,
+      "cached": 144,
+      "failures": 0,
+      "skips": 0
+    },
+    "linux_debug": {
+      "log": "linux-final-debug.log",
+      "steps": "35/35",
+      "executed": 146,
+      "cached": 0,
+      "failures": 0,
+      "skips": 0
+    },
+    "linux_safe": {
+      "log": "linux-final-safe.log",
+      "steps": "35/35",
+      "executed": 146,
+      "cached": 0,
+      "failures": 0,
+      "skips": 0
+    }
+  },
+  "live_seed_matrix": "seeded-matrix-final/report.json",
+  "live_runs_passed": 6,
+  "live_sources_unchanged": true,
+  "replay_cross_check": "replay-cross-check.json",
+  "virtual_pairs_per_platform_mode": 3,
+  "virtual_platform_modes": 4,
+  "linux_runtime_identity": "linux-final-container.log",
+  "scope": "native Mac public IPv4 UDP component and native Mac/Linux core+virtual simulation; parent owns final combined public Linux matrix",
+  "note": "Public documentation was finalized after code gates; runtime/example/plan/test source SHA values remain those qualified above. Earlier index-based-ID/initial logs remain historical. Generated check-composition Python bytecode was removed after qualification; final canonical identity excludes it."
+}

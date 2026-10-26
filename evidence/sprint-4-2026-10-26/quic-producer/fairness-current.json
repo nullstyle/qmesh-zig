@@ -1,0 +1,35 @@
+{
+  "name": "fairness-current",
+  "started_utc": "2026-10-26T20:50:32.873002+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "command": [
+    "zig",
+    "build",
+    "bench-e2e",
+    "--",
+    "--scenario",
+    "fairness",
+    "--samples",
+    "1",
+    "--json",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/fairness-current-report.json"
+  ],
+  "timeout_seconds": 2700,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "fairness-current.log",
+  "passed": true,
+  "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+  "finished_utc": "2026-10-26T20:51:46.534678+00:00",
+  "elapsed_seconds": 73.61209749989212,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "5149b75ee04fd6a2f0190d49c38700fb338c4911542a79defbec503de514f70c",
+  "build_summaries": []
+}

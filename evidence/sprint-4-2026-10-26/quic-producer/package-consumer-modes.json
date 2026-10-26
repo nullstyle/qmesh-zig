@@ -1,0 +1,29 @@
+{
+  "name": "package-consumer-modes",
+  "started_utc": "2026-10-26T20:57:53.584291+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/package-consumer",
+  "command": [
+    "env",
+    "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+    "sh",
+    "check-modes.sh"
+  ],
+  "timeout_seconds": 2700,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "package-consumer-modes.log",
+  "passed": true,
+  "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig",
+  "finished_utc": "2026-10-26T20:57:58.318945+00:00",
+  "elapsed_seconds": 4.724394582910463,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "4d9ca5b06e5e7323b907aea532bc5ba8300cebd86dac8f71d7d5bdbb1caa0a00",
+  "build_summaries": []
+}

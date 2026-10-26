@@ -1,0 +1,33 @@
+{
+  "name": "qns-image-build",
+  "started_utc": "2026-10-26T20:48:11.445213+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/source-initial",
+  "command": [
+    "env",
+    "ZIG_LOCAL_PKG_DIR=/Users/nullstyle/prj/zig/quic-zig/zig-pkg",
+    "zig",
+    "build",
+    "external-interop",
+    "--",
+    "build-image",
+    "--image",
+    "quic-zig-qns:sprint4-43c2390"
+  ],
+  "timeout_seconds": 1800,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "qns-image-build.log",
+  "passed": true,
+  "finished_utc": "2026-10-26T20:50:17.534231+00:00",
+  "elapsed_seconds": 126.0759450418409,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "9bf728863161209e5813973cef77b1ca7945d9e9a005562673b089c6c51fd274",
+  "build_summaries": []
+}

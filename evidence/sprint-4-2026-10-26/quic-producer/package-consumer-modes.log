@@ -1,0 +1,7 @@
+ok    wiring=release mode=Debug (ok)
+ok    wiring=release mode=ReleaseSafe (ok)
+ok    wiring=release mode=ReleaseFast (ok)
+ok    wiring=optimize mode=Debug (ok)
+ok    wiring=optimize mode=ReleaseSafe (ok)
+ok    wiring=optimize mode=ReleaseFast (refused)
+check-modes: 6 of 6 as expected

@@ -1,0 +1,20 @@
+consumer-smoke ok: quic-zig 0.42.2
+Build Summary: 11/11 steps succeeded
+run success
++- run exe consumer-smoke success 181ms
+   +- compile exe consumer-smoke debug native success 8s MaxRSS:357M
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native cached 57ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl debug native cached 81ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto debug native cached 90ms MaxRSS:32M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options cached
+      +- translate-c cached 57ms MaxRSS:30M
+

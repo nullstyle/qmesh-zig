@@ -1,0 +1,1033 @@
+{
+  "schema_version": 1,
+  "sprint": 4,
+  "generated_utc": "2026-10-26T21:25:54.335877+00:00",
+  "product_change": "Public-interface qualification workload, tests, CLI, build target and documentation only; no src runtime changes, wire changes, pin/version changes, commits or pushes.",
+  "source_freeze": {
+    "frozen_utc": "2026-10-26T21:19:31.725175+00:00",
+    "source": {
+      "path": "/Users/nullstyle/prj/zig/qmsg",
+      "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+      "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+      "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+      "file_count": 81,
+      "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+      "dependency_pins": {
+        "quic": {
+          "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+          "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+        }
+      }
+    },
+    "source_frozen": true,
+    "producer_gates_pending": true,
+    "relative_link_files_checked": [
+      "README.md",
+      "docs/SPRINT.md",
+      "docs/SPRINT_4_PUBLIC_FAULTS.md"
+    ]
+  },
+  "source_after_producer_checks": {
+    "path": "/Users/nullstyle/prj/zig/qmsg",
+    "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+    "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+    "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+    "file_count": 81,
+    "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+    "dependency_pins": {
+      "quic": {
+        "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+        "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+      }
+    }
+  },
+  "sources_unchanged": true,
+  "canonical_qmsg_tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+  "source_file_count": 81,
+  "modes": {
+    "debug": {
+      "status": "passed",
+      "native_full": {
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "zig",
+          "build",
+          "test",
+          "examples",
+          "capnp-test",
+          "-Dcapnp=true",
+          "-j2",
+          "--summary",
+          "all"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 77.914984416,
+        "dependency_mode": "unchanged public QUIC v0.37.2 pin",
+        "environment": {
+          "ZIG_LOCAL_PKG_DIR": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg"
+        },
+        "counts": {
+          "build_summaries": [
+            "Build Summary: 43/43 steps succeeded; 897/897 tests passed"
+          ],
+          "executed_passed": 897,
+          "executed_skipped": 0,
+          "executed_total": 897,
+          "cached_test_runs": 0,
+          "test_runs": [
+            {
+              "passed": 3,
+              "skipped": 0,
+              "total": 3,
+              "line": "+- run test 3 pass (3 total) 159ms MaxRSS:3M"
+            },
+            {
+              "passed": 350,
+              "skipped": 0,
+              "total": 350,
+              "line": "+- run test 350 pass (350 total) 4s MaxRSS:30M"
+            },
+            {
+              "passed": 188,
+              "skipped": 0,
+              "total": 188,
+              "line": "+- run test 188 pass (188 total) 604ms MaxRSS:15M"
+            },
+            {
+              "passed": 356,
+              "skipped": 0,
+              "total": 356,
+              "line": "+- run test 356 pass (356 total) 17s MaxRSS:152M"
+            }
+          ],
+          "example_executable_compilations": 12
+        },
+        "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug.log"
+      },
+      "native_smokes": [
+        {
+          "exit_code": 0,
+          "binary": "quic-pubsub-localhost",
+          "live_udp": true,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-pubsub.log"
+        },
+        {
+          "exit_code": 0,
+          "binary": "quic-owned-reqrep",
+          "live_udp": true,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-owned.log"
+        },
+        {
+          "exit_code": 0,
+          "binary": "quic-node-localhost",
+          "live_udp": true,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-node-app.log"
+        },
+        {
+          "exit_code": 0,
+          "binary": "quic-runtime-reqrep",
+          "live_udp": false,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-runtime.log"
+        },
+        {
+          "exit_code": 0,
+          "binary": "quic-app-dispatch",
+          "live_udp": false,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-app-dispatch.log"
+        }
+      ],
+      "candidate_public_faults": {
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "zig",
+          "build",
+          "test-sprint4",
+          "install-public-faults",
+          "-j2",
+          "--summary",
+          "all"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 12.52941325,
+        "dependency_mode": "fixed selected QUIC source via shared parent module",
+        "sources_before": {
+          "qmsg": {
+            "path": "/Users/nullstyle/prj/zig/qmsg",
+            "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+            "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+            "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+            "file_count": 81,
+            "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+            "dependency_pins": {
+              "quic": {
+                "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+                "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+              }
+            }
+          },
+          "quic": {
+            "path": "/Users/nullstyle/prj/zig/quic-zig",
+            "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+            "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+            "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+            "file_count": 306,
+            "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+            "dependency_pins": {
+              "boringssl": {
+                "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+                "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+              }
+            }
+          }
+        },
+        "final_candidate_archive": {
+          "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-sprint4-final-candidate.tar.gz",
+          "sha256": "0cb202a6a4efae6f2e28354ce90bb0869397069521c64c8503c4b26d611d2bcb"
+        },
+        "environment": {
+          "ZIG_LOCAL_PKG_DIR": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg"
+        },
+        "binary": {
+          "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+          "sha256": "54563a9e6485c85a25198a32f9afa595e3fb522163e302269b178d1af3257928"
+        },
+        "runs": [
+          {
+            "variant": "default",
+            "command": [
+              "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults"
+            ],
+            "returncode": 0
+          },
+          {
+            "variant": "variant",
+            "command": [
+              "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+              "--seed",
+              "0x42",
+              "--payload-bytes",
+              "256",
+              "--stream-window",
+              "2",
+              "--deadline-ms",
+              "150"
+            ],
+            "returncode": 0
+          }
+        ],
+        "sources_after": {
+          "qmsg": {
+            "path": "/Users/nullstyle/prj/zig/qmsg",
+            "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+            "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+            "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+            "file_count": 81,
+            "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+            "dependency_pins": {
+              "quic": {
+                "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+                "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+              }
+            }
+          },
+          "quic": {
+            "path": "/Users/nullstyle/prj/zig/quic-zig",
+            "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+            "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+            "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+            "file_count": 306,
+            "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+            "dependency_pins": {
+              "boringssl": {
+                "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+                "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+              }
+            }
+          }
+        },
+        "sources_unchanged": true,
+        "counts": {
+          "build_summaries": [
+            "Build Summary: 14/14 steps succeeded; 2/2 tests passed"
+          ],
+          "executed_passed": 2,
+          "executed_skipped": 0,
+          "executed_total": 2,
+          "cached_test_runs": 0,
+          "test_runs": [
+            {
+              "passed": 2,
+              "skipped": 0,
+              "total": 2,
+              "line": "+- run test 2 pass (2 total) 5s MaxRSS:26M"
+            }
+          ],
+          "example_executable_compilations": 1
+        },
+        "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-debug.log",
+        "public_records": [
+          {
+            "variant": "default",
+            "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-debug-default.log",
+            "record": {
+              "tls_certificate_sha256": "82bc9ef5c930ad1a5c83d2b34ca26dd54a3dca031d4c1b1add9023f0a449a673",
+              "payload_pattern": "seed-wire-actor-v1",
+              "deadline_ms": 100,
+              "normal_deadline_ms": 2000,
+              "drain_timeout_us": 200000,
+              "timeout_us": 10000000,
+              "victim_event_capacity": 0,
+              "healthy_event_capacity": 8,
+              "server_event_capacity": 4,
+              "control_code": 5461044,
+              "control_reason": "public-fault-grace",
+              "max_requests_per_client": 2,
+              "send_queue_messages": 2,
+              "max_completion_bytes": 4096,
+              "max_sessions_per_actor": 4,
+              "ledger_capacity": 32,
+              "handle_capacity": 8,
+              "server_requests": 13,
+              "peak_retained_handles": 2,
+              "peak_server_sessions": 4,
+              "late_reply_refused": 0,
+              "completed": true,
+              "seed": 8165955435086479361,
+              "payload_bytes": 128,
+              "stream_window": 8,
+              "accepted": 15,
+              "terminal": 15,
+              "succeeded": 10,
+              "canceled": 2,
+              "deadline_exceeded": 1,
+              "authorization_denied": 1,
+              "peer_closed": 1,
+              "remote_close_observed": true,
+              "remote_loss_us": 3544,
+              "loss_request_deadline_ms": 5000,
+              "queue_refused": 1,
+              "inflight_refused": 2,
+              "role_rejected": 1,
+              "role_positive_control_ready": true,
+              "healthy_succeeded": 6,
+              "goaway_events": 1,
+              "goaway_refused": 1,
+              "handles_retained": 4,
+              "handles_released": 4,
+              "late_reply_attempts": 2,
+              "stale_handle_rejected": 1,
+              "reconnected": true,
+              "drain_closed": true,
+              "events_received": 44,
+              "events_deinitialized": 44,
+              "peak_outstanding_per_client": 2,
+              "ordinary_events_dropped": 3,
+              "pending_at_end": 0,
+              "duplicate_terminals": 0,
+              "loop_steps": 59,
+              "elapsed_us": 613597
+            }
+          },
+          {
+            "variant": "variant",
+            "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-debug-variant.log",
+            "record": {
+              "tls_certificate_sha256": "82bc9ef5c930ad1a5c83d2b34ca26dd54a3dca031d4c1b1add9023f0a449a673",
+              "payload_pattern": "seed-wire-actor-v1",
+              "deadline_ms": 150,
+              "normal_deadline_ms": 2000,
+              "drain_timeout_us": 200000,
+              "timeout_us": 10000000,
+              "victim_event_capacity": 0,
+              "healthy_event_capacity": 8,
+              "server_event_capacity": 4,
+              "control_code": 5461044,
+              "control_reason": "public-fault-grace",
+              "max_requests_per_client": 2,
+              "send_queue_messages": 2,
+              "max_completion_bytes": 4096,
+              "max_sessions_per_actor": 4,
+              "ledger_capacity": 32,
+              "handle_capacity": 8,
+              "server_requests": 13,
+              "peak_retained_handles": 2,
+              "peak_server_sessions": 4,
+              "late_reply_refused": 0,
+              "completed": true,
+              "seed": 66,
+              "payload_bytes": 256,
+              "stream_window": 2,
+              "accepted": 15,
+              "terminal": 15,
+              "succeeded": 10,
+              "canceled": 2,
+              "deadline_exceeded": 1,
+              "authorization_denied": 1,
+              "peer_closed": 1,
+              "remote_close_observed": true,
+              "remote_loss_us": 3954,
+              "loss_request_deadline_ms": 5000,
+              "queue_refused": 1,
+              "inflight_refused": 2,
+              "role_rejected": 1,
+              "role_positive_control_ready": true,
+              "healthy_succeeded": 6,
+              "goaway_events": 1,
+              "goaway_refused": 1,
+              "handles_retained": 4,
+              "handles_released": 4,
+              "late_reply_attempts": 2,
+              "stale_handle_rejected": 1,
+              "reconnected": true,
+              "drain_closed": true,
+              "events_received": 44,
+              "events_deinitialized": 44,
+              "peak_outstanding_per_client": 2,
+              "ordinary_events_dropped": 3,
+              "pending_at_end": 0,
+              "duplicate_terminals": 0,
+              "loop_steps": 65,
+              "elapsed_us": 638582
+            }
+          }
+        ],
+        "transport_selection_note": "Live local QUIC source through shared parent qmsg module (canonical source identities captured before/after); final archive SHA verified, parent final matrix owns direct archive qualification."
+      }
+    },
+    "releasesafe": {
+      "status": "passed",
+      "native_full": {
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "zig",
+          "build",
+          "test",
+          "examples",
+          "capnp-test",
+          "-Dcapnp=true",
+          "-Doptimize=ReleaseSafe",
+          "-j2",
+          "--summary",
+          "all"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 195.24858050000003,
+        "dependency_mode": "unchanged public QUIC v0.37.2 pin",
+        "environment": {
+          "ZIG_LOCAL_PKG_DIR": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg"
+        },
+        "counts": {
+          "build_summaries": [
+            "Build Summary: 43/43 steps succeeded; 897/897 tests passed"
+          ],
+          "executed_passed": 897,
+          "executed_skipped": 0,
+          "executed_total": 897,
+          "cached_test_runs": 0,
+          "test_runs": [
+            {
+              "passed": 3,
+              "skipped": 0,
+              "total": 3,
+              "line": "+- run test 3 pass (3 total) 146ms MaxRSS:2M"
+            },
+            {
+              "passed": 350,
+              "skipped": 0,
+              "total": 350,
+              "line": "+- run test 350 pass (350 total) 2s MaxRSS:12M"
+            },
+            {
+              "passed": 188,
+              "skipped": 0,
+              "total": 188,
+              "line": "+- run test 188 pass (188 total) 269ms MaxRSS:9M"
+            },
+            {
+              "passed": 356,
+              "skipped": 0,
+              "total": 356,
+              "line": "+- run test 356 pass (356 total) 3s MaxRSS:13M"
+            }
+          ],
+          "example_executable_compilations": 12
+        },
+        "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe.log"
+      },
+      "native_smokes": [
+        {
+          "exit_code": 0,
+          "binary": "quic-pubsub-localhost",
+          "live_udp": true,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-pubsub.log"
+        },
+        {
+          "exit_code": 0,
+          "binary": "quic-owned-reqrep",
+          "live_udp": true,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-owned.log"
+        },
+        {
+          "exit_code": 0,
+          "binary": "quic-node-localhost",
+          "live_udp": true,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-node-app.log"
+        },
+        {
+          "exit_code": 0,
+          "binary": "quic-runtime-reqrep",
+          "live_udp": false,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-runtime.log"
+        },
+        {
+          "exit_code": 0,
+          "binary": "quic-app-dispatch",
+          "live_udp": false,
+          "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-app-dispatch.log"
+        }
+      ],
+      "candidate_public_faults": {
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "zig",
+          "build",
+          "test-sprint4",
+          "install-public-faults",
+          "-Doptimize=ReleaseSafe",
+          "-j2",
+          "--summary",
+          "all"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 26.68067475,
+        "dependency_mode": "fixed selected QUIC source via shared parent module",
+        "sources_before": {
+          "qmsg": {
+            "path": "/Users/nullstyle/prj/zig/qmsg",
+            "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+            "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+            "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+            "file_count": 81,
+            "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+            "dependency_pins": {
+              "quic": {
+                "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+                "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+              }
+            }
+          },
+          "quic": {
+            "path": "/Users/nullstyle/prj/zig/quic-zig",
+            "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+            "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+            "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+            "file_count": 306,
+            "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+            "dependency_pins": {
+              "boringssl": {
+                "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+                "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+              }
+            }
+          }
+        },
+        "final_candidate_archive": {
+          "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-sprint4-final-candidate.tar.gz",
+          "sha256": "0cb202a6a4efae6f2e28354ce90bb0869397069521c64c8503c4b26d611d2bcb"
+        },
+        "environment": {
+          "ZIG_LOCAL_PKG_DIR": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg"
+        },
+        "binary": {
+          "path": "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+          "sha256": "1eeb51e2ffb45d533cf336ba906d126335598e8c2d5aa2b1c4d43ad88cc2fdef"
+        },
+        "runs": [
+          {
+            "variant": "default",
+            "command": [
+              "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults"
+            ],
+            "returncode": 0
+          },
+          {
+            "variant": "variant",
+            "command": [
+              "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+              "--seed",
+              "0x42",
+              "--payload-bytes",
+              "256",
+              "--stream-window",
+              "2",
+              "--deadline-ms",
+              "150"
+            ],
+            "returncode": 0
+          }
+        ],
+        "sources_after": {
+          "qmsg": {
+            "path": "/Users/nullstyle/prj/zig/qmsg",
+            "commit": "8510c90c6aad9dd0b22ca1ace953fc545e044491",
+            "status": "M CHANGELOG.md\n M README.md\n M build.zig\n M docs/SPRINT.md\n?? docs/SPRINT_4_PUBLIC_FAULTS.md\n?? examples/public_fault_workload.zig\n?? examples/public_fault_workload_test.zig\n?? examples/quic_public_faults.zig",
+            "tree_sha256": "9346b2adc4462c3842ff4ee4675854af0defb1da950d1684ebae0c41814a7a21",
+            "file_count": 81,
+            "manifest_sha256": "3d0d921643e77a36b09b23c127c3d404f4d3b6cfa84dab6e97d43184e1f7b9d3",
+            "dependency_pins": {
+              "quic": {
+                "url": "https://github.com/nullstyle/quic-zig/archive/refs/tags/v0.37.2.tar.gz",
+                "hash": "quic-0.37.2-DnSYvb2bPwDUgMMPDFV3tX0CgvsCbn2u2ed60n4tUtZ-"
+              }
+            }
+          },
+          "quic": {
+            "path": "/Users/nullstyle/prj/zig/quic-zig",
+            "commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+            "status": "M CHANGELOG.md\n M docs/DOWNSTREAM_INTEGRATION.md\n?? docs/SPRINT_4_STACK_QUALIFICATION.md",
+            "tree_sha256": "be7784f734b73eb9dc26e57cff4a517eaf62eaeea42a74faa97d9fad78ad728f",
+            "file_count": 306,
+            "manifest_sha256": "7567cdf8cd29bed9770e0f27915554970c14f33ed65f81ec141f9576c79bf60b",
+            "dependency_pins": {
+              "boringssl": {
+                "url": "https://github.com/nullstyle/boringssl-zig/archive/ff30fe9953b07f838d7ac09ace84dacfb1e896ca.tar.gz",
+                "hash": "boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2"
+              }
+            }
+          }
+        },
+        "sources_unchanged": true,
+        "counts": {
+          "build_summaries": [
+            "Build Summary: 14/14 steps succeeded; 2/2 tests passed"
+          ],
+          "executed_passed": 2,
+          "executed_skipped": 0,
+          "executed_total": 2,
+          "cached_test_runs": 0,
+          "test_runs": [
+            {
+              "passed": 2,
+              "skipped": 0,
+              "total": 2,
+              "line": "+- run test 2 pass (2 total) 6s MaxRSS:12M"
+            }
+          ],
+          "example_executable_compilations": 1
+        },
+        "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe.log",
+        "public_records": [
+          {
+            "variant": "default",
+            "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-default.log",
+            "record": {
+              "tls_certificate_sha256": "82bc9ef5c930ad1a5c83d2b34ca26dd54a3dca031d4c1b1add9023f0a449a673",
+              "payload_pattern": "seed-wire-actor-v1",
+              "deadline_ms": 100,
+              "normal_deadline_ms": 2000,
+              "drain_timeout_us": 200000,
+              "timeout_us": 10000000,
+              "victim_event_capacity": 0,
+              "healthy_event_capacity": 8,
+              "server_event_capacity": 4,
+              "control_code": 5461044,
+              "control_reason": "public-fault-grace",
+              "max_requests_per_client": 2,
+              "send_queue_messages": 2,
+              "max_completion_bytes": 4096,
+              "max_sessions_per_actor": 4,
+              "ledger_capacity": 32,
+              "handle_capacity": 8,
+              "server_requests": 13,
+              "peak_retained_handles": 2,
+              "peak_server_sessions": 4,
+              "late_reply_refused": 0,
+              "completed": true,
+              "seed": 8165955435086479361,
+              "payload_bytes": 128,
+              "stream_window": 8,
+              "accepted": 15,
+              "terminal": 15,
+              "succeeded": 10,
+              "canceled": 2,
+              "deadline_exceeded": 1,
+              "authorization_denied": 1,
+              "peer_closed": 1,
+              "remote_close_observed": true,
+              "remote_loss_us": 461,
+              "loss_request_deadline_ms": 5000,
+              "queue_refused": 1,
+              "inflight_refused": 2,
+              "role_rejected": 1,
+              "role_positive_control_ready": true,
+              "healthy_succeeded": 6,
+              "goaway_events": 1,
+              "goaway_refused": 1,
+              "handles_retained": 4,
+              "handles_released": 4,
+              "late_reply_attempts": 2,
+              "stale_handle_rejected": 1,
+              "reconnected": true,
+              "drain_closed": true,
+              "events_received": 44,
+              "events_deinitialized": 44,
+              "peak_outstanding_per_client": 2,
+              "ordinary_events_dropped": 3,
+              "pending_at_end": 0,
+              "duplicate_terminals": 0,
+              "loop_steps": 62,
+              "elapsed_us": 480913
+            }
+          },
+          {
+            "variant": "variant",
+            "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-variant.log",
+            "record": {
+              "tls_certificate_sha256": "82bc9ef5c930ad1a5c83d2b34ca26dd54a3dca031d4c1b1add9023f0a449a673",
+              "payload_pattern": "seed-wire-actor-v1",
+              "deadline_ms": 150,
+              "normal_deadline_ms": 2000,
+              "drain_timeout_us": 200000,
+              "timeout_us": 10000000,
+              "victim_event_capacity": 0,
+              "healthy_event_capacity": 8,
+              "server_event_capacity": 4,
+              "control_code": 5461044,
+              "control_reason": "public-fault-grace",
+              "max_requests_per_client": 2,
+              "send_queue_messages": 2,
+              "max_completion_bytes": 4096,
+              "max_sessions_per_actor": 4,
+              "ledger_capacity": 32,
+              "handle_capacity": 8,
+              "server_requests": 13,
+              "peak_retained_handles": 2,
+              "peak_server_sessions": 4,
+              "late_reply_refused": 0,
+              "completed": true,
+              "seed": 66,
+              "payload_bytes": 256,
+              "stream_window": 2,
+              "accepted": 15,
+              "terminal": 15,
+              "succeeded": 10,
+              "canceled": 2,
+              "deadline_exceeded": 1,
+              "authorization_denied": 1,
+              "peer_closed": 1,
+              "remote_close_observed": true,
+              "remote_loss_us": 325,
+              "loss_request_deadline_ms": 5000,
+              "queue_refused": 1,
+              "inflight_refused": 2,
+              "role_rejected": 1,
+              "role_positive_control_ready": true,
+              "healthy_succeeded": 6,
+              "goaway_events": 1,
+              "goaway_refused": 1,
+              "handles_retained": 4,
+              "handles_released": 4,
+              "late_reply_attempts": 2,
+              "stale_handle_rejected": 1,
+              "reconnected": true,
+              "drain_closed": true,
+              "events_received": 44,
+              "events_deinitialized": 44,
+              "peak_outstanding_per_client": 2,
+              "ordinary_events_dropped": 3,
+              "pending_at_end": 0,
+              "duplicate_terminals": 0,
+              "loop_steps": 67,
+              "elapsed_us": 529571
+            }
+          }
+        ],
+        "transport_selection_note": "Live local QUIC source through shared parent qmsg module (canonical source identities captured before/after); final archive SHA verified, parent final matrix owns direct archive qualification."
+      }
+    }
+  },
+  "cli_controls": [
+    {
+      "case": "guard",
+      "command": [
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults"
+      ],
+      "live_udp_enabled": false,
+      "returncode": 0,
+      "expected_returncode": 0,
+      "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-guard.log",
+      "passed": true
+    },
+    {
+      "case": "payload-range",
+      "command": [
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+        "--payload-bytes",
+        "513"
+      ],
+      "live_udp_enabled": true,
+      "returncode": 1,
+      "expected_returncode": 1,
+      "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-payload-range.log",
+      "passed": true
+    },
+    {
+      "case": "timeout-range",
+      "command": [
+        "/Users/nullstyle/prj/zig/qmesh-zig/.zig-cache/sprint-4-stack-dev/tests/composition/zig-out/bin/qmsg-public-faults",
+        "--timeout-ms",
+        "30001"
+      ],
+      "live_udp_enabled": true,
+      "returncode": 1,
+      "expected_returncode": 1,
+      "log": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-timeout-range.log",
+      "passed": true
+    }
+  ],
+  "native_released_limitation": "QUIC v0.37.2 inherited S3 idle-cache assert is retained as a known negative. Passing ordinary producer tests/smokes does not clear it. Dedicated S4 positives below use fixed selected QUIC. Parent final composition verifies final exact archive independently.",
+  "final_candidate_archive": {
+    "path": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/quic-sprint4-final-candidate.tar.gz",
+    "sha256": "0cb202a6a4efae6f2e28354ce90bb0869397069521c64c8503c4b26d611d2bcb"
+  },
+  "toolchain": {
+    "compiler_path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "compiler_realpath": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig",
+    "compiler_sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0",
+    "platform": "darwin",
+    "machine": "arm64",
+    "environment": {
+      "ZIG_LOCAL_PKG_DIR": "/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "jobs": 2
+  },
+  "producer_qualification_status": "passed",
+  "passed": true,
+  "artifact_index": [
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/auth-candidate-slice.log",
+      "sha256": "49007a0246ccf12f218a944cfeca860ce91d796c982aae32cb76d941cff70af2",
+      "bytes": 1942
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-cli-controls.json",
+      "sha256": "335b69aafe226dc28f4fe78ab43c69983d216bb61b8af91838a10ffde399967c",
+      "bytes": 1266
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-debug-command.json",
+      "sha256": "8a11bd414c8e4d30380fb45df4d03589150c7ccc7c555d143dd501c001360818",
+      "bytes": 4576
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-debug-default.log",
+      "sha256": "ff636ec5b1c4b2958ee54ee22f98956b0f4573957e70b951803fd2d38de4fbd7",
+      "bytes": 1374
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-debug-variant.log",
+      "sha256": "b34c7f8f2e75248628c8ff7a0d9e21efb055570211ecc753bfb75707d694f11c",
+      "bytes": 1357
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-debug.log",
+      "sha256": "71ee943d9721127ca489b772d24daf6f6930a55f3d99cabc564f9045affe2834",
+      "bytes": 2563
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-guard.log",
+      "sha256": "2d7d058ea4f56b03f465b137c06a930bb9f0cec9858526ace33009f925c646bd",
+      "bytes": 45
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-payload-range.log",
+      "sha256": "fd6215f8743fcdaf587cc77c81d4f5d315d53342fb67b47952621b26815a3c06",
+      "bytes": 22
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-cli-timeout-range.log",
+      "sha256": "fd6215f8743fcdaf587cc77c81d4f5d315d53342fb67b47952621b26815a3c06",
+      "bytes": 22
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-command.json",
+      "sha256": "3f14e7d05de142edded6de034817f23f5ba10e5ddff6cf3f823fcd5fc4c54c1e",
+      "bytes": 4606
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-default.log",
+      "sha256": "5e83f7b47b645314d9bf324f9d6434b0d8e371cebf365acca974e51cd74c25b3",
+      "bytes": 1373
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe-variant.log",
+      "sha256": "0bf00ae51fa798504dffb4ee7f2e51728b7f4776a50cde2aa691a964ab1054b9",
+      "bytes": 1356
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/candidate-releasesafe.log",
+      "sha256": "18f50101ff6db601cc37ad07e638bae85e751032872d055b058039f8e10b5155",
+      "bytes": 2549
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/first-candidate-slice.log",
+      "sha256": "5a5afe16e879d3d422866e01d28b89a75f4ad309f745de8528a571e613ddbce2",
+      "bytes": 1942
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/lifecycle-candidate-slice.log",
+      "sha256": "154752f56b0079a605c757c7fbf6e0aa298e575fd4201bdea9e5f162c1e387d5",
+      "bytes": 1942
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/lifecycle-compile-quota.log",
+      "sha256": "7a2911db7f51496df6337e27c282eb1a1a43a7d3040106b79a7cb743920fac4f",
+      "bytes": 4247
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-app-dispatch-result.json",
+      "sha256": "143ac6bbd5667484cd1bf42d1020503d8fffcb22c2215784c36019530a39216b",
+      "bytes": 75
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-app-dispatch.log",
+      "sha256": "d470e819ee84d798eb4f4debd5f2952270348f82807442bffeaf631cf01e7cff",
+      "bytes": 115
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-command.json",
+      "sha256": "4818a03b07a8c950dd55f2b723eb258d3946aca9ed40a60de95f59819a21effd",
+      "bytes": 391
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-node-app-result.json",
+      "sha256": "d1d4dc334d1e3e8d389393c88fd6e5f777487f6ed8297094a74f9e7c113d61c6",
+      "bytes": 76
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-node-app.log",
+      "sha256": "e8b8fa4ea34de0de5330b7749fe27cd4661c7e709d18ba390e498d9f85be2867",
+      "bytes": 25
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-owned-result.json",
+      "sha256": "c9f794be42184e110d1f23c96e0bac1b5aab522457adc8b8bbd4677363515324",
+      "bytes": 74
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-owned.log",
+      "sha256": "bc274e64285ca0bfe1897daefbfca75d70546706c827be30ab50c075fc55ec61",
+      "bytes": 33
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-pubsub-result.json",
+      "sha256": "0a1e9bd470e3374506237d355ad8a54c40904791f2f68915513f55bd70e86e67",
+      "bytes": 78
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-pubsub.log",
+      "sha256": "2d64f9c7300aea36abbac0a61892bfbf67c33ece2169b61be1ca8208e943cd99",
+      "bytes": 330
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-runtime-result.json",
+      "sha256": "ca0df7b6c20197046279439aece9bc1ce2069c154d2b2e3e4f9e714f0cc2ff0c",
+      "bytes": 77
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug-runtime.log",
+      "sha256": "612a17e2e172442ba743d3e2fb3f03a834771375a0e73fb5a4960c4379b4778f",
+      "bytes": 62
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-debug.log",
+      "sha256": "6c565d3c6ab2f2a21dff121017a3ac844c922753072895183a722ecd4dd49e7f",
+      "bytes": 9531
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-app-dispatch-result.json",
+      "sha256": "143ac6bbd5667484cd1bf42d1020503d8fffcb22c2215784c36019530a39216b",
+      "bytes": 75
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-app-dispatch.log",
+      "sha256": "d470e819ee84d798eb4f4debd5f2952270348f82807442bffeaf631cf01e7cff",
+      "bytes": 115
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-command.json",
+      "sha256": "990b56853c2465568e17adb4a98ca0eb3890fd545e62a24e6c5332781926a322",
+      "bytes": 427
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-node-app-result.json",
+      "sha256": "d1d4dc334d1e3e8d389393c88fd6e5f777487f6ed8297094a74f9e7c113d61c6",
+      "bytes": 76
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-node-app.log",
+      "sha256": "e8b8fa4ea34de0de5330b7749fe27cd4661c7e709d18ba390e498d9f85be2867",
+      "bytes": 25
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-owned-result.json",
+      "sha256": "c9f794be42184e110d1f23c96e0bac1b5aab522457adc8b8bbd4677363515324",
+      "bytes": 74
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-owned.log",
+      "sha256": "bc274e64285ca0bfe1897daefbfca75d70546706c827be30ab50c075fc55ec61",
+      "bytes": 33
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-pubsub-result.json",
+      "sha256": "0a1e9bd470e3374506237d355ad8a54c40904791f2f68915513f55bd70e86e67",
+      "bytes": 78
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-pubsub.log",
+      "sha256": "d15b12af1d55798cc11ca23f04786a57750e928c9625b97c1b4515f5116b3fa2",
+      "bytes": 328
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-runtime-result.json",
+      "sha256": "ca0df7b6c20197046279439aece9bc1ce2069c154d2b2e3e4f9e714f0cc2ff0c",
+      "bytes": 77
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe-runtime.log",
+      "sha256": "612a17e2e172442ba743d3e2fb3f03a834771375a0e73fb5a4960c4379b4778f",
+      "bytes": 62
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/native-releasesafe.log",
+      "sha256": "0f0f1fbca9e01890235b2b08ff4748cbeef4fed563279e2a825223d9fcb42db4",
+      "bytes": 9333
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/remote-close-candidate.log",
+      "sha256": "e2943ce1bc067c4f4fce428568558eb260febe8d4206a04170b1fbb75a96235d",
+      "bytes": 1942
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/role-control-candidate.log",
+      "sha256": "c72d3dd9e88a8371f63e4312cd174278234cfe41e00d77f17e53a66744e582f2",
+      "bytes": 1942
+    },
+    {
+      "path": "/Users/nullstyle/prj/zig/qmsg/.zig-cache/sprint-4-evidence/source-frozen.json",
+      "sha256": "c12554a0a9f7c6ca59264898c028f127b43ebe86af32ea30423e8c87eef09c2b",
+      "bytes": 1004
+    }
+  ]
+}

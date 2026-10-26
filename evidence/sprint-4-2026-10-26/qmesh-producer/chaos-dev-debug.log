@@ -1,0 +1,34 @@
+run-chaos
++- run exe qmesh-recovery-chaos
+   +- compile exe qmesh-recovery-chaos debug native 1 errors
+examples/seeded_recovery_chaos.zig:547:51: error: type 'u8' cannot represent integer value '256'
+    runners[reset] = try makeMesh(a, plan, reset, 0x100 + reset, &observers[reset]);
+                                                  ^~~~~
+referenced by:
+    main: examples/seeded_recovery_chaos.zig:579:35
+    callMain [inlined]: /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/start.zig:827:30
+    callMainWithArgs [inlined]: /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/start.zig:729:20
+    main: /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/std/start.zig:754:28
+    1 reference(s) hidden; use '-freference-trace=5' to see all references
+error: 1 compilation errors
+failed command: /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/zig build-exe -Odebug --dep qmesh --dep qmesh_quic --dep qmesh_messaging --dep qmsg -Mroot=.zig-cache/sprint-4-stack-dev/tests/composition/../../../../examples/seeded_recovery_chaos.zig -Odebug -Mqmesh=.zig-cache/sprint-4-stack-dev/tests/composition/../../../../src/root.zig -Odebug --dep qmesh --dep quic -Mqmesh_quic=.zig-cache/sprint-4-stack-dev/tests/composition/../../../../src/quic/root.zig -Odebug --dep qmesh -Mqmesh_messaging=.zig-cache/sprint-4-stack-dev/tests/composition/../../../../src/composition/root.zig -Odebug --dep paseto --dep quic -Mqmsg=.zig-cache/sprint-4-stack-dev/tests/composition/../../../../../qmsg/src/root.zig -fsanitize-c=trap -Odebug --dep boringssl --dep build_options -Mquic=.zig-cache/sprint-4-stack-dev/tests/composition/../../../../../quic-zig/src/root.zig -Odebug -Mpaseto=/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg/paseto-0.4.0-EBI95RcXCADs0jz3tebS1xMaAiT2r3Tpx8HsF5LfpqOS/src/root.zig .zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/57d6c4eb7484bbfb8848978430d90dbd/libssl_shim.a .zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/bc76f8d424d25b2da36cc316298d6f0a/libssl.a .zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/7c8dbe2f4bb3b260537877ee5955d45b/libcrypto.a -fsanitize-c=trap -Odebug -I .zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/99643627a011968f089148bb3544ce0e -I .zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/99643627a011968f089148bb3544ce0e --dep c -Mboringssl=/Users/nullstyle/prj/zig/qmesh-zig/zig-pkg/boringssl-0.6.7-Vv5DN8RMAgDGST3F3NpoMjez8Z_J60megIom9Ru9XqD2/src/root.zig -Mbuild_options=.zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/f3f39a291232957bcf9e6c9c059d3d6d/options.zig -fsanitize-c=trap -Odebug -Mc=.zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/a1738981f177db5129e0b5d7b11cf107/c_imports.zig .zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache/o/7c8dbe2f4bb3b260537877ee5955d45b/libcrypto.a -lc++ -lc --cache-dir .zig-cache/sprint-4-stack-dev/tests/composition/.zig-cache --global-cache-dir .zig-global-cache --build-root .zig-cache/sprint-4-stack-dev/tests/composition --name qmesh-recovery-chaos --zig-lib-dir /Users/nullstyle/.local/share/mise/installs/zig/0.17.0/lib/ --listen=-
+
+Build Summary: 8/11 steps succeeded (1 failed)
+run-chaos transitive failure
++- run exe qmesh-recovery-chaos transitive failure
+   +- compile exe qmesh-recovery-chaos debug native 1 errors
+      +- WriteFile cached
+      +- compile lib ssl_shim debug native success 610ms MaxRSS:112M
+      +- WriteFile cached
+      +- compile lib ssl debug native success 2s MaxRSS:169M
+      |  +- WriteFile success
+      |  +- compile lib crypto debug native success 13s MaxRSS:288M
+      |  +- compile lib crypto debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options success
+      +- translate-c success 315ms MaxRSS:48M
+

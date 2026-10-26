@@ -1,0 +1,38 @@
+{
+  "recorded_utc": "2026-10-26T21:15:46.112436+00:00",
+  "scope": "Final bounded read-only source-review addendum; no qmsg/qmesh edits or new runtime execution by this reviewer",
+  "prior_review": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/peer-review-qmsg.json",
+  "prior_review_sha256": "7197e697af810cbc30716dc5b01990ed7a7875c39a353a2a0618d5e05ef40639",
+  "reviewed_source_files": {
+    "examples/public_fault_workload.zig": "8dfc51fa6c85c4a6f157ac663cdede34a3e20f315f46b03575859e1c69cd40a6",
+    "examples/quic_public_faults.zig": "ab988b05932d97059727e174b9d25e116c4e90fb6ddfaa7ea76655f11f816301",
+    "examples/public_fault_workload_test.zig": "81145a268c3966d2fd068d27164b47ddb4a780d18586edb75a4255c492e40e7d"
+  },
+  "actionable_blockers": [],
+  "resolved_caveats": [
+    {
+      "area": "wrong-role negative-control strength",
+      "evidence": "examples/public_fault_workload.zig:412-450",
+      "finding": "A valid extra Req using the same TLS setup must become ready on both client and server while two original clients remain live. Server-initiated cleanup then drains both ends and requires exactly two observed live sessions before the wrong-role dial. The negative resets its server-session observation and cannot silently borrow the positive result. This is a matched admission/TLS control and adds no application request, preserving15accepted/terminal."
+    },
+    {
+      "area": "remote loss",
+      "evidence": "examples/public_fault_workload.zig:461-473",
+      "finding": "Only the server closes. Public client pumping observes peer_closed and session disappearance while a healthy peer succeeds; the request has a5s deadline and the overall owner loop stays bounded."
+    },
+    {
+      "area": "unexpected owned completion cleanup",
+      "evidence": "examples/public_fault_workload.zig:512-518",
+      "finding": "Unexpected final takeOutcome events are deinitialized before the fixture returns an error."
+    },
+    {
+      "area": "session-count interpretation",
+      "evidence": "examples/public_fault_workload.zig:38-39",
+      "finding": "The report now explicitly documents that peak_server_sessions counts observed public connected-session IDs, excluding transport half-open states."
+    }
+  ],
+  "remaining_scope_limits": [
+    "Late retained-handle reply attempts may be refused locally or suppressed by the client; no deterministic delayed-packet replay claim follows.",
+    "This addendum reviews the listed source hashes; owner mode results and the final frozen composition matrix provide runtime acceptance evidence."
+  ]
+}

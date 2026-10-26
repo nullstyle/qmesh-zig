@@ -189,6 +189,31 @@ pub fn build(b: *std.Build) !void {
     recovery_step.dependOn(&b.addRunArtifact(snapshot_state_tests).step);
     test_step.dependOn(&recovery_run.step);
 
+    const chaos_plan_mod = b.createModule(.{
+        .root_source_file = b.path("examples/chaos_plan.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    const chaos_plan_tests = b.addTest(.{ .root_module = chaos_plan_mod });
+    const chaos_plan_run = b.addRunArtifact(chaos_plan_tests);
+    const chaos_mod = b.createModule(.{
+        .root_source_file = b.path("tests/seeded_chaos_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    chaos_mod.addImport("qmesh", qmesh_mod);
+    chaos_mod.addImport("qmesh_sim", qmesh_sim_mod);
+    chaos_mod.addImport("qmesh_messaging", messaging_mod);
+    chaos_mod.addImport("chaos_plan", chaos_plan_mod);
+    chaos_mod.addImport("snapshot_state", snapshot_state_mod);
+    const chaos_tests = b.addTest(.{ .root_module = chaos_mod });
+    const chaos_run = b.addRunArtifact(chaos_tests);
+    const chaos_step = b.step("chaos-test", "Replay seeded twelve-node chaos and membership/route policy");
+    chaos_step.dependOn(&chaos_plan_run.step);
+    chaos_step.dependOn(&chaos_run.step);
+    test_step.dependOn(&chaos_plan_run.step);
+    test_step.dependOn(&chaos_run.step);
+
     const messaging_tests = b.addTest(.{ .root_module = messaging_mod });
     test_step.dependOn(&b.addRunArtifact(messaging_tests).step);
 

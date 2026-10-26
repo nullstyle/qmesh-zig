@@ -1,0 +1,5 @@
+{
+  "scope": "preparation-only; no baseline workload executed",
+  "error": "System python3 tarfile.extractall did not accept filter=data; the subsequent runner failed before start because this manifest was absent",
+  "correction": "Re-extracted the preserved Git archive under mise Python3.12.13 and reran the baseline gate"
+}

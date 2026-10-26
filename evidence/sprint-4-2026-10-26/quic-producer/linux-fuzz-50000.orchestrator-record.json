@@ -1,0 +1,42 @@
+{
+  "name": "linux-fuzz-50000",
+  "started_utc": "2026-10-26T20:47:09.300698+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--entrypoint",
+    "sh",
+    "-v",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-fuzz-source:/workspace",
+    "-v",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26:/evidence",
+    "-w",
+    "/workspace",
+    "-e",
+    "ZIG_LOCAL_PKG_DIR=/src/quic-zig/zig-pkg",
+    "-e",
+    "COPYFILE_DISABLE=1",
+    "quic-zig-sprint1-builder:local",
+    "-c",
+    "set -eu; uname -srm; /opt/zig/zig version; sha256sum /opt/zig/zig; PATH=/evidence/tools-bin-linux:$PATH tools/fuzz-gate.sh 50000 /evidence/linux-fuzz-runtime.log"
+  ],
+  "timeout_seconds": 3600,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "linux-fuzz-50000.log",
+  "passed": true,
+  "finished_utc": "2026-10-26T20:51:58.813434+00:00",
+  "elapsed_seconds": 289.49379062489606,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "3ab179379b2f835d937c7bf504e38225099fb7ff319a937b2911cfe0310604ce",
+  "build_summaries": []
+}

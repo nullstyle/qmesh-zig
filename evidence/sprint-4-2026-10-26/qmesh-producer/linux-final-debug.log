@@ -1,0 +1,103 @@
+test
++- run test w
+sim fly-profile anatomy: probes=118 suspects=0 acks_tx=118 acks_rx=118
+ta A/B: with=20/20 (accel=10) without=0/20
+flaky: node3 alive peers=7/7 lh=2
+fly-cadence delivery: 1584/1584 worst-node 100%
+event ring: 7 witnesses hold session+suspect+confirm in causal order; repairs recorded
+failed command: /evidence/linux-final-debug-cache/o/93544bb0f952da7a5bfe1a433c6ca8dd/test --cache-dir=/evidence/linux-final-debug-cache --seed=0xbf1b3f66 --listen=-
+
+test
++- run test w
+CHAOS_VIRTUAL_REPLAY {"seed":89392317417476,"paired_equal":true,"result":{"plan_fingerprint":5798157002642304137,"virtual_fingerprint":13710557882615482210,"delivery_fingerprint":14310816108796414171,"final_state_hash":2536831994452932632,"final_revision":48,"payloads_evicted":45,"endpoint_changes":1,"route_closes":3}}
+CHAOS_VIRTUAL_REPLAY {"seed":1906180131,"paired_equal":true,"result":{"plan_fingerprint":11369284295203479160,"virtual_fingerprint":9256635314749955518,"delivery_fingerprint":9636796480522733161,"final_state_hash":7760908212968884946,"final_revision":50,"payloads_evicted":47,"endpoint_changes":1,"route_closes":3}}
+CHAOS_VIRTUAL_REPLAY {"seed":18364758544493064720,"paired_equal":true,"result":{"plan_fingerprint":9970682682725517323,"virtual_fingerprint":16431195423913102937,"delivery_fingerprint":2782965942345948217,"final_state_hash":17013979639743574244,"final_revision":44,"payloads_evicted":41,"endpoint_changes":1,"route_closes":3}}
+failed command: /evidence/linux-final-debug-cache/o/ab7928812ac5e885d2bcd8688c129d0b/test --cache-dir=/evidence/linux-final-debug-cache --seed=0xbf1b3f66 --listen=-
+
+Build Summary: 35/35 steps succeeded; 146/146 tests passed
+test success
++- run test 3 pass (3 total) 1ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:357M
++- run test 1 pass (1 total) 66ms MaxRSS:6M
+|  +- compile test debug native success 1s MaxRSS:409M
++- run test 2 pass (2 total) 1ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:361M
++- run test 2 pass (2 total) 2s MaxRSS:11M
+|  +- compile test debug native success 1s MaxRSS:415M
++- run test 13 pass (13 total) 2ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:360M
++- run test 1 pass (1 total) 1ms MaxRSS:3M
+|  +- compile test debug native success 1s MaxRSS:355M
++- run test 67 pass (67 total) 62ms MaxRSS:5M
+|  +- compile test debug native success 2s MaxRSS:418M
++- run test 19 pass (19 total) 5s MaxRSS:15M
+|  +- compile test debug native success 1s MaxRSS:411M
++- run test 10 pass (10 total) 3ms MaxRSS:5M
+|  +- compile test debug native success 1s MaxRSS:369M
+|     +- WriteFile cached
+|     +- compile lib ssl_shim debug native success 343ms MaxRSS:137M
+|     +- WriteFile cached
+|     +- compile lib ssl debug native success 1s MaxRSS:209M
+|     |  +- WriteFile success
+|     |  +- compile lib crypto debug native success 7s MaxRSS:357M
+|     |  +- compile lib crypto debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options success
+|     +- translate-c success 112ms MaxRSS:74M
++- run test 2 pass (2 total) 3s MaxRSS:38M
+|  +- compile test debug native success 2s MaxRSS:593M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 10 pass (10 total) 1s MaxRSS:16M
+|  +- compile test debug native success 2s MaxRSS:585M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 11 pass (11 total) 74ms MaxRSS:16M
+|  +- compile test debug native success 2s MaxRSS:592M
+|     +- WriteFile (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- WriteFile (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- WriteFile (reused)
+|     +- compile lib crypto debug native (reused)
+|     +- compile lib ssl_shim debug native (reused)
+|     +- compile lib ssl debug native (+3 more reused dependencies)
+|     +- compile lib crypto debug native (reused)
+|     +- options (reused)
+|     +- translate-c (reused)
++- run test 5 pass (5 total) 7s MaxRSS:27M
+   +- compile test debug native success 2s MaxRSS:642M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto debug native (reused)
+      +- compile lib ssl_shim debug native (reused)
+      +- compile lib ssl debug native (+3 more reused dependencies)
+      +- compile lib crypto debug native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

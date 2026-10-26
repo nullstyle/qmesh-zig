@@ -1,0 +1,103 @@
+2026/10/26 20:51:23 Increased receive buffer size to 14336 kiB
+2026/10/26 20:51:23 Increased send buffer size to 14336 kiB
+2026/10/26 20:51:23 Setting DF for IPv4 and IPv6.
+2026/10/26 20:51:23 Activating reading of ECN bits for IPv4 and IPv6.
+2026/10/26 20:51:23 Activating reading of packet info for IPv4 and IPv6.
+2026/10/26 20:51:23 server Listening for udp connections on [::]:443
+2026/10/26 20:51:23 server Client offered version 0x57414954, sending Version Negotiation
+2026/10/26 20:51:24 server <- Received Initial packet.
+2026/10/26 20:51:24 Created qlog file: /logs/qlog/dc61622f2eed454a.sqlog
+2026/10/26 20:51:24 server Changing connection ID to f64a328a.
+2026/10/26 20:51:24 Adding connection IDs dc61622f2eed454a and f64a328a for a new connection.
+2026/10/26 20:51:24 server <- Received Initial packet.
+2026/10/26 20:51:24 server <- Reading packet 1 (1200 bytes) for connection dc61622f2eed454a, Initial
+2026/10/26 20:51:24 server 	Long Header{Type: Initial, DestConnectionID: dc61622f2eed454a, SrcConnectionID: e06ce7b53f85efd7, Token: (empty), PacketNumber: 1, PacketNumberLen: 4, Length: 1174, Version: v1}
+2026/10/26 20:51:24 server 	<- &wire.CryptoFrame{Offset: 0, Data length: 245, Offset + Data length: 245}
+2026/10/26 20:51:24 server Installed Handshake Write keys (using TLS_AES_128_GCM_SHA256)
+2026/10/26 20:51:24 server Installed Handshake Read keys (using TLS_AES_128_GCM_SHA256)
+2026/10/26 20:51:24 server Installed 1-RTT Write keys (using TLS_AES_128_GCM_SHA256)
+2026/10/26 20:51:24 server Processed Transport Parameters: &wire.TransportParameters{OriginalDestinationConnectionID: (empty), InitialSourceConnectionID: e06ce7b53f85efd7, InitialMaxStreamDataBidiLocal: 16777216, InitialMaxStreamDataBidiRemote: 1048576, InitialMaxStreamDataUni: 1048576, InitialMaxData: 16777216, MaxBidiStreamNum: 100, MaxUniStreamNum: 64, MaxIdleTimeout: 30s, AckDelayExponent: 3, MaxAckDelay: 25ms, ActiveConnectionIDLimit: 8, EnableResetStreamAt: false, MinAckDelay: 1ms}
+2026/10/26 20:51:24 Adding connection ID 267f4159.
+2026/10/26 20:51:24 Adding connection ID 2884ebed.
+2026/10/26 20:51:24 Adding connection ID dbbfb2f8.
+2026/10/26 20:51:24 Adding connection ID da651709.
+2026/10/26 20:51:24 Adding connection ID 5a451677.
+2026/10/26 20:51:24 server -> Sending coalesced packet (2 parts, 1280 bytes) for connection dc61622f2eed454a
+2026/10/26 20:51:24 server 	Long Header{Type: Initial, DestConnectionID: e06ce7b53f85efd7, SrcConnectionID: f64a328a, Token: (empty), PacketNumber: 0, PacketNumberLen: 2, Length: 423, Version: v1}
+2026/10/26 20:51:24 server 	-> &wire.AckFrame{LargestAcked: 1, LowestAcked: 1, DelayTime: 0s, ECT0: 1, ECT1: 0, CE: 0}
+2026/10/26 20:51:24 server 	-> &wire.CryptoFrame{Offset: 0, Data length: 90, Offset + Data length: 90}
+2026/10/26 20:51:24 server 	Long Header{Type: Handshake, DestConnectionID: e06ce7b53f85efd7, SrcConnectionID: f64a328a, PacketNumber: 0, PacketNumberLen: 2, Length: 667, Version: v1}
+2026/10/26 20:51:24 server 	-> &wire.CryptoFrame{Offset: 0, Data length: 645, Offset + Data length: 645}
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: e06ce7b53f85efd7, PacketNumber: 0, PacketNumberLen: 2, KeyPhase: 0}
+2026/10/26 20:51:24 server 	-> &wire.NewConnectionIDFrame{SequenceNumber: 1, RetirePriorTo: 0, ConnectionID: 267f4159, StatelessResetToken: 0xe559c58277e82daad8a180cd7255ba26}
+2026/10/26 20:51:24 server 	-> &wire.NewConnectionIDFrame{SequenceNumber: 3, RetirePriorTo: 0, ConnectionID: dbbfb2f8, StatelessResetToken: 0x4de9c9525ed7345492c52ca1ff342161}
+2026/10/26 20:51:24 server 	-> &wire.NewConnectionIDFrame{SequenceNumber: 2, RetirePriorTo: 0, ConnectionID: 2884ebed, StatelessResetToken: 0xb246cbd5b6c30644913f3b5e58125505}
+2026/10/26 20:51:24 server 	-> &wire.NewConnectionIDFrame{SequenceNumber: 4, RetirePriorTo: 0, ConnectionID: da651709, StatelessResetToken: 0xb2f24692063bb0ee5140f2dc99b0c771}
+2026/10/26 20:51:24 server 	-> &wire.NewConnectionIDFrame{SequenceNumber: 5, RetirePriorTo: 0, ConnectionID: 5a451677, StatelessResetToken: 0x98b6e672a485ee5da0d373b78d5f5d00}
+2026/10/26 20:51:24 server <- Reading packet 2 (1200 bytes) for connection dc61622f2eed454a, Initial
+2026/10/26 20:51:24 server 	Long Header{Type: Initial, DestConnectionID: dc61622f2eed454a, SrcConnectionID: e06ce7b53f85efd7, Token: (empty), PacketNumber: 2, PacketNumberLen: 4, Length: 1174, Version: v1}
+2026/10/26 20:51:24 server 	<- &wire.CryptoFrame{Offset: 0, Data length: 245, Offset + Data length: 245}
+2026/10/26 20:51:24 server -> Sending packet 1 (48 bytes) for connection dc61622f2eed454a, Initial
+2026/10/26 20:51:24 server 	Long Header{Type: Initial, DestConnectionID: e06ce7b53f85efd7, SrcConnectionID: f64a328a, Token: (empty), PacketNumber: 1, PacketNumberLen: 2, Length: 26, Version: v1}
+2026/10/26 20:51:24 server 	-> &wire.AckFrame{LargestAcked: 2, LowestAcked: 1, DelayTime: 0s, ECT0: 2, ECT1: 0, CE: 0}
+2026/10/26 20:51:24 server Parsed a coalesced packet. Part 1: 85 bytes. Remaining: 91 bytes.
+2026/10/26 20:51:24 server <- Reading packet 0 (85 bytes) for connection f64a328a, Handshake
+2026/10/26 20:51:24 server 	Long Header{Type: Handshake, DestConnectionID: f64a328a, SrcConnectionID: e06ce7b53f85efd7, PacketNumber: 0, PacketNumberLen: 4, Length: 64, Version: v1}
+2026/10/26 20:51:24 server Dropping Initial keys.
+2026/10/26 20:51:24 server 	<- &wire.AckFrame{LargestAcked: 0, LowestAcked: 0, DelayTime: 0s}
+2026/10/26 20:51:24 server 	newly acked packets (1): [0]
+2026/10/26 20:51:24 server 	updated RTT: 53.299608ms (σ: 26.649804ms)
+2026/10/26 20:51:24 server Canceling loss detection timer.
+2026/10/26 20:51:24 server 	<- &wire.CryptoFrame{Offset: 0, Data length: 36, Offset + Data length: 36}
+2026/10/26 20:51:24 server Installed 1-RTT Read keys (using TLS_AES_128_GCM_SHA256)
+2026/10/26 20:51:24 server Dropping Handshake keys.
+2026/10/26 20:51:24 server <- Reading packet 0 (91 bytes) for connection f64a328a, 1-RTT
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: f64a328a, PacketNumber: 0, PacketNumberLen: 4, KeyPhase: 0}
+2026/10/26 20:51:24 server 	<- &wire.AckFrame{LargestAcked: 0, LowestAcked: 0, DelayTime: 0s}
+2026/10/26 20:51:24 server 	newly acked packets (1): [0]
+2026/10/26 20:51:24 server 	updated RTT: 53.299ms (σ: 19.986ms)
+2026/10/26 20:51:24 server Canceling loss detection timer.
+2026/10/26 20:51:24 server 	<- &wire.NewConnectionIDFrame{SequenceNumber: 1, RetirePriorTo: 0, ConnectionID: e06ce7b53f85efd8, StatelessResetToken: 0x3e6ffbdb9b550240994a4e9b3b10ddda}
+2026/10/26 20:51:24 server 	<- &wire.StreamFrame{StreamID: 0, Fin: true, Offset: 0, Data length: 30, Offset + Data length: 30}
+2026/10/26 20:51:24 server 	Setting ACK timer to max ack delay: 25ms
+2026/10/26 20:51:24 server <- Reading packet 1 (53 bytes) for connection f64a328a, 1-RTT
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: f64a328a, PacketNumber: 1, PacketNumberLen: 4, KeyPhase: 0}
+2026/10/26 20:51:24 server 	<- &wire.NewConnectionIDFrame{SequenceNumber: 2, RetirePriorTo: 0, ConnectionID: e06ce7b53f85efd9, StatelessResetToken: 0x21a077c06bb11450047f050eddddc29d}
+2026/10/26 20:51:24 server 	Queueing ACK because packet 2 packets were received after the last ACK (using initial threshold: 2).
+2026/10/26 20:51:24 server <- Reading packet 2 (53 bytes) for connection f64a328a, 1-RTT
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: f64a328a, PacketNumber: 2, PacketNumberLen: 4, KeyPhase: 0}
+2026/10/26 20:51:24 server 	<- &wire.NewConnectionIDFrame{SequenceNumber: 3, RetirePriorTo: 0, ConnectionID: e06ce7b53f85efda, StatelessResetToken: 0x8dd4f7a31228d77a9f5118a1390a5170}
+2026/10/26 20:51:24 server -> Sending packet 1 (319 bytes) for connection dc61622f2eed454a, 1-RTT (ECN: ECT(0))
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: e06ce7b53f85efd8, PacketNumber: 1, PacketNumberLen: 2, KeyPhase: 0}
+2026/10/26 20:51:24 server 	-> &wire.AckFrame{LargestAcked: 2, LowestAcked: 0, DelayTime: 5.584639ms, ECT0: 3, ECT1: 0, CE: 0}
+2026/10/26 20:51:24 server 	-> &wire.NewTokenFrame{Token: 0xeab2446d4c3f691d1f3e4a47e9528d41614cd78b187f47bb3c891883d9444ea733abf5f133bb6e380b3db55bac934d7b2524de8a4ab3ca10570ccd8c2d2fb09b1d3aa916dc94a04ea6020d80a398f8844525cfa746f6a51d2ecfa0af868324f87dbdb2485519ee}
+2026/10/26 20:51:24 server 	-> &wire.CryptoFrame{Offset: 0, Data length: 170, Offset + Data length: 170}
+2026/10/26 20:51:24 server 	-> &wire.HandshakeDoneFrame{}
+2026/10/26 20:51:24 server 	-> &wire.RetireConnectionIDFrame{SequenceNumber: 0}
+2026/10/26 20:51:24 Received request: GET /violet-excessive-subway
+2026/10/26 20:51:24 server -> Sending packet 2 (1053 bytes) for connection dc61622f2eed454a, 1-RTT (ECN: ECT(0))
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: e06ce7b53f85efd8, PacketNumber: 2, PacketNumberLen: 2, KeyPhase: 0}
+2026/10/26 20:51:24 server 	-> &wire.StreamFrame{StreamID: 0, Fin: true, Offset: 0, Data length: 1024, Offset + Data length: 1024}
+2026/10/26 20:51:24 server <- Reading packet 3 (59 bytes) for connection f64a328a, 1-RTT
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: f64a328a, PacketNumber: 3, PacketNumberLen: 2, KeyPhase: 0}
+2026/10/26 20:51:24 server 	<- &wire.AckFrame{LargestAcked: 1, LowestAcked: 0, DelayTime: 0s, ECT0: 1, ECT1: 0, CE: 0}
+2026/10/26 20:51:24 server 	newly acked packets (1): [1]
+2026/10/26 20:51:24 server 	Ignoring all packets below 3.
+2026/10/26 20:51:24 server 	updated RTT: 50.918ms (σ: 19.75ms)
+2026/10/26 20:51:24 server ECN capability confirmed.
+2026/10/26 20:51:24 server 	<- &wire.NewConnectionIDFrame{SequenceNumber: 4, RetirePriorTo: 0, ConnectionID: e06ce7b53f85efdb, StatelessResetToken: 0xc791e175b6f5b4db196d9aba44b0205d}
+2026/10/26 20:51:24 server 	Setting ACK timer to max ack delay: 25ms
+2026/10/26 20:51:24 server <- Reading packet 4 (31 bytes) for connection f64a328a, 1-RTT
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: f64a328a, PacketNumber: 4, PacketNumberLen: 2, KeyPhase: 0}
+2026/10/26 20:51:24 server 	<- &wire.AckFrame{LargestAcked: 2, LowestAcked: 0, DelayTime: 0s, ECT0: 2, ECT1: 0, CE: 0}
+2026/10/26 20:51:24 server 	newly acked packets (1): [2]
+2026/10/26 20:51:24 server 	updated RTT: 49.093ms (σ: 18.46ms)
+2026/10/26 20:51:24 server Canceling loss detection timer.
+2026/10/26 20:51:24 server <- Reading packet 5 (26 bytes) for connection f64a328a, 1-RTT
+2026/10/26 20:51:24 server 	Short Header{DestConnectionID: f64a328a, PacketNumber: 5, PacketNumberLen: 2, KeyPhase: 0}
+2026/10/26 20:51:24 server 	<- &wire.ConnectionCloseFrame{IsApplicationError:true, ErrorCode:0x0, FrameType:0x0, ReasonPhrase:""}
+2026/10/26 20:51:24 server Closing connection with error: Application error 0x0 (remote)
+2026/10/26 20:51:24 Replacing connection for connection IDs [2884ebed dbbfb2f8 da651709 5a451677 f64a328a 267f4159 dc61622f2eed454a] with a closed connection.
+2026/10/26 20:51:24 Error accepting stream: Application error 0x0 (remote)
+2026/10/26 20:51:24 server Connection dc61622f2eed454a closed.
+2026/10/26 20:51:24 Removing connection IDs [2884ebed dbbfb2f8 da651709 5a451677 f64a328a 267f4159 dc61622f2eed454a] for a closed connection after it has been retired.

@@ -1,0 +1,27 @@
+{
+  "started_utc": "2026-10-26T21:21:13.437373+00:00",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "quic-s4-checkpoint-33470f5db09c",
+    "--entrypoint",
+    "/bin/bash",
+    "-e",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "-e",
+    "GIT_OPTIONAL_LOCKS=0",
+    "-e",
+    "COPYFILE_DISABLE=1",
+    "-v",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-checkpoint-final:/evidence:rw",
+    "sha256:97711185ccd951b04ca293caa83c7b88832ef61c0422439ae82903b7a1f6f969",
+    "-lc",
+    "export PYTHONDONTWRITEBYTECODE=1; exec python3 /evidence/container-checkpoint.py"
+  ],
+  "image": {
+    "id": "sha256:97711185ccd951b04ca293caa83c7b88832ef61c0422439ae82903b7a1f6f969",
+    "platform": "linux/arm64"
+  }
+}

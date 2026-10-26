@@ -1,0 +1,50 @@
+test-sprint4
++- run test w
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=bootstrap
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=partition
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=expire_hints
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=suspect_gate
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=dead_gate
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=restart_application
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=heal
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=snapshot_repair
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=stale_endpoint
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=wrong_identity
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=moved_endpoint_repair
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=fresh_mesh_owner
+CHAOS_PHASE seed=89392317417476 plan=50773112ee702c89 action=final_repair
+failed command: ./.zig-cache/o/2021bd053ce5ab4bbb98e2398157f72d/test --cache-dir=./.zig-cache --seed=0xd02b13cb --listen=-
+
+Build Summary: 14/14 steps succeeded; 2/2 tests passed
+install-public-faults success
++- install qmsg-public-faults success
+   +- compile exe qmsg-public-faults safe native success 18s MaxRSS:746M
+      +- WriteFile cached
+      +- compile lib ssl_shim safe native cached 51ms MaxRSS:31M
+      +- WriteFile cached
+      +- compile lib ssl safe native cached 44ms MaxRSS:31M
+      |  +- WriteFile cached
+      |  +- compile lib crypto safe native cached 59ms MaxRSS:32M
+      |  +- compile lib crypto safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options cached
+      +- translate-c cached 36ms MaxRSS:30M
+test-sprint4 success
++- run test 2 pass (2 total) 6s MaxRSS:12M
+   +- compile test safe native success 20s MaxRSS:831M
+      +- WriteFile (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- WriteFile (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- WriteFile (reused)
+      +- compile lib crypto safe native (reused)
+      +- compile lib ssl_shim safe native (reused)
+      +- compile lib ssl safe native (+3 more reused dependencies)
+      +- compile lib crypto safe native (reused)
+      +- options (reused)
+      +- translate-c (reused)
+

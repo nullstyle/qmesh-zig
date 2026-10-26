@@ -1,0 +1,49 @@
+{
+  "name": "linux-release-safe",
+  "started_utc": "2026-10-26T20:50:18.232988+00:00",
+  "cwd": "/Users/nullstyle/prj/zig/quic-zig",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--entrypoint",
+    "sh",
+    "-v",
+    "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source:/workspace",
+    "-w",
+    "/workspace",
+    "-e",
+    "ZIG_LOCAL_PKG_DIR=/src/quic-zig/zig-pkg",
+    "-e",
+    "COPYFILE_DISABLE=1",
+    "quic-zig-sprint1-builder:local",
+    "-c",
+    "set -eu; uname -srm; zig version; sha256sum /opt/zig/zig; zig build test -Drelease -j2 --summary all"
+  ],
+  "timeout_seconds": 2700,
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "compiler": {
+    "path": "/opt/zig/zig",
+    "version": "0.17.0",
+    "sha256": "5165c9a2d17938a8173839b3adf81d025b558d38d9e9711237a6fa5b8d8bb3f7"
+  },
+  "source_commit": "43c2390557c47f48e6c28e07a31efdb2b6723478",
+  "runtime_build_tree_sha256": "6fad282fb75f66f935381dfe84e4e5fcc6f66167cee6165ca978c81db984d5e5",
+  "log": "linux-release-safe.log",
+  "passed": true,
+  "candidate_input_directory": "/Users/nullstyle/prj/zig/quic-zig/benchmark-reports/sprint-4-2026-10-26/linux-source",
+  "orchestrator_compiler": {
+    "path": "/Users/nullstyle/.local/share/mise/installs/zig/0.17.0/bin/zig",
+    "sha256": "1c5f706db0ed6d55451940f31dc05a6177d05696bc1fa5d853696d04c718b523",
+    "version": "0.17.0"
+  },
+  "execution_platform": "Linux arm64 container on OrbStack",
+  "finished_utc": "2026-10-26T20:52:22.353804+00:00",
+  "elapsed_seconds": 124.09739758400247,
+  "exit_code": 0,
+  "runtime_unchanged": true,
+  "log_sha256": "4fe503f89241e02b15e0a5f741639d90accd31741e1363aff2171eb00d7ef4c1",
+  "build_summaries": [
+    "Build Summary: 30/30 steps succeeded; 2047/2063 tests passed (16 skipped)"
+  ]
+}

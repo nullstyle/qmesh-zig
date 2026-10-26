@@ -1,0 +1,82 @@
+2026-10-26 12:53:20,277 Generated random file: salty-ample-skateboard of size: 2097152
+2026-10-26 12:53:20,292 Generated random file: tremendous-wet-walrus of size: 3145728
+2026-10-26 12:53:20,313 Generated random file: tan-surprised-anteater of size: 5242880
+2026-10-26 12:53:20,313 Requests: ['https://server4:443/salty-ample-skateboard', 'https://server4:443/tremendous-wet-walrus', 'https://server4:443/tan-surprised-anteater']
+2026-10-26 12:53:20,523 
+2026-10-26 12:53:20,523 Command: WAITFORSERVER=server:443 CERTS=/tmp/certs_5bq2djf9/ TESTCASE_SERVER=transfer TESTCASE_CLIENT=transfer CLIENT_WWW=/tmp/client_www_7enyowub/ CLIENT_DOWNLOADS=/tmp/client_download_pktcx5q8/ SERVER_WWW=/tmp/server_www_jpjjkvft/ SERVER_DOWNLOADS=/tmp/server_download_o7rpzu7d/ SERVER_LOGS=/tmp/logs_server_8s1ka81x CLIENT_LOGS=/tmp/logs_client_21cl32fs SCENARIO="simple-p2p --delay=15ms --bandwidth=10Mbps --queue=25" CLIENT=martenseemann/quic-go-interop@sha256:37db4402341f81981ffba01a6fa532d378f165a6fa8dd2b902f33549383d0077 SERVER=quic-zig-qns:sprint4-43c2390 REQUESTS_CLIENT="https://server4:443/salty-ample-skateboard https://server4:443/tremendous-wet-walrus https://server4:443/tan-surprised-anteater" REQUESTS_SERVER=""  docker compose --env-file empty.env up --abort-on-container-exit --timeout 10 sim client server 
+2026-10-26 12:53:42,151  Container client Recreate 
+ Container server Recreate 
+ client The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested 
+ Container client Recreated 
+ Container server Recreated 
+Attaching to client, server, sim
+ Container sim Starting 
+sim  | waiting 10s for server:443
+ Container sim Started 
+ Container client Starting 
+ Container server Starting 
+server  | Setting up routes...
+server  | Actual changes:
+server  | tx-checksum-ip-generic: off
+server  | tx-tcp-segmentation: off [not requested]
+server  | tx-tcp-ecn-segmentation: off [not requested]
+server  | tx-tcp-mangleid-segmentation: off [not requested]
+server  | tx-tcp6-segmentation: off [not requested]
+server  | tx-udp-segmentation: off [not requested]
+server  | tx-checksum-sctp: off
+server  | Endpoint's IPv4 address is 193.167.100.100
+server  | Endpoint's IPv6 address is fd00:cafe:cafe:100::100
+server  | tuned QNS UDP socket: SO_RCVBUF=8388608 bytes, SO_SNDBUF=8388608 bytes
+server  | quic qns endpoint listening on [::]:443 www=/www retry=false
+ Container server Started 
+ Container client Started 
+client  | Setting up routes...
+client  | Actual changes:
+client  | tx-checksum-ip-generic: off
+client  | tx-tcp-segmentation: off [not requested]
+client  | tx-tcp-ecn-segmentation: off [not requested]
+client  | tx-tcp-mangleid-segmentation: off [not requested]
+client  | tx-tcp6-segmentation: off [not requested]
+client  | tx-udp-segmentation: off [not requested]
+client  | tx-checksum-sctp: off
+client  | Endpoint's IPv4 address is 193.167.0.100
+client  | Endpoint's IPv6 address is fd00:cafe:cafe::100
+client  | Using commit: 146f1be9ddb84078bfbf7aa582d5a05caa6cc941
+client  | wait-for-it.sh: waiting 10 seconds for sim:57832
+sim     | server:443 is available after 504.234843ms
+sim     | Using scenario: simple-p2p --delay=15ms --bandwidth=10Mbps --queue=25
+sim     | Capturing on 'eth1'
+sim     | Capturing on 'eth0'
+sim     | File: /logs/trace_node_right.pcap
+sim     | File: /logs/trace_node_left.pcap
+client  | wait-for-it.sh: sim:57832 is available after 1 seconds
+client  | Starting QUIC client...
+client  | Client params: 
+client  | Test case: transfer
+client exited with code 0
+ Compose Stopping Aborting on container exit...
+ Container client Stopping 
+ Container server Stopping 
+ Container client Stopped 
+ Container server Stopped 
+ Container sim Stopping 
+server exited with code 137
+sim     | Packets: 1 Packets: 11 Packets: 9 Packets: 19 Packets: 20 Packets: 22 Packets: 24 Packets: 25 Packets: 26 Packets: 100 Packets: 94 Packets: 334 Packets: 522 Packets: 451 Packets: 812 Packets: 895 Packets: 1239 Packets: 1156 Packets: 1579 Packets: 1505 Packets: 1837 Packets: 1933 Packets: 2186 Packets: 2265 Packets: 2618 Packets: 2542 Packets: 2892 Packets: 2979 Packets: 3302 Packets: 3235 Packets: 3648 Packets: 3585 Packets: 3918 Packets: 4001 Packets: 4275 Packets: 4352 Packets: 4696 Packets: 4621 Packets: 5069 Packets: 4971 Packets: 5314 Packets: 5416 Packets: 5649 Packets: 5742 Packets: 6092 Packets: 6010 Packets: 6342 Packets: 6436 Packets: 6691 Packets: 6776 Packets: 7140 Packets: 7041 Packets: 7390 Packets: 7498 Packets: 7736 Packets: 7834 Packets: 8186 Packets: 8087 Packets: 8431 Packets: 8543 Packets: 8882 Packets: 8782 Packets: 9132 Packets: 9246 Packets: 9592 Packets: 9480 Packets: 9826 Packets: 9941 Packets: 10172 Packets: 10283 Packets: 10519 Packets: 10634 Packets: 10982 Packets: 10877 Packets: 11212 Packets: 11333 Packets: 11627 Packets: 11542 Packets: 11851 Packets: 11748 Packets: 12084 Packets: 12201 Packets: 12405 Packets: 12320 Packets: 12406 Received signal: 15
+sim     | msg="15", +11.919971251s 1 file=/ns3/scratch/helper/quic-network-simulator-helper.cc, line=24
+sim     | NS_FATAL, terminating
+sim     | Packets captured: 12406
+sim     | Packets captured: 12320
+sim     | Packets received/dropped on interface 'eth1': 12406/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
+sim     | Packets received/dropped on interface 'eth0': 12320/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
+sim     |    0# 
+ Container sim Stopped 
+sim exited with code 143
+
+2026-10-26 12:53:42,527 Container exits: b'\x1b[Kclient exited with code 0' | b'\x1b[Kserver exited with code 137' | b'\x1b[Ksim exited with code 143'
+2026-10-26 12:53:42,528 Using combined client/server key log file.
+2026-10-26 12:53:42,591 
+2026-10-26 12:53:42,596 Using combined client/server key log file.
+2026-10-26 12:53:42,596 Using combined client/server key log file.
+2026-10-26 12:53:42,656 
+2026-10-26 12:53:42,659 Using combined client/server key log file.
+2026-10-26 12:53:43,595 Check of downloaded files succeeded.
